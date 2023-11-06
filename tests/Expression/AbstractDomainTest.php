@@ -6,7 +6,7 @@ namespace Ang3\Component\Odoo\DBAL\Tests\Expression;
 
 use Ang3\Component\Odoo\DBAL\Expression\Domain\Comparison;
 use Ang3\Component\Odoo\DBAL\Expression\Domain\CompositeDomain;
-use Ang3\Component\Odoo\Tests\AbstractTest;
+use Ang3\Component\Odoo\DBAL\Tests\AbstractTest;
 
 abstract class AbstractDomainTest extends AbstractTest
 {

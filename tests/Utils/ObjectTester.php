@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Ang3\Component\Odoo\Tests\Utils;
+namespace Ang3\Component\Odoo\DBAL\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Inflector\Inflector;
+use Symfony\Component\String\Inflector\EnglishInflector;
 
 class ObjectTester extends TestDecorator
 {
@@ -284,7 +284,8 @@ class ObjectTester extends TestDecorator
      */
     public function getSingularNames(string $name, string $prefix = null): array
     {
-        $names = (array) Inflector::singularize($name);
+        $inflector = new EnglishInflector();
+        $names = $inflector->singularize($name);
 
         if ($prefix) {
             foreach ($names as $key => $value) {

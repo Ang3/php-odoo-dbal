@@ -2,12 +2,19 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Query;
 
 use Ang3\Component\Odoo\DBAL\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Expression\Exception\ConversionException;
 use Ang3\Component\Odoo\DBAL\Expression\ExpressionBuilder;
-use Ang3\Component\Odoo\RecordManager;
+use Ang3\Component\Odoo\DBAL\RecordManager;
 
 class QueryBuilder
 {
@@ -36,9 +43,7 @@ class QueryBuilder
     private ?int $maxResults = null;
     private ?int $firstResult = null;
 
-    public function __construct(private readonly RecordManager $recordManager, private string $from)
-    {
-    }
+    public function __construct(private readonly RecordManager $recordManager, private string $from) {}
 
     /**
      * Defines the query of type "SELECT" with selected fields.
@@ -236,7 +241,7 @@ class QueryBuilder
      *
      * @throws QueryException when the type of the query is not "SELECT" not "SEARCH"
      */
-    public function where(?DomainInterface $domain = null): self
+    public function where(DomainInterface $domain = null): self
     {
         $this->assertSupportsWhereClause();
         $this->where = $domain;

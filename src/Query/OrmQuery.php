@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Query;
 
 class OrmQuery extends AbstractQuery implements QueryInterface
@@ -72,7 +79,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      * @throws NoResultException       on no result
      * @throws QueryException          on invalid query method
      */
-    public function getSingleScalarResult(): float|bool|int|string
+    public function getSingleScalarResult(): bool|float|int|string
     {
         $result = $this->getOneOrNullScalarResult();
 
@@ -90,7 +97,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      * @throws NoUniqueResultException on no unique result
      * @throws QueryException          on invalid query method
      */
-    public function getOneOrNullScalarResult(): float|bool|int|string|null
+    public function getOneOrNullScalarResult(): null|bool|float|int|string
     {
         $result = $this->getScalarResult();
 

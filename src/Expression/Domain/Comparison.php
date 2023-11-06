@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Expression\Domain;
 
 /**
@@ -49,9 +56,7 @@ class Comparison implements DomainInterface
         self::NOT_IN,
     ];
 
-    public function __construct(private string $fieldName, private string $operator, private mixed $value)
-    {
-    }
+    public function __construct(private string $fieldName, private string $operator, private mixed $value) {}
 
     public function __clone()
     {

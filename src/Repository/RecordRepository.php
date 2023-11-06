@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Repository;
 
 use Ang3\Component\Odoo\DBAL\Expression\Domain\CompositeDomain;
@@ -59,7 +66,7 @@ class RecordRepository
      * NB: It is not currently possible to perform “computed” updates
      * (where the value being set depends on an existing value of a record).
      */
-    public function update(int|array $ids, array $data = []): void
+    public function update(array|int $ids, array $data = []): void
     {
         if (!$data) {
             return;
@@ -77,7 +84,7 @@ class RecordRepository
     /**
      * Delete record(s).
      */
-    public function delete(int|array $ids): void
+    public function delete(array|int $ids): void
     {
         if (!$ids) {
             return;
@@ -94,7 +101,7 @@ class RecordRepository
     /**
      * Search one ID of record by criteria.
      */
-    public function searchOne(DomainInterface|array|null $criteria): ?int
+    public function searchOne(null|array|DomainInterface $criteria): ?int
     {
         return (int) $this
             ->createQueryBuilder()
@@ -120,7 +127,7 @@ class RecordRepository
      *
      * @return int[]
      */
-    public function search(DomainInterface|array|null $criteria = null, array $orders = [], int $limit = null, int $offset = null): array
+    public function search(array|DomainInterface $criteria = null, array $orders = [], int $limit = null, int $offset = null): array
     {
         return $this
             ->createQueryBuilder()
@@ -161,7 +168,7 @@ class RecordRepository
     /**
      * Find ONE record by criteria.
      */
-    public function findOneBy(DomainInterface|array|null $criteria = null, array $fields = [], array $orders = [], int $offset = null): ?array
+    public function findOneBy(array|DomainInterface $criteria = null, array $fields = [], array $orders = [], int $offset = null): ?array
     {
         $result = $this->findBy($criteria, $fields, $orders, 1, $offset);
 
@@ -183,7 +190,7 @@ class RecordRepository
      *
      * @return array[]
      */
-    public function findBy(DomainInterface|array|null $criteria = null, array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
+    public function findBy(array|DomainInterface $criteria = null, array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
     {
         return $this
             ->createQueryBuilder()
@@ -216,7 +223,7 @@ class RecordRepository
     /**
      * Count number of records for a model and criteria.
      */
-    public function count(DomainInterface|array|null $criteria = null): int
+    public function count(array|DomainInterface $criteria = null): int
     {
         return $this
             ->createQueryBuilder()
@@ -257,7 +264,7 @@ class RecordRepository
         return $this->recordManager->getExpressionBuilder();
     }
 
-    public function normalizeCriteria(DomainInterface|array|null $criteria = null): ?DomainInterface
+    public function normalizeCriteria(array|DomainInterface $criteria = null): ?DomainInterface
     {
         return \is_array($criteria) ? CompositeDomain::criteria($criteria) : $criteria;
     }

@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL;
 
 use Ang3\Component\Odoo\Client;
@@ -26,7 +33,7 @@ class RecordManager
      */
     public function __construct(private readonly Client $client, private array $repositories = [])
     {
-        $this->schema = new Schema($client);
+        $this->schema = new Schema($this);
         $this->expressionBuilder = new ExpressionBuilder();
     }
 
@@ -81,10 +88,10 @@ class RecordManager
         $options = $query->getOptions();
 
         if (!$options) {
-            return $this->client->execute($query->getName(), $query->getMethod(), $query->getParameters());
+            return $this->client->executeKw($query->getName(), $query->getMethod(), $query->getParameters());
         }
 
-        return $this->client->execute($query->getName(), $query->getMethod(), $query->getParameters(), $options);
+        return $this->client->executeKw($query->getName(), $query->getMethod(), $query->getParameters(), $options);
     }
 
     public function getClient(): Client

@@ -2,9 +2,16 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Query;
 
-use Ang3\Component\Odoo\RecordManager;
+use Ang3\Component\Odoo\DBAL\RecordManager;
 
 abstract class AbstractQuery implements QueryInterface
 {
@@ -15,8 +22,7 @@ abstract class AbstractQuery implements QueryInterface
         protected readonly RecordManager $recordManager,
         protected string $name,
         protected string $method
-    ) {
-    }
+    ) {}
 
     public function getName(): string
     {

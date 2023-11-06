@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Ang3\Component\Odoo\Tests\Utils;
+namespace Ang3\Component\Odoo\DBAL\Tests\Utils;
 
 use PHPUnit\Framework\TestCase;
 

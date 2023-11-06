@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Expression\Operation;
 
 /**
@@ -20,9 +27,7 @@ class CollectionOperation implements OperationInterface
     public const CLEAR = 5;
     public const REPLACE = 6;
 
-    public function __construct(private int $type, private int $id = 0, private int|array $data = 0)
-    {
-    }
+    public function __construct(private int $type, private int $id = 0, private array|int $data = 0) {}
 
     /**
      * @throws \InvalidArgumentException when data is empty
@@ -100,12 +105,12 @@ class CollectionOperation implements OperationInterface
         return $this;
     }
 
-    public function getData(): int|array
+    public function getData(): array|int
     {
         return $this->data;
     }
 
-    public function setData(int|array $data): self
+    public function setData(array|int $data): self
     {
         $this->data = $data;
 

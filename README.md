@@ -18,7 +18,7 @@ This library uses the [PHP Odoo API client](https://github.com/Ang3/php-odoo-api
 - Paginator
 
 Installation
-============
+------------
 
 Open a command console, enter your project directory and execute the
 following command to download the latest stable version of the client:
@@ -32,12 +32,12 @@ in the [installation chapter](https://getcomposer.org/doc/00-intro.md)
 of the Composer documentation.
 
 Usage
-=====
+-----
 
 Please read the [documentation](/docs/index.md).
 
 Tests
-=====
+-----
 
 To run tests:
 
@@ -48,6 +48,6 @@ $ vendor/bin/simple-phpunit
 ```
 
 License
-=======
+-------
 
 This software is published under the [MIT License](./LICENCE).

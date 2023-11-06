@@ -2,18 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Ang3\Component\Odoo\Tests;
+namespace Ang3\Component\Odoo\DBAL\Tests;
 
-use Ang3\Component\Odoo\Tests\Utils\ObjectTester;
-use Ang3\Component\Odoo\Tests\Utils\Reflector;
+use Ang3\Component\Odoo\DBAL\Tests\Utils\ObjectTester;
+use Ang3\Component\Odoo\DBAL\Tests\Utils\Reflector;
 use PHPUnit\Framework\TestCase;
 
 abstract class AbstractTest extends TestCase
 {
-    /**
-     * @var Reflector
-     */
-    protected $reflector;
+    protected Reflector $reflector;
 
     protected function setUp(): void
     {

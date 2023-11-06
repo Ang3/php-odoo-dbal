@@ -2,10 +2,17 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Schema;
 
-use Ang3\Component\Odoo\Client;
 use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
+use Ang3\Component\Odoo\DBAL\RecordManager;
 
 class Schema
 {
@@ -23,9 +30,7 @@ class Schema
      */
     private array $loadedModels = [];
 
-    public function __construct(private readonly Client $client)
-    {
-    }
+    public function __construct(private readonly RecordManager $recordManager) {}
 
     /**
      * @throws SchemaException when the model was not found
@@ -37,8 +42,12 @@ class Schema
         }
 
         if (!isset($this->loadedModels[$modelName])) {
-            $expr = $this->client->getExpressionBuilder();
-            $modelData = (array) $this->client->request(self::IR_MODEL, OrmQuery::SEARCH_READ, $expr->normalizeDomains($expr->eq('model', $modelName)));
+            $expr = $this->recordManager->getExpressionBuilder();
+            $modelData = (array) $this->recordManager
+                ->getClient()
+                ->request(self::IR_MODEL, OrmQuery::SEARCH_READ, $expr->normalizeDomains($expr->eq('model', $modelName)))
+            ;
+
             $modelData = $modelData[0] ?? null;
 
             if (!\is_array($modelData)) {
@@ -64,9 +73,11 @@ class Schema
     public function getModelNames(): array
     {
         if (!$this->modelNames) {
-            $this->modelNames = array_column((array) $this->client->request(self::IR_MODEL, OrmQuery::SEARCH_READ, [[]], [
-                'fields' => ['model'],
-            ]), 'model');
+            $this->modelNames = array_column((array) $this->recordManager
+                ->getClient()
+                ->request(self::IR_MODEL, OrmQuery::SEARCH_READ, [[]], [
+                    'fields' => ['model'],
+                ]), 'model');
         }
 
         return $this->modelNames;
@@ -77,23 +88,31 @@ class Schema
      */
     private function createModel(array $modelData): Model
     {
-        $expr = $this->client->getExpressionBuilder();
-        $fields = (array) $this->client->request(
-            self::IR_MODEL_FIELDS,
-            OrmQuery::SEARCH_READ,
-            $expr->normalizeDomains($expr->eq('model_id', $modelData['id']))
-        );
+        $expr = $this->recordManager->getExpressionBuilder();
+        $fields = (array) $this->recordManager
+            ->getClient()
+            ->request(
+                self::IR_MODEL_FIELDS,
+                OrmQuery::SEARCH_READ,
+                $expr->normalizeDomains($expr->eq('model_id', $modelData['id']))
+            )
+        ;
 
         foreach ($fields as $key => $fieldData) {
             $choices = [];
-            $selectionsIds = array_filter($fieldData['selection_ids'] ?? []);
+            $fieldData = (array) $fieldData;
+            $selectionsIds = (array) ($fieldData['selection_ids'] ?? []);
+            $selectionsIds = array_filter($selectionsIds);
 
             if (!empty($selectionsIds)) {
-                $choices = (array) $this->client->request(
-                    self::IR_MODEL_FIELD_SELECTION,
-                    OrmQuery::SEARCH_READ,
-                    $expr->normalizeDomains($expr->eq('field_id', $fieldData['id']))
-                );
+                $choices = (array) $this->recordManager
+                    ->getClient()
+                    ->request(
+                        self::IR_MODEL_FIELD_SELECTION,
+                        OrmQuery::SEARCH_READ,
+                        $expr->normalizeDomains($expr->eq('field_id', $fieldData['id']))
+                    )
+                ;
 
                 foreach ($choices as $index => $choice) {
                     if (\is_array($choice)) {

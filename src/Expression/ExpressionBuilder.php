@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Expression;
 
 use Ang3\Component\Odoo\DBAL\Expression\Domain\Comparison;
@@ -128,7 +135,7 @@ class ExpressionBuilder
     /**
      * Check if the field is IN values list.
      */
-    public function in(string $fieldName, float|array|bool|int|string $values): Comparison
+    public function in(string $fieldName, array|bool|float|int|string $values): Comparison
     {
         return new Comparison($fieldName, Comparison::IN, $this->getValues($values));
     }
@@ -136,7 +143,7 @@ class ExpressionBuilder
     /**
      * Check if the field is NOT IN values list.
      */
-    public function notIn(string $fieldName, float|array|bool|int|string $values): Comparison
+    public function notIn(string $fieldName, array|bool|float|int|string $values): Comparison
     {
         return new Comparison($fieldName, Comparison::NOT_IN, $this->getValues($values));
     }
@@ -144,7 +151,7 @@ class ExpressionBuilder
     /**
      * @internal
      */
-    private function getValues(float|array|bool|int|string $values): array
+    private function getValues(array|bool|float|int|string $values): array
     {
         return \is_array($values) ? $values : [$values];
     }
