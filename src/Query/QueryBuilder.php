@@ -14,6 +14,7 @@ namespace Ang3\Component\Odoo\DBAL\Query;
 use Ang3\Component\Odoo\DBAL\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Expression\Exception\ConversionException;
 use Ang3\Component\Odoo\DBAL\Expression\ExpressionBuilder;
+use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 
 class QueryBuilder
@@ -48,10 +49,8 @@ class QueryBuilder
     /**
      * Defines the query of type "SELECT" with selected fields.
      * No fields selected = all fields returned.
-     *
-     * @param array|string|null $fields
      */
-    public function select($fields = null): self
+    public function select(array|string $fields = null): self
     {
         $this->type = self::SELECT;
         $this->select = [];
@@ -388,15 +387,15 @@ class QueryBuilder
     public function getQuery(): OrmQuery
     {
         $method = match ($this->type) {
-            self::SELECT => OrmQuery::SEARCH_READ,
-            self::SEARCH => OrmQuery::SEARCH,
-            self::INSERT => OrmQuery::CREATE,
-            self::UPDATE => OrmQuery::WRITE,
-            self::DELETE => OrmQuery::UNLINK,
+            self::SELECT => OrmQueryMethod::SearchAndRead,
+            self::SEARCH => OrmQueryMethod::Search,
+            self::INSERT => OrmQueryMethod::Create,
+            self::UPDATE => OrmQueryMethod::Write,
+            self::DELETE => OrmQueryMethod::Unlink,
             default => throw new \InvalidArgumentException(sprintf('The query type "%s" is not valid.', $this->type)),
         };
 
-        $query = new OrmQuery($this->recordManager, $this->from, $method);
+        $query = new OrmQuery($this->recordManager, $this->from, $method->value);
 
         if (\in_array($this->type, [self::SELECT, self::SEARCH], true)) {
             $parameters = $this->expr()->normalizeDomains($this->where);

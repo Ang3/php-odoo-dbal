@@ -11,48 +11,11 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query;
 
+use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
+use Ang3\Component\Odoo\DBAL\Utils\Paginator;
+
 class OrmQuery extends AbstractQuery implements QueryInterface
 {
-    /**
-     * Query ORM methods.
-     */
-    public const CREATE = 'create';
-    public const WRITE = 'write';
-    public const READ = 'read';
-    public const UNLINK = 'unlink';
-    public const SEARCH_READ = 'search_read';
-    public const SEARCH = 'search';
-    public const SEARCH_COUNT = 'search_count';
-
-    /**
-     * List of query ORM methods.
-     *
-     * @var string[]
-     */
-    protected static array $methods = [
-        self::CREATE,
-        self::WRITE,
-        self::READ,
-        self::UNLINK,
-        self::SEARCH_READ,
-        self::SEARCH,
-        self::SEARCH_COUNT,
-    ];
-
-    /**
-     * @throws QueryException when the ORM method is not valid
-     */
-    public function setMethod(string $method): static
-    {
-        if (!\in_array($method, self::$methods, true)) {
-            throw new QueryException(sprintf('The ORM query method "%s" is not valid.', $method));
-        }
-
-        $this->method = $method;
-
-        return $this;
-    }
-
     /**
      * Counts the number of records from parameters.
      * Allowed methods: SEARCH, SEARCH_READ.
@@ -61,11 +24,11 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function count(): int
     {
-        if (!\in_array($this->method, [self::SEARCH, self::SEARCH_READ], true)) {
-            throw new QueryException(sprintf('You can count results with method "%s" and "%s" only.', self::SEARCH, self::SEARCH_READ));
+        if (!\in_array($this->method, [OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value], true)) {
+            throw new QueryException(sprintf('You can count results with method "%s" and "%s" only.', OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value));
         }
 
-        $query = new self($this->recordManager, $this->name, self::SEARCH_COUNT);
+        $query = new self($this->recordManager, $this->name, OrmQueryMethod::SearchAndCount->value);
         $query->setParameters($this->parameters);
 
         return (int) $query->execute();
@@ -120,7 +83,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     {
         $result = $this->getResult();
 
-        if (self::SEARCH === $this->method) {
+        if (OrmQueryMethod::Search->value === $this->method) {
             return $result;
         }
 
@@ -132,7 +95,11 @@ class OrmQuery extends AbstractQuery implements QueryInterface
         $selectedFieldName = $selectedFields[0] ?? 'id';
 
         foreach ($result as $key => $value) {
-            $result[$key] = $value[$selectedFieldName] ?? null;
+            $value = $value[$selectedFieldName] ?? null;
+
+            if (null !== $value) {
+                $result[$key] = $value;
+            }
         }
 
         return $result;
@@ -184,10 +151,39 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function getResult(): array
     {
-        if (!\in_array($this->method, [self::SEARCH, self::SEARCH_READ], true)) {
-            throw new QueryException(sprintf('You can get results with methods "%s" and "%s" only.', self::SEARCH, self::SEARCH_READ));
+        if (!\in_array($this->method, [OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value], true)) {
+            throw new QueryException(sprintf('You can get results with methods "%s" and "%s" only.', OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value));
         }
 
         return (array) $this->execute();
+    }
+
+    /**
+     * Paginates results from search query.
+     * Allowed methods: SEARCH, SEARCH_READ.
+     *
+     * @throws QueryException on invalid query method
+     */
+    public function paginate(int $pageSize = null): Paginator
+    {
+        if (!\in_array($this->method, [OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value], true)) {
+            throw new QueryException(sprintf('You can get results with methods "%s" and "%s" only.', OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value));
+        }
+
+        return new Paginator($this, $pageSize);
+    }
+
+    /**
+     * @throws QueryException when the ORM method is not valid
+     */
+    public function setMethod(string $method): static
+    {
+        if (null === OrmQueryMethod::tryFrom($method)) {
+            throw new QueryException(sprintf('The ORM query method "%s" is not valid.', $method));
+        }
+
+        $this->method = $method;
+
+        return $this;
     }
 }

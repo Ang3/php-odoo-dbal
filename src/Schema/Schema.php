@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Schema;
 
-use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
+use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 
 class Schema
@@ -45,7 +45,7 @@ class Schema
             $expr = $this->recordManager->getExpressionBuilder();
             $modelData = (array) $this->recordManager
                 ->getClient()
-                ->request(self::IR_MODEL, OrmQuery::SEARCH_READ, $expr->normalizeDomains($expr->eq('model', $modelName)))
+                ->executeKw(self::IR_MODEL, OrmQueryMethod::SearchAndRead->value, $expr->normalizeDomains($expr->eq('model', $modelName)))
             ;
 
             $modelData = $modelData[0] ?? null;
@@ -75,7 +75,7 @@ class Schema
         if (!$this->modelNames) {
             $this->modelNames = array_column((array) $this->recordManager
                 ->getClient()
-                ->request(self::IR_MODEL, OrmQuery::SEARCH_READ, [[]], [
+                ->executeKw(self::IR_MODEL, OrmQueryMethod::SearchAndRead->value, [[]], [
                     'fields' => ['model'],
                 ]), 'model');
         }
@@ -91,9 +91,9 @@ class Schema
         $expr = $this->recordManager->getExpressionBuilder();
         $fields = (array) $this->recordManager
             ->getClient()
-            ->request(
+            ->executeKw(
                 self::IR_MODEL_FIELDS,
-                OrmQuery::SEARCH_READ,
+                OrmQueryMethod::SearchAndRead->value,
                 $expr->normalizeDomains($expr->eq('model_id', $modelData['id']))
             )
         ;
@@ -107,9 +107,9 @@ class Schema
             if (!empty($selectionsIds)) {
                 $choices = (array) $this->recordManager
                     ->getClient()
-                    ->request(
+                    ->executeKw(
                         self::IR_MODEL_FIELD_SELECTION,
-                        OrmQuery::SEARCH_READ,
+                        OrmQueryMethod::SearchAndRead->value,
                         $expr->normalizeDomains($expr->eq('field_id', $fieldData['id']))
                     )
                 ;

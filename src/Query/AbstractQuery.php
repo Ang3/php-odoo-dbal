@@ -18,7 +18,7 @@ abstract class AbstractQuery implements QueryInterface
     protected array $parameters = [];
     protected array $options = [];
 
-    public function __construct(
+    final public function __construct(
         protected readonly RecordManager $recordManager,
         protected string $name,
         protected string $method
@@ -75,11 +75,38 @@ abstract class AbstractQuery implements QueryInterface
     /**
      * Add an option on the query.
      */
-    public function addOption(string $name, mixed $value): static
+    public function setOption(string $name, mixed $value): static
     {
         $this->options[$name] = $value;
 
         return $this;
+    }
+
+    /**
+     * Gets option by name.
+     */
+    public function getOption(string $name): mixed
+    {
+        return $this->options[$name] ?? null;
+    }
+
+    /**
+     * Add an option on the query.
+     */
+    public function clearOptions(): static
+    {
+        $this->options = [];
+
+        return $this;
+    }
+
+    public function duplicate(): static
+    {
+        $query = new static($this->recordManager, $this->name, $this->method);
+        $query->setParameters($this->parameters);
+        $query->setOptions($this->options);
+
+        return $query;
     }
 
     /**
