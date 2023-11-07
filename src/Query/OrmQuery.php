@@ -24,12 +24,16 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function count(): int
     {
-        if (!\in_array($this->method, [OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value], true)) {
-            throw new QueryException(sprintf('You can count results with method "%s" and "%s" only.', OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value));
-        }
+        if ($this->isCount()) {
+            $query = $this;
+        } else {
+            if (!$this->isSearch()) {
+                throw new QueryException(sprintf('You can count results with search methods only, but the query method is "%s".', $this->method));
+            }
 
-        $query = new self($this->recordManager, $this->name, OrmQueryMethod::SearchAndCount->value);
-        $query->setParameters($this->parameters);
+            $query = new self($this->recordManager, $this->name, OrmQueryMethod::SearchAndCount->value);
+            $query->setParameters($this->parameters);
+        }
 
         return (int) $query->execute();
     }
@@ -44,6 +48,10 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function getSingleScalarResult(): bool|float|int|string
     {
+        if (!$this->isSearch()) {
+            throw new QueryException(sprintf('You can get single scalar result with search methods only, but the query method is "%s".', $this->method));
+        }
+
         $result = $this->getOneOrNullScalarResult();
 
         if (!$result) {
@@ -81,9 +89,13 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function getScalarResult(): array
     {
+        if (!$this->isSearch() && !$this->isCount()) {
+            throw new QueryException(sprintf('You can get scalar results with search/count methods only, but the query method is "%s".', $this->method));
+        }
+
         $result = $this->getResult();
 
-        if (OrmQueryMethod::Search->value === $this->method) {
+        if ($this->isCount()) {
             return $result;
         }
 
@@ -151,8 +163,8 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function getResult(): array
     {
-        if (!\in_array($this->method, [OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value], true)) {
-            throw new QueryException(sprintf('You can get results with methods "%s" and "%s" only.', OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value));
+        if (!$this->isSearch()) {
+            throw new QueryException(sprintf('You can get results with search queries only, but the query method is "%s".', $this->method));
         }
 
         return (array) $this->execute();
@@ -166,10 +178,6 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function paginate(int $pageSize = null): Paginator
     {
-        if (!\in_array($this->method, [OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value], true)) {
-            throw new QueryException(sprintf('You can get results with methods "%s" and "%s" only.', OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value));
-        }
-
         return new Paginator($this, $pageSize);
     }
 
@@ -185,5 +193,31 @@ class OrmQuery extends AbstractQuery implements QueryInterface
         $this->method = $method;
 
         return $this;
+    }
+
+    public function isWrite(): bool
+    {
+        return \in_array($this->method, [
+            OrmQueryMethod::Create->value,
+            OrmQueryMethod::Write->value,
+        ], true);
+    }
+
+    public function isSearch(): bool
+    {
+        return \in_array($this->method, [
+            OrmQueryMethod::Search->value,
+            OrmQueryMethod::SearchAndRead->value,
+        ], true);
+    }
+
+    public function isCount(): bool
+    {
+        return OrmQueryMethod::SearchAndCount->value === $this->method;
+    }
+
+    public function isDeletion(): bool
+    {
+        return OrmQueryMethod::Unlink->value === $this->method;
     }
 }

@@ -15,14 +15,17 @@ use Ang3\Component\Odoo\DBAL\RecordManager;
 
 abstract class AbstractQuery implements QueryInterface
 {
+    protected string $method;
     protected array $parameters = [];
     protected array $options = [];
 
     final public function __construct(
         protected readonly RecordManager $recordManager,
         protected string $name,
-        protected string $method
-    ) {}
+        string $method
+    ) {
+        $this->setMethod($method);
+    }
 
     public function getName(): string
     {
@@ -73,11 +76,23 @@ abstract class AbstractQuery implements QueryInterface
     }
 
     /**
-     * Add an option on the query.
+     * Adds an option on the query.
      */
     public function setOption(string $name, mixed $value): static
     {
         $this->options[$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Removes an option from the query.
+     */
+    public function removeOption(string $name): static
+    {
+        if ($this->hasOption($name)) {
+            unset($this->options[$name]);
+        }
 
         return $this;
     }
@@ -90,6 +105,11 @@ abstract class AbstractQuery implements QueryInterface
         return $this->options[$name] ?? null;
     }
 
+    private function hasOption(string $name): bool
+    {
+        return \array_key_exists($name, $this->options);
+    }
+
     /**
      * Add an option on the query.
      */
@@ -100,9 +120,12 @@ abstract class AbstractQuery implements QueryInterface
         return $this;
     }
 
-    public function duplicate(): static
+    /**
+     * Duplicates the query to another instance and/or record manager.
+     */
+    public function duplicate(RecordManager $recordManager = null): static
     {
-        $query = new static($this->recordManager, $this->name, $this->method);
+        $query = new static($recordManager ?: $this->recordManager, $this->name, $this->method);
         $query->setParameters($this->parameters);
         $query->setOptions($this->options);
 
@@ -110,7 +133,7 @@ abstract class AbstractQuery implements QueryInterface
     }
 
     /**
-     * Execute the query.
+     * Executes the query.
      * Allowed methods: all.
      */
     public function execute(): mixed

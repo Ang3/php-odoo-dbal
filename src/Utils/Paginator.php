@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Utils;
 
-use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 
 class Paginator implements \IteratorAggregate
@@ -22,8 +21,8 @@ class Paginator implements \IteratorAggregate
 
     public function __construct(private readonly OrmQuery $query, int $pageSize = null)
     {
-        if (!\in_array($this->query->getMethod(), [OrmQueryMethod::Search->value, OrmQueryMethod::SearchAndRead->value], true)) {
-            throw new \LogicException(sprintf('You can paginate only queries of method "search|search_read", got "%s".', $this->query->getMethod()));
+        if (!$this->query->isSearch()) {
+            throw new \InvalidArgumentException(sprintf('You can paginate only search queries, but the query method is "%s".', $this->query->getMethod()));
         }
 
         $this->pageSize = $pageSize ?: self::DEFAULT_PAGE_SIZE;
@@ -49,6 +48,12 @@ class Paginator implements \IteratorAggregate
                 ->setOption('offset', $offset)
                 ->setOption('limit', $this->pageSize)
             ;
+
+            $result = $query->getResult();
+
+            if (!$result) {
+                break;
+            }
 
             yield $query->getResult();
         }
