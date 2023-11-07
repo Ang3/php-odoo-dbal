@@ -12,9 +12,12 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Repository;
 
 use Ang3\Component\Odoo\DBAL\Expression\Domain\DomainInterface;
+use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
+use Ang3\Component\Odoo\DBAL\Query\Paginator;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Model;
+use Generator;
 
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>
@@ -97,6 +100,11 @@ interface RecordRepositoryInterface
      * @return array[]
      */
     public function findBy(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $limit = null, int $offset = null): array;
+
+    /**
+     * Prepares and creates ORM query by criteria and/or others parameters.
+     */
+    public function prepare(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $limit = null, int $offset = null): OrmQuery;
 
     /**
      * Check if a record exists.

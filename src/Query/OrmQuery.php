@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Query;
 
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
-use Ang3\Component\Odoo\DBAL\Utils\Paginator;
 
 class OrmQuery extends AbstractQuery implements QueryInterface
 {
@@ -178,7 +177,13 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function paginate(int $pageSize = null): Paginator
     {
-        return new Paginator($this, $pageSize);
+        if (!$this->isSearch()) {
+            throw new QueryException(sprintf('You can get results with search queries only, but the query method is "%s".', $this->method));
+        }
+
+        return new Paginator($this, [
+            Paginator::PAGE_SIZE_KEY => $pageSize
+        ]);
     }
 
     /**
@@ -191,6 +196,30 @@ class OrmQuery extends AbstractQuery implements QueryInterface
         }
 
         $this->method = $method;
+
+        return $this;
+    }
+
+    public function getOffset(): ?int
+    {
+        return $this->getOption('offset');
+    }
+
+    public function setOffset(?int $offset): self
+    {
+        $this->setOption('offset', $offset);
+
+        return $this;
+    }
+
+    public function getLimit(): ?int
+    {
+        return $this->getOption('limit');
+    }
+
+    public function setLimit(?int $limit): self
+    {
+        $this->setOption('limit', $limit);
 
         return $this;
     }

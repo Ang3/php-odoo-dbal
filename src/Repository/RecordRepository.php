@@ -14,6 +14,8 @@ namespace Ang3\Component\Odoo\DBAL\Repository;
 use Ang3\Component\Odoo\DBAL\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Expression\ExpressionBuilder;
+use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
+use Ang3\Component\Odoo\DBAL\Query\Paginator;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Model;
@@ -28,21 +30,11 @@ class RecordRepository implements RecordRepositoryInterface
         $recordManager->addRepository($this);
     }
 
-    /**
-     * Gets the model metadata from the schema.
-     */
     public function getMetadata(): Model
     {
         return $this->recordManager->getSchema()->getModel($this->modelName);
     }
 
-    /**
-     * Insert a new record.
-     *
-     * @return int the ID of the new record
-     *
-     * @throws \InvalidArgumentException when $data is empty
-     */
     public function insert(array $data): int
     {
         if (!$data) {
@@ -60,12 +52,6 @@ class RecordRepository implements RecordRepositoryInterface
         return \is_scalar($result) ? (int) $result : 0;
     }
 
-    /**
-     * Update record(s).
-     *
-     * NB: It is not currently possible to perform “computed” updates
-     * (where the value being set depends on an existing value of a record).
-     */
     public function update(array|int $ids, array $data = []): void
     {
         if (!$data) {
@@ -81,9 +67,6 @@ class RecordRepository implements RecordRepositoryInterface
         ;
     }
 
-    /**
-     * Delete record(s).
-     */
     public function delete(array|int $ids): void
     {
         if (!$ids) {
@@ -98,9 +81,6 @@ class RecordRepository implements RecordRepositoryInterface
         ;
     }
 
-    /**
-     * Search one ID of record by criteria.
-     */
     public function searchOne(array|DomainInterface $criteria = null): ?int
     {
         return (int) $this
@@ -112,21 +92,11 @@ class RecordRepository implements RecordRepositoryInterface
         ;
     }
 
-    /**
-     * Search all ID of record(s).
-     *
-     * @return int[]
-     */
     public function searchAll(array $orders = [], int $limit = null, int $offset = null): array
     {
         return $this->search(null, $orders, $limit, $offset);
     }
 
-    /**
-     * Search ID of record(s) by criteria.
-     *
-     * @return int[]
-     */
     public function search(array|DomainInterface $criteria = null, array $orders = [], int $limit = null, int $offset = null): array
     {
         return $this
@@ -141,11 +111,6 @@ class RecordRepository implements RecordRepositoryInterface
         ;
     }
 
-    /**
-     * Find ONE record by ID.
-     *
-     * @throws RecordNotFoundException when the record was not found
-     */
     public function read(int $id, ?array $fields = []): array
     {
         $record = $this->find($id, $fields);
@@ -157,17 +122,11 @@ class RecordRepository implements RecordRepositoryInterface
         return $record;
     }
 
-    /**
-     * Find ONE record by ID.
-     */
     public function find(int $id, ?array $fields = []): ?array
     {
         return $this->findOneBy($this->expr()->eq('id', $id), $fields);
     }
 
-    /**
-     * Find ONE record by criteria.
-     */
     public function findOneBy(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $offset = null): ?array
     {
         $result = $this->findBy($criteria, $fields, $orders, 1, $offset);
@@ -175,22 +134,20 @@ class RecordRepository implements RecordRepositoryInterface
         return array_pop($result);
     }
 
-    /**
-     * Find all records.
-     *
-     * @return array[]
-     */
     public function findAll(?array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
     {
         return $this->findBy(null, $fields, $orders, $limit, $offset);
     }
 
-    /**
-     * Find record(s) by criteria.
-     *
-     * @return array[]
-     */
     public function findBy(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
+    {
+        return $this
+            ->prepare($criteria, $fields, $orders, $limit, $offset)
+            ->getResult()
+        ;
+    }
+
+    public function prepare(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $limit = null, int $offset = null): OrmQuery
     {
         return $this
             ->createQueryBuilder()
@@ -200,29 +157,19 @@ class RecordRepository implements RecordRepositoryInterface
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->getQuery()
-            ->getResult()
         ;
     }
 
-    /**
-     * Check if a record exists.
-     */
     public function exists(int $id): bool
     {
         return 1 === $this->count($this->expr()->eq('id', $id));
     }
 
-    /**
-     * Count number of all records for the model.
-     */
     public function countAll(): int
     {
         return $this->count();
     }
 
-    /**
-     * Count number of records for a model and criteria.
-     */
     public function count(array|DomainInterface $criteria = null): int
     {
         return $this

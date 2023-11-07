@@ -9,23 +9,31 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Utils;
-
-use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
+namespace Ang3\Component\Odoo\DBAL\Query;
 
 class Paginator implements \IteratorAggregate
 {
+    /**
+     * Context parameter keys.
+     */
+    public const PAGE_SIZE_KEY = 'page_size';
+
+    /**
+     * Default values.
+     */
     public const DEFAULT_PAGE_SIZE = 100;
 
-    private readonly int $pageSize;
+    private array $context = [
+        self::PAGE_SIZE_KEY => self::DEFAULT_PAGE_SIZE
+    ];
 
-    public function __construct(private readonly OrmQuery $query, int $pageSize = null)
+    public function __construct(private readonly OrmQuery $query, ?array $defaultContext = [])
     {
         if (!$this->query->isSearch()) {
             throw new \InvalidArgumentException(sprintf('You can paginate only search queries, but the query method is "%s".', $this->query->getMethod()));
         }
 
-        $this->pageSize = $pageSize ?: self::DEFAULT_PAGE_SIZE;
+        $this->context = array_merge($this->context, $defaultContext ?: []);
     }
 
     public function getIterator(): \Generator
@@ -39,14 +47,16 @@ class Paginator implements \IteratorAggregate
     private function iterate(): \Generator
     {
         $nbRecords = $this->query->count();
-        $nbPages = ceil($nbRecords / $this->pageSize);
+        $pageSize = $this->getPageSize();
+
+        $nbPages = ceil($nbRecords / $pageSize);
 
         for ($i = 0; $i < $nbPages; ++$i) {
-            $offset = $i * $this->pageSize;
+            $offset = $i * $pageSize;
             $query = $this->query
                 ->duplicate()
                 ->setOption('offset', $offset)
-                ->setOption('limit', $this->pageSize)
+                ->setOption('limit', $pageSize)
             ;
 
             $result = $query->getResult();
@@ -55,7 +65,9 @@ class Paginator implements \IteratorAggregate
                 break;
             }
 
-            yield $query->getResult();
+            foreach ($result as $row) {
+                yield $row;
+            }
         }
     }
 
@@ -66,6 +78,13 @@ class Paginator implements \IteratorAggregate
 
     public function getPageSize(): int
     {
-        return $this->pageSize;
+        return (int) ($this->context[self::PAGE_SIZE_KEY] ?? self::DEFAULT_PAGE_SIZE);
+    }
+
+    public function setPageSize(int $pageSize): self
+    {
+        $this->context[self::PAGE_SIZE_KEY] = $pageSize;
+
+        return $this;
     }
 }
