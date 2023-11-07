@@ -3,6 +3,15 @@ PHP Odoo DBAL documentation
 
 This library provides a record manager to manage the Odoo database models via the external API ORM methods.
 
+Summary
+-------
+
+- [Getting started](#getting-started)
+- [Repositories](./repositories.md)
+- [Query builder](./query_builder.md)
+  - [Expression builder](./expression_builder.md)
+- [Paginator](./paginator.md)
+
 Getting started
 ---------------
 
