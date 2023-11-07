@@ -18,6 +18,8 @@ use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepository;
+use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
+use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
 
 /**
@@ -26,46 +28,19 @@ use Ang3\Component\Odoo\DBAL\Schema\Schema;
 class RecordManager
 {
     private Schema $schema;
+    private RepositoryRegistry $repositoryRegistry;
     private ExpressionBuilder $expressionBuilder;
 
-    /**
-     * @param RecordRepository[] $repositories
-     */
-    public function __construct(private readonly Client $client, private array $repositories = [])
+    public function __construct(private readonly Client $client)
     {
         $this->schema = new Schema($this);
+        $this->repositoryRegistry = new RepositoryRegistry($this);
         $this->expressionBuilder = new ExpressionBuilder();
     }
 
-    public function getRepository(string $modelName): RecordRepository
+    public function find(string $modelName, int $id, ?array $fields = []): ?array
     {
-        if (!\array_key_exists($modelName, $this->repositories)) {
-            $repository = new RecordRepository($this, $modelName);
-            $this->addRepository($repository);
-
-            return $repository;
-        }
-
-        return $this->repositories[$modelName];
-    }
-
-    public function setRepositories(array $repositories = []): self
-    {
-        $this->repositories = [];
-
-        foreach ($repositories as $repository) {
-            $this->addRepository($repository);
-        }
-
-        return $this;
-    }
-
-    public function addRepository(RecordRepository $repository): self
-    {
-        $this->repositories[$repository->getModelName()] = $repository;
-        $repository->setRecordManager($this);
-
-        return $this;
+        return $this->getRepository($modelName)->find($id, $fields);
     }
 
     public function createQueryBuilder(string $modelName): QueryBuilder
@@ -94,9 +69,33 @@ class RecordManager
         return $this->client->executeKw($query->getName(), $query->getMethod(), $query->getParameters(), $options);
     }
 
-    public function getClient(): Client
+    public function getRepository(string $modelName): RecordRepositoryInterface
     {
-        return $this->client;
+        return $this->repositoryRegistry->get($modelName);
+    }
+
+    public function getRepositoryRegistry(): RepositoryRegistry
+    {
+        return $this->repositoryRegistry;
+    }
+
+    public function setRepositoryRegistry(RepositoryRegistry $repositoryRegistry): self
+    {
+        $this->repositoryRegistry = $repositoryRegistry;
+
+        return $this;
+    }
+
+    public function addRepository(RecordRepository $repository): self
+    {
+        $this->repositoryRegistry->add($repository);
+
+        return $this;
+    }
+
+    public function getExpressionBuilder(): ExpressionBuilder
+    {
+        return $this->expressionBuilder;
     }
 
     public function getSchema(): Schema
@@ -104,13 +103,8 @@ class RecordManager
         return $this->schema;
     }
 
-    public function getRepositories(): array
+    public function getClient(): Client
     {
-        return $this->repositories;
-    }
-
-    public function getExpressionBuilder(): ExpressionBuilder
-    {
-        return $this->expressionBuilder;
+        return $this->client;
     }
 }

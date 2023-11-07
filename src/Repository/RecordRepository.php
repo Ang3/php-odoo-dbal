@@ -21,7 +21,7 @@ use Ang3\Component\Odoo\DBAL\Schema\Model;
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>
  */
-class RecordRepository
+class RecordRepository implements RecordRepositoryInterface
 {
     public function __construct(private RecordManager $recordManager, private readonly string $modelName)
     {
@@ -101,7 +101,7 @@ class RecordRepository
     /**
      * Search one ID of record by criteria.
      */
-    public function searchOne(null|array|DomainInterface $criteria): ?int
+    public function searchOne(array|DomainInterface $criteria = null): ?int
     {
         return (int) $this
             ->createQueryBuilder()
@@ -146,7 +146,7 @@ class RecordRepository
      *
      * @throws RecordNotFoundException when the record was not found
      */
-    public function read(int $id, array $fields = []): array
+    public function read(int $id, ?array $fields = []): array
     {
         $record = $this->find($id, $fields);
 
@@ -160,7 +160,7 @@ class RecordRepository
     /**
      * Find ONE record by ID.
      */
-    public function find(int $id, array $fields = []): ?array
+    public function find(int $id, ?array $fields = []): ?array
     {
         return $this->findOneBy($this->expr()->eq('id', $id), $fields);
     }
@@ -168,7 +168,7 @@ class RecordRepository
     /**
      * Find ONE record by criteria.
      */
-    public function findOneBy(array|DomainInterface $criteria = null, array $fields = [], array $orders = [], int $offset = null): ?array
+    public function findOneBy(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $offset = null): ?array
     {
         $result = $this->findBy($criteria, $fields, $orders, 1, $offset);
 
@@ -180,7 +180,7 @@ class RecordRepository
      *
      * @return array[]
      */
-    public function findAll(array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
+    public function findAll(?array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
     {
         return $this->findBy(null, $fields, $orders, $limit, $offset);
     }
@@ -190,7 +190,7 @@ class RecordRepository
      *
      * @return array[]
      */
-    public function findBy(array|DomainInterface $criteria = null, array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
+    public function findBy(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
     {
         return $this
             ->createQueryBuilder()
