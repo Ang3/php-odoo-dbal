@@ -11,11 +11,9 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Repository;
 
-use Ang3\Component\Odoo\DBAL\Expression\Domain\CompositeDomain;
-use Ang3\Component\Odoo\DBAL\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Expression\ExpressionBuilder;
-use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
-use Ang3\Component\Odoo\DBAL\Query\Paginator;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
+use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Model;
@@ -54,14 +52,13 @@ class RecordRepository implements RecordRepositoryInterface
 
     public function update(array|int $ids, array $data = []): void
     {
-        if (!$data) {
+        if (!$ids || !$data) {
             return;
         }
 
         $this
             ->createQueryBuilder()
-            ->update((array) $ids)
-            ->setValues($data)
+            ->update((array) $ids, $data)
             ->getQuery()
             ->execute()
         ;
@@ -81,12 +78,14 @@ class RecordRepository implements RecordRepositoryInterface
         ;
     }
 
-    public function searchOne(array|DomainInterface $criteria = null): ?int
+    public function searchOne(array|DomainInterface $criteria = null, array $orders = []): ?int
     {
         return (int) $this
             ->createQueryBuilder()
             ->search()
             ->where($this->normalizeCriteria($criteria))
+            ->setOrders($orders)
+            ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullScalarResult()
         ;
@@ -131,7 +130,7 @@ class RecordRepository implements RecordRepositoryInterface
     {
         $result = $this->findBy($criteria, $fields, $orders, 1, $offset);
 
-        return array_pop($result);
+        return array_shift($result);
     }
 
     public function findAll(?array $fields = [], array $orders = [], int $limit = null, int $offset = null): array
@@ -143,11 +142,12 @@ class RecordRepository implements RecordRepositoryInterface
     {
         return $this
             ->prepare($criteria, $fields, $orders, $limit, $offset)
+            ->getQuery()
             ->getResult()
         ;
     }
 
-    public function prepare(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $limit = null, int $offset = null): OrmQuery
+    public function prepare(array|DomainInterface $criteria = null, ?array $fields = [], array $orders = [], int $limit = null, int $offset = null): QueryBuilder
     {
         return $this
             ->createQueryBuilder()
@@ -156,7 +156,6 @@ class RecordRepository implements RecordRepositoryInterface
             ->setOrders($orders)
             ->setFirstResult($offset)
             ->setMaxResults($limit)
-            ->getQuery()
         ;
     }
 
@@ -213,6 +212,10 @@ class RecordRepository implements RecordRepositoryInterface
 
     public function normalizeCriteria(array|DomainInterface $criteria = null): ?DomainInterface
     {
-        return \is_array($criteria) ? CompositeDomain::criteria($criteria) : $criteria;
+        if (!$criteria) {
+            return null;
+        }
+
+        return $criteria instanceof DomainInterface ? $criteria : CompositeDomain::criteria($criteria);
     }
 }

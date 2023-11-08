@@ -38,7 +38,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     }
 
     /**
-     * Gets just ONE scalar result.
+     * Gets just ONE scalar result from the FIRST row result.
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws NoUniqueResultException on no unique result
@@ -61,14 +61,19 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     }
 
     /**
-     * Gets one or NULL scalar result.
+     * Gets just ONE scalar result from the FIRST row result, or NULL if no result.
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws NoUniqueResultException on no unique result
+     * @throws NoResultException       on no result
      * @throws QueryException          on invalid query method
      */
     public function getOneOrNullScalarResult(): null|bool|float|int|string
     {
+        if (!$this->isSearch()) {
+            throw new QueryException(sprintf('You can get single scalar result with search methods only, but the query method is "%s".', $this->method));
+        }
+
         $result = $this->getScalarResult();
 
         if (\count($result) > 1) {
@@ -79,7 +84,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     }
 
     /**
-     * Gets a list of scalar result.
+     * Gets a list of scalar result for each row from selected field name.
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @return array<bool|int|float|string>
@@ -99,10 +104,6 @@ class OrmQuery extends AbstractQuery implements QueryInterface
         }
 
         $selectedFields = $this->options['fields'] ?? [];
-        if (\count($selectedFields) > 1) {
-            throw new QueryException('More than one field selected.');
-        }
-
         $selectedFieldName = $selectedFields[0] ?? 'id';
 
         foreach ($result as $key => $value) {
@@ -117,7 +118,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     }
 
     /**
-     * Gets one row.
+     * Gets the FIRST row.
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws NoUniqueResultException on no unique result
@@ -127,7 +128,6 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     public function getSingleResult(): array
     {
         $result = $this->getOneOrNullResult();
-        $result = \is_array($result) ? array_shift($result) : null;
 
         if (!$result) {
             throw new NoResultException();
@@ -137,7 +137,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     }
 
     /**
-     * Gets one or NULL row.
+     * Gets the FIRST row, or NULL if empty.
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws NoUniqueResultException on no unique result
@@ -155,7 +155,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     }
 
     /**
-     * Gets all result rows.
+     * Gets ALL result rows.
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws QueryException on invalid query method
@@ -170,20 +170,16 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     }
 
     /**
-     * Paginates results from search query.
+     * Gets lazy results for mass volumes.
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws QueryException on invalid query method
      */
-    public function paginate(int $pageSize = null): Paginator
+    public function getLazyResult(int $bufferSize = null): LazyResult
     {
-        if (!$this->isSearch()) {
-            throw new QueryException(sprintf('You can get results with search queries only, but the query method is "%s".', $this->method));
-        }
-
-        return new Paginator($this, [
-            Paginator::PAGE_SIZE_KEY => $pageSize
-        ]);
+        return new LazyResult($this, $bufferSize ? [
+            LazyResult::BUFFER_SIZE_KEY => $bufferSize,
+        ] : null);
     }
 
     /**
@@ -202,7 +198,9 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     public function getOffset(): ?int
     {
-        return $this->getOption('offset');
+        $offset = $this->getOption('offset');
+
+        return \is_scalar($offset) ? (int) $offset : null;
     }
 
     public function setOffset(?int $offset): self
@@ -214,7 +212,9 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     public function getLimit(): ?int
     {
-        return $this->getOption('limit');
+        $limit = $this->getOption('limit');
+
+        return \is_scalar($limit) ? (int) $limit : null;
     }
 
     public function setLimit(?int $limit): self

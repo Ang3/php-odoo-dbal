@@ -13,8 +13,8 @@ namespace Ang3\Component\Odoo\DBAL\Query;
 
 class NoResultException extends \RuntimeException
 {
-    public function __construct()
+    public function __construct(string $message = null)
     {
-        parent::__construct('The query returned no result.');
+        parent::__construct($message ?: 'The query returned no result.');
     }
 }

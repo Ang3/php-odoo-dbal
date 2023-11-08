@@ -9,14 +9,14 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Expression;
+namespace Ang3\Component\Odoo\DBAL\Query\Expression;
 
-use Ang3\Component\Odoo\DBAL\Expression\Domain\Comparison;
-use Ang3\Component\Odoo\DBAL\Expression\Domain\CompositeDomain;
-use Ang3\Component\Odoo\DBAL\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Expression\Exception\ConversionException;
-use Ang3\Component\Odoo\DBAL\Expression\Operation\CollectionOperation;
-use Ang3\Component\Odoo\DBAL\Expression\Operation\OperationInterface;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\Comparison;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Operation\CollectionOperation;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Operation\OperationInterface;
 
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>

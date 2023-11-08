@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Ang3\Component\Odoo\DBAL\Tests\Expression;
+namespace Ang3\Component\Odoo\DBAL\Tests\Query\Expression;
 
-use Ang3\Component\Odoo\DBAL\Expression\Domain\Comparison;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\Comparison;
 
 /**
- * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Expression\Domain\Comparison
+ * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Query\Expression\Domain\Comparison
  *
  * @internal
  */

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Ang3\Component\Odoo\DBAL\Tests\Expression;
+namespace Ang3\Component\Odoo\DBAL\Tests\Query\Expression;
 
-use Ang3\Component\Odoo\DBAL\Expression\Domain\CompositeDomain;
-use Ang3\Component\Odoo\DBAL\Expression\Domain\DomainInterface;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 
 /**
- * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Expression\Domain\CompositeDomain
+ * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain
  *
  * @internal
  */

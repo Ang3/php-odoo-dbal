@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL;
 
 use Ang3\Component\Odoo\Client;
-use Ang3\Component\Odoo\DBAL\Expression\ExpressionBuilder;
+use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
 use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;

@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query;
 
-use Ang3\Component\Odoo\DBAL\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Expression\Exception\ConversionException;
-use Ang3\Component\Odoo\DBAL\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
+use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
+use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 
 class QueryBuilder
@@ -93,16 +93,16 @@ class QueryBuilder
     }
 
     /**
-     * Defines the query of type "UPDATE" with ids of records to update.
+     * Defines the query of type "UPDATE" with ids of records to update and data.
      *
      * @param int[] $ids
      */
-    public function update(array $ids): self
+    public function update(array $ids, array $data = []): self
     {
         $this->type = self::UPDATE;
         $this->select = [];
 
-        return $this->setIds($ids);
+        return $this->setIds($ids)->setValues($data);
     }
 
     /**
@@ -202,6 +202,10 @@ class QueryBuilder
      */
     public function setValues(array $values = []): self
     {
+        if (!\in_array($this->type, [self::INSERT, self::UPDATE], true)) {
+            throw new QueryException('You can set values in query of type "INSERT" or "UPDATE" only.');
+        }
+
         $this->values = [];
 
         foreach ($values as $fieldName => $value) {

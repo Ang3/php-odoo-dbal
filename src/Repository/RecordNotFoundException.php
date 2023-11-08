@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Repository;
 
-class RecordNotFoundException extends \RuntimeException
+use Ang3\Component\Odoo\DBAL\Query\NoResultException;
+
+class RecordNotFoundException extends NoResultException
 {
     public function __construct(private readonly string $modelName, private readonly int $id)
     {

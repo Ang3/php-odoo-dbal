@@ -9,9 +9,12 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Expression\Exception;
+namespace Ang3\Component\Odoo\DBAL\Query\Expression\Domain;
 
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>
  */
-class ConversionException extends \RuntimeException {}
+interface DomainInterface extends \IteratorAggregate
+{
+    public function toArray(): array;
+}
