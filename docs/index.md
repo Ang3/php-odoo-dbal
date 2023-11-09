@@ -41,7 +41,8 @@ Please read the [documentation of repositories](./repositories.md) for more info
 
 #### Find a record
 
-The manager has a shortcut method to find a record by ID. You can use it directly instead of calling a repository:
+The manager has a shortcut method to find a record by model name and record ID. 
+You can use it directly instead of calling a repository:
 
 ```php
 $myCompany = $recordManager->find('res.company', 7); // array or NULL if company was not found.
