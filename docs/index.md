@@ -26,8 +26,6 @@ use Ang3\Component\Odoo\DBAL\RecordManager;
 $recordManager = new RecordManager($client);
 ```
 
-For more advanced queries, please read the next section for repositories.
-
 ### Get a repository
 
 Once the record manager created, you can retrieve a default repository for your model to query it:
