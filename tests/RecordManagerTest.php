@@ -1,10 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests;
 
 use Ang3\Component\Odoo\Client;
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
-use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
 use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
@@ -13,15 +21,16 @@ use Ang3\Component\Odoo\DBAL\Query\QueryException;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
-use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistryInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Ang3\Component\Odoo\DBAL\RecordManager
+ *
+ * @internal
  */
-class RecordManagerTest extends TestCase
+final class RecordManagerTest extends TestCase
 {
     private RecordManager $recordManager;
     private MockObject $client;
@@ -39,14 +48,15 @@ class RecordManagerTest extends TestCase
 
     /**
      * @covers ::find
+     *
      * @testWith [3, "model_name", ["selected_field"]]
      */
     public function testFind(int $id, string $modelName, array $fields): void
     {
         $repository = $this->createMock(RecordRepositoryInterface::class);
-        $this->repositoryRegistry->expects($this->once())->method('get')->with($modelName)->willReturn($repository);
-        $repository->expects($this->once())->method('find')->with($id, $fields)->willReturn($result = [
-            'foo' => 'bar'
+        $this->repositoryRegistry->expects(self::once())->method('get')->with($modelName)->willReturn($repository);
+        $repository->expects(self::once())->method('find')->with($id, $fields)->willReturn($result = [
+            'foo' => 'bar',
         ]);
 
         self::assertEquals($result, $this->recordManager->find($modelName, $id, $fields));
@@ -54,6 +64,7 @@ class RecordManagerTest extends TestCase
 
     /**
      * @covers ::createQueryBuilder
+     *
      * @testWith ["model_name"]
      */
     public function testCreateQueryBuilder(string $modelName): void
@@ -64,7 +75,7 @@ class RecordManagerTest extends TestCase
     /**
      * @covers ::createOrmQuery
      *
-     * @dataProvider provideOrmQueryParameters
+     * @dataProvider provideCreateOrmQueryCases
      */
     public function testCreateOrmQuery(string $name, string $method): void
     {
@@ -73,6 +84,7 @@ class RecordManagerTest extends TestCase
 
     /**
      * @covers ::createOrmQuery
+     *
      * @testWith ["model_name", "invalid_method"]
      */
     public function testCreateOrmQueryWithInvalidMethod(string $name, string $invalidMethod): void
@@ -83,6 +95,7 @@ class RecordManagerTest extends TestCase
 
     /**
      * @covers ::createNativeQuery
+     *
      * @testWith ["model_name", "method_name"]
      */
     public function testCreateNativeQuery(string $name, string $method): void
@@ -92,21 +105,22 @@ class RecordManagerTest extends TestCase
 
     /**
      * @covers ::executeQuery
+     *
      * @testWith ["name", "method", {"foo": "bar"}, {}]
      *           ["name", "method", {"foo": "bar"}, {"qux": "lux"}]
      */
     public function testExecuteQuery(string $name, string $method, array $parameters = [], array $options = []): void
     {
         $query = $this->createMock(QueryInterface::class);
-        $query->expects($this->once())->method('getName')->willReturn($name);
-        $query->expects($this->once())->method('getMethod')->willReturn($method);
-        $query->expects($this->once())->method('getParameters')->willReturn($parameters);
-        $query->expects($this->once())->method('getOptions')->willReturn($options);
+        $query->expects(self::once())->method('getName')->willReturn($name);
+        $query->expects(self::once())->method('getMethod')->willReturn($method);
+        $query->expects(self::once())->method('getParameters')->willReturn($parameters);
+        $query->expects(self::once())->method('getOptions')->willReturn($options);
 
         if ($options) {
-            $this->client->expects($this->once())->method('executeKw')->with($name, $method, $parameters, $options)->willReturn($result = 'foo');
+            $this->client->expects(self::once())->method('executeKw')->with($name, $method, $parameters, $options)->willReturn($result = 'foo');
         } else {
-            $this->client->expects($this->once())->method('executeKw')->with($name, $method, $parameters)->willReturn($result = 'foo');
+            $this->client->expects(self::once())->method('executeKw')->with($name, $method, $parameters)->willReturn($result = 'foo');
         }
 
         self::assertEquals($result, $this->recordManager->executeQuery($query));
@@ -114,26 +128,27 @@ class RecordManagerTest extends TestCase
 
     /**
      * @covers ::getRepository
+     *
      * @testWith ["model_name"]
      */
     public function testGetRepository(string $modelName): void
     {
         $repository = $this->createMock(RecordRepositoryInterface::class);
-        $this->repositoryRegistry->expects($this->once())->method('get')->with($modelName)->willReturn($repository);
+        $this->repositoryRegistry->expects(self::once())->method('get')->with($modelName)->willReturn($repository);
 
         self::assertEquals($repository, $this->recordManager->getRepository($modelName));
     }
 
-    public static function provideOrmQueryParameters(): iterable
+    public static function provideCreateOrmQueryCases(): iterable
     {
         return [
-            [ 'model_name', OrmQueryMethod::Create->value ],
-            [ 'model_name', OrmQueryMethod::Write->value ],
-            [ 'model_name', OrmQueryMethod::Read->value ],
-            [ 'model_name', OrmQueryMethod::Search->value ],
-            [ 'model_name', OrmQueryMethod::SearchAndCount->value ],
-            [ 'model_name', OrmQueryMethod::SearchAndRead->value ],
-            [ 'model_name', OrmQueryMethod::Unlink->value ],
+            ['model_name', OrmQueryMethod::Create->value],
+            ['model_name', OrmQueryMethod::Write->value],
+            ['model_name', OrmQueryMethod::Read->value],
+            ['model_name', OrmQueryMethod::Search->value],
+            ['model_name', OrmQueryMethod::SearchAndCount->value],
+            ['model_name', OrmQueryMethod::SearchAndRead->value],
+            ['model_name', OrmQueryMethod::Unlink->value],
         ];
     }
 }

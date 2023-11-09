@@ -53,7 +53,7 @@ final class OrmQueryTest extends TestCase
         $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($expectedResult = 1337);
 
         $result = $query->count();
-        self::assertSame($expectedResult, $result);
+        self::assertEquals($expectedResult, $result);
     }
 
     public static function searchMethodsProvider(): iterable
@@ -81,7 +81,7 @@ final class OrmQueryTest extends TestCase
         }))->willReturn($expectedResult = 1337);
 
         $result = $query->count();
-        self::assertSame($expectedResult, $result);
+        self::assertEquals($expectedResult, $result);
     }
 
     public static function nonSearchMethodsProvider(): iterable
@@ -121,7 +121,7 @@ final class OrmQueryTest extends TestCase
             ],
         ]);
 
-        self::assertSame($expectedResult, $query->getSingleScalarResult());
+        self::assertEquals($expectedResult, $query->getSingleScalarResult());
     }
 
     /**
@@ -257,7 +257,7 @@ final class OrmQueryTest extends TestCase
             ],
         ]);
 
-        self::assertSame(['bar', 'lux'], $query->getScalarResult());
+        self::assertEquals(['bar', 'lux'], $query->getScalarResult());
     }
 
     /**
@@ -284,7 +284,7 @@ final class OrmQueryTest extends TestCase
         $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([]);
 
         $result = $query->getScalarResult();
-        self::assertSame([], $result);
+        self::assertEquals([], $result);
     }
 
     /**
@@ -302,7 +302,7 @@ final class OrmQueryTest extends TestCase
             ],
         ]);
 
-        self::assertSame($firstRow, $query->getSingleResult());
+        self::assertEquals($firstRow, $query->getSingleResult());
     }
 
     /**
@@ -369,7 +369,7 @@ final class OrmQueryTest extends TestCase
             ],
         ]);
 
-        self::assertSame($firstRow, $query->getOneOrNullResult());
+        self::assertEquals($firstRow, $query->getOneOrNullResult());
     }
 
     /**

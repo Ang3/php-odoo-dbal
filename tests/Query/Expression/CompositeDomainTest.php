@@ -139,9 +139,6 @@ final class CompositeDomainTest extends AbstractDomainTest
         self::assertSame($expectedResult, $domain->toArray(), $message);
     }
 
-    /**
-     * @param mixed $expression
-     */
     protected function createFakeDomain(mixed $expression): DomainInterface
     {
         $fakeDomain = $this->createMock(DomainInterface::class);

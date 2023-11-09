@@ -57,6 +57,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::insert
+     *
      * @testWith [{"foo": "bar", "qux": "lux"}]
      */
     public function testInsert(array $data): void
@@ -95,6 +96,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::update
+     *
      * @testWith [[1, 2, 3], {"foo": "bar", "qux": "lux"}]
      */
     public function testUpdate(array $ids, array $data): void
@@ -134,6 +136,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::update
+     *
      * @testWith [[1, 2, 3]]
      */
     public function testUpdateWithEmptyData(array $ids): void
@@ -144,6 +147,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::delete
+     *
      * @testWith [[1, 2, 3]]
      */
     public function testDelete(array $ids): void
@@ -276,6 +280,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::read
+     *
      * @testWith [3, ["selected_field"]]
      */
     public function testRead(int $id, array $fields): void
@@ -298,6 +303,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::read
+     *
      * @testWith [3, ["selected_field"]]
      */
     public function testReadWithNoResult(int $id, array $fields): void
@@ -314,6 +320,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::find
+     *
      * @testWith [3, ["selected_field"]]
      */
     public function testFind(int $id, array $fields): void
@@ -336,6 +343,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::find
+     *
      * @testWith [3, ["selected_field"]]
      */
     public function testFindWithNoResult(int $id, array $fields): void
@@ -411,6 +419,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::exists
+     *
      * @testWith [3]
      */
     public function testExists(int $id): void
@@ -441,6 +450,7 @@ final class RecordRepositoryTest extends TestCase
 
     /**
      * @covers ::exists
+     *
      * @testWith [3]
      */
     public function testExistsWithNotResult(int $id): void
