@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests\Utils;
 
 class Reflector
@@ -33,7 +40,7 @@ class Reflector
     {
         $class = $this->getClass($objectOrClass);
 
-	    return $class->getMethod($methodName);
+        return $class->getMethod($methodName);
     }
 
     /**
@@ -43,7 +50,7 @@ class Reflector
     {
         $class = $this->getClass($objectOrClass);
 
-	    return $class->getProperty($propertyName);
+        return $class->getProperty($propertyName);
     }
 
     /**
@@ -52,9 +59,9 @@ class Reflector
     public function getClass(object|string $objectOrClass): \ReflectionClass
     {
         if (\is_string($objectOrClass)) {
-			if (!class_exists($objectOrClass)) {
-				throw new \RuntimeException(sprintf('The class "%s" was not found.', $objectOrClass));
-			}
+            if (!class_exists($objectOrClass)) {
+                throw new \RuntimeException(sprintf('The class "%s" was not found.', $objectOrClass));
+            }
 
             return new \ReflectionClass($objectOrClass);
         }

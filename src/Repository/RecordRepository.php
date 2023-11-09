@@ -13,7 +13,7 @@ namespace Ang3\Component\Odoo\DBAL\Repository;
 
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
+use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Model;
@@ -173,7 +173,6 @@ class RecordRepository implements RecordRepositoryInterface
     {
         return $this
             ->createQueryBuilder()
-            ->select()
             ->where($this->normalizeCriteria($criteria))
             ->getQuery()
             ->count()
@@ -205,7 +204,7 @@ class RecordRepository implements RecordRepositoryInterface
         return $this->modelName;
     }
 
-    public function expr(): ExpressionBuilder
+    public function expr(): ExpressionBuilderInterface
     {
         return $this->recordManager->getExpressionBuilder();
     }

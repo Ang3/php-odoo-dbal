@@ -14,7 +14,7 @@ namespace Ang3\Component\Odoo\DBAL\Query;
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
-use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
+use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 
 class QueryBuilder
@@ -479,7 +479,7 @@ class QueryBuilder
     /**
      * Shortcut to the expression builder of the related client.
      */
-    public function expr(): ExpressionBuilder
+    public function expr(): ExpressionBuilderInterface
     {
         return $this->recordManager->getExpressionBuilder();
     }

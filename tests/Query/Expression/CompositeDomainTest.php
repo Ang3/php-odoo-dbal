@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests\Query\Expression;
 
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
@@ -43,7 +50,7 @@ final class CompositeDomainTest extends AbstractDomainTest
     /**
      * Data provider for the test for method ::toArray().
      */
-    public function provideToArrayDataSet(): array
+    public function provideToArrayCases(): iterable
     {
         $domainA = $this->createFakeDomain('A');
         $domainB = $this->createFakeDomain('B');
@@ -76,7 +83,7 @@ final class CompositeDomainTest extends AbstractDomainTest
             ],
             [ // 5
                 CompositeDomain::OR, [$domainA],
-                [ $domainA->toArray() ],
+                [$domainA->toArray()],
             ],
             [ // 6
                 CompositeDomain::OR, [$domainA, $domainB],
@@ -124,14 +131,17 @@ final class CompositeDomainTest extends AbstractDomainTest
     /**
      * @covers ::toArray
      *
-     * @dataProvider provideToArrayDataSet
+     * @dataProvider provideToArrayCases
      */
     public function testToArray(string $operator, array $domains = [], mixed $expectedResult = null, string $message = ''): void
     {
         $domain = new CompositeDomain($operator, $domains);
-        static::assertSame($expectedResult, $domain->toArray(), $message);
+        self::assertSame($expectedResult, $domain->toArray(), $message);
     }
 
+    /**
+     * @param mixed $expression
+     */
     protected function createFakeDomain(mixed $expression): DomainInterface
     {
         $fakeDomain = $this->createMock(DomainInterface::class);

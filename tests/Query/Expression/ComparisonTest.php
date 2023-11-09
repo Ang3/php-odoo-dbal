@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests\Query\Expression;
 
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\Comparison;
@@ -42,6 +49,6 @@ final class ComparisonTest extends AbstractDomainTest
     {
         $comparison = new Comparison('foo', Comparison::EQUAL_TO, 'bar');
 
-        static::assertSame(['foo', '=', 'bar'], $comparison->toArray());
+        self::assertSame(['foo', '=', 'bar'], $comparison->toArray());
     }
 }

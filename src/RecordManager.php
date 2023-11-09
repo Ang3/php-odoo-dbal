@@ -13,6 +13,7 @@ namespace Ang3\Component\Odoo\DBAL;
 
 use Ang3\Component\Odoo\Client;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
+use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
 use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
@@ -20,6 +21,7 @@ use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepository;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
+use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistryInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
 
 /**
@@ -28,14 +30,17 @@ use Ang3\Component\Odoo\DBAL\Schema\Schema;
 class RecordManager
 {
     private Schema $schema;
-    private RepositoryRegistry $repositoryRegistry;
-    private ExpressionBuilder $expressionBuilder;
+    private RepositoryRegistryInterface $repositoryRegistry;
+    private ExpressionBuilderInterface $expressionBuilder;
 
-    public function __construct(private readonly Client $client)
-    {
+    public function __construct(
+        private readonly Client $client,
+        RepositoryRegistryInterface $repositoryRegistry = null,
+        ExpressionBuilderInterface $expressionBuilder = null
+    ) {
         $this->schema = new Schema($this);
-        $this->repositoryRegistry = new RepositoryRegistry($this);
-        $this->expressionBuilder = new ExpressionBuilder();
+        $this->setRepositoryRegistry($repositoryRegistry);
+        $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
     }
 
     public function find(string $modelName, int $id, ?array $fields = []): ?array
@@ -74,14 +79,15 @@ class RecordManager
         return $this->repositoryRegistry->get($modelName);
     }
 
-    public function getRepositoryRegistry(): RepositoryRegistry
+    public function getRepositoryRegistry(): RepositoryRegistryInterface
     {
         return $this->repositoryRegistry;
     }
 
-    public function setRepositoryRegistry(RepositoryRegistry $repositoryRegistry): self
+    public function setRepositoryRegistry(RepositoryRegistryInterface $repositoryRegistry = null): self
     {
-        $this->repositoryRegistry = $repositoryRegistry;
+        $this->repositoryRegistry = $repositoryRegistry ?: new RepositoryRegistry($this);
+        $this->repositoryRegistry->setRecordManager($this);
 
         return $this;
     }
@@ -93,7 +99,7 @@ class RecordManager
         return $this;
     }
 
-    public function getExpressionBuilder(): ExpressionBuilder
+    public function getExpressionBuilder(): ExpressionBuilderInterface
     {
         return $this->expressionBuilder;
     }
