@@ -58,7 +58,9 @@ class RecordRepository implements RecordRepositoryInterface
 
         $this
             ->createQueryBuilder()
-            ->update((array) $ids, $data)
+            ->update()
+            ->setIds((array) $ids)
+            ->setValues($data)
             ->getQuery()
             ->execute()
         ;
@@ -72,7 +74,8 @@ class RecordRepository implements RecordRepositoryInterface
 
         $this
             ->createQueryBuilder()
-            ->delete((array) $ids)
+            ->delete()
+            ->setIds((array) $ids)
             ->getQuery()
             ->execute()
         ;

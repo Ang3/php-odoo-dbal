@@ -17,6 +17,8 @@ use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 
+use function Symfony\Component\String\s;
+
 class QueryBuilder
 {
     /**
@@ -32,6 +34,7 @@ class QueryBuilder
      * The type of query this is. Can be select, search, insert, update or delete.
      */
     private string $type = self::SELECT;
+    private string $from;
 
     /**
      * @var string[]
@@ -44,7 +47,40 @@ class QueryBuilder
     private ?int $maxResults = null;
     private ?int $firstResult = null;
 
-    public function __construct(private readonly RecordManager $recordManager, private string $from) {}
+    public function __construct(private readonly RecordManager $recordManager, string $from)
+    {
+        $this->from($from);
+    }
+
+    private static function isEmptyName(string $fieldName = null): bool
+    {
+        return '' === s((string) $fieldName)
+            ->replaceMatches('#[^a-zA-Z\-\_\.]+#', '')
+            ->toString()
+        ;
+    }
+
+    /**
+     * Sets the target model name.
+     */
+    public function from(string $modelName): self
+    {
+        if (self::isEmptyName($modelName)) {
+            throw new \InvalidArgumentException(sprintf('The model name cannot be empty (value: "%s").', $modelName));
+        }
+
+        $this->from = $modelName;
+
+        return $this;
+    }
+
+    /**
+     * Gets the target model name of the query.
+     */
+    public function getFrom(): ?string
+    {
+        return $this->from;
+    }
 
     /**
      * Defines the query of type "SELECT" with selected fields.
@@ -52,12 +88,9 @@ class QueryBuilder
      */
     public function select(array|string $fields = null): self
     {
+        $this->reset();
         $this->type = self::SELECT;
-        $this->select = [];
-        $this->values = [];
-        $this->ids = [];
-
-        $fields = array_filter(\is_array($fields) ? $fields : [$fields]);
+        $fields = array_filter(\is_array($fields) ? $fields : [$fields], static fn ($value) => null !== $value);
 
         foreach ($fields as $fieldName) {
             $this->addSelect($fieldName);
@@ -67,65 +100,16 @@ class QueryBuilder
     }
 
     /**
-     * Defines the query of type "SEARCH".
-     */
-    public function search(): self
-    {
-        $this->type = self::SEARCH;
-        $this->select = [];
-        $this->values = [];
-        $this->ids = [];
-
-        return $this;
-    }
-
-    /**
-     * Defines the query of type "INSERT".
-     */
-    public function insert(): self
-    {
-        $this->type = self::INSERT;
-        $this->select = [];
-        $this->ids = [];
-        $this->where = null;
-
-        return $this;
-    }
-
-    /**
-     * Defines the query of type "UPDATE" with ids of records to update and data.
-     *
-     * @param int[] $ids
-     */
-    public function update(array $ids, array $data = []): self
-    {
-        $this->type = self::UPDATE;
-        $this->select = [];
-
-        return $this->setIds($ids)->setValues($data);
-    }
-
-    /**
-     * Defines the query of type "DELETE" with ids of records to delete.
-     */
-    public function delete(array $ids): self
-    {
-        $this->type = self::DELETE;
-        $this->select = [];
-        $this->values = [];
-
-        return $this->setIds($ids);
-    }
-
-    /**
      * Adds a field to select.
      *
      * @throws QueryException when the type of the query is not "SELECT"
      */
     public function addSelect(string $fieldName): self
     {
-        if (self::SELECT !== $this->type) {
-            throw new QueryException('You can select fields in query of type "SELECT" only.');
+        $this->assertMethodQueryBuilderType(__METHOD__, self::SELECT);
+
+        if (self::isEmptyName($fieldName)) {
+            throw new \InvalidArgumentException(sprintf('The field name cannot be empty (value: "%s").', $fieldName));
         }
 
         if (!\in_array($fieldName, $this->select, true)) {
@@ -144,21 +128,47 @@ class QueryBuilder
     }
 
     /**
-     * Sets the target model name.
+     * Defines the query of type "SEARCH".
      */
-    public function from(string $modelName): self
+    public function search(string $modelName = null): self
     {
-        $this->from = $modelName;
+        $this->reset($modelName);
+        $this->type = self::SEARCH;
 
         return $this;
     }
 
     /**
-     * Gets the target model name of the query.
+     * Defines the query of type "INSERT".
      */
-    public function getFrom(): ?string
+    public function insert(string $modelName = null): self
     {
-        return $this->from;
+        $this->reset($modelName);
+        $this->type = self::INSERT;
+
+        return $this;
+    }
+
+    /**
+     * Defines the query of type "UPDATE" with ids of records to update and data.
+     */
+    public function update(string $modelName = null): self
+    {
+        $this->reset($modelName);
+        $this->type = self::UPDATE;
+
+        return $this;
+    }
+
+    /**
+     * Defines the query of type "DELETE" with ids of records to delete.
+     */
+    public function delete(string $modelName = null): self
+    {
+        $this->reset($modelName);
+        $this->type = self::DELETE;
+
+        return $this;
     }
 
     /**
@@ -166,12 +176,17 @@ class QueryBuilder
      *
      * @throws QueryException when the type of the query is not "UPDATE" nor "DELETE"
      */
-    public function setIds(array $ids): self
+    public function setIds(null|array|int $ids): self
     {
+        $this->assertMethodQueryBuilderType(__METHOD__, [self::UPDATE, self::DELETE]);
         $this->ids = [];
 
-        foreach ($ids as $id) {
-            $this->addId($id);
+        if (null !== $ids) {
+            $ids = \is_array($ids) ? $ids : [$ids];
+
+            foreach ($ids as $id) {
+                $this->addId($id);
+            }
         }
 
         return $this;
@@ -184,8 +199,10 @@ class QueryBuilder
      */
     public function addId(int $id): self
     {
-        if (!\in_array($this->type, [self::UPDATE, self::DELETE], true)) {
-            throw new QueryException('You can set indexes in query of type "UPDATE" or "DELETE" only.');
+        $this->assertMethodQueryBuilderType(__METHOD__, [self::UPDATE, self::DELETE]);
+
+        if ($id <= 0) {
+            throw new \InvalidArgumentException('An IDentifiers cannot be less than or equal to 0.');
         }
 
         if (!\in_array($id, $this->ids, true)) {
@@ -196,16 +213,21 @@ class QueryBuilder
     }
 
     /**
+     * @return int[]
+     */
+    public function getIds(): array
+    {
+        return $this->ids;
+    }
+
+    /**
      * Sets field values in case of query of type "INSERT" or "UPDATE".
      *
      * @throws QueryException when the type of the query is not "INSERT" nor "UPDATE"
      */
     public function setValues(array $values = []): self
     {
-        if (!\in_array($this->type, [self::INSERT, self::UPDATE], true)) {
-            throw new QueryException('You can set values in query of type "INSERT" or "UPDATE" only.');
-        }
-
+        $this->assertMethodQueryBuilderType(__METHOD__, [self::INSERT, self::UPDATE]);
         $this->values = [];
 
         foreach ($values as $fieldName => $value) {
@@ -222,10 +244,7 @@ class QueryBuilder
      */
     public function set(string $fieldName, mixed $value): self
     {
-        if (!\in_array($this->type, [self::INSERT, self::UPDATE], true)) {
-            throw new QueryException('You can set values in query of type "INSERT" or "UPDATE" only.');
-        }
-
+        $this->assertMethodQueryBuilderType(__METHOD__, [self::INSERT, self::UPDATE]);
         $this->values[$fieldName] = $value;
 
         return $this;
@@ -329,6 +348,10 @@ class QueryBuilder
      */
     public function addOrderBy(string $fieldName, bool $isAsc = true): self
     {
+        if (self::isEmptyName($fieldName)) {
+            throw new \InvalidArgumentException(sprintf('The field name cannot be empty (value: "%s").', $fieldName));
+        }
+
         if (!\in_array($this->type, [self::SELECT, self::SEARCH], true)) {
             throw new QueryException('You can set orders in query of type "SELECT", "SEARCH" only.');
         }
@@ -351,6 +374,10 @@ class QueryBuilder
      */
     public function setMaxResults(?int $maxResults): self
     {
+        if (null !== $maxResults && $maxResults <= 0) {
+            throw new \InvalidArgumentException(sprintf('The first result cannot be less than or equal to 0 (value: "%d").', $maxResults));
+        }
+
         $this->maxResults = $maxResults;
 
         return $this;
@@ -369,6 +396,10 @@ class QueryBuilder
      */
     public function setFirstResult(?int $firstResult): self
     {
+        if (null !== $firstResult && $firstResult < 0) {
+            throw new \InvalidArgumentException(sprintf('The first result cannot be less than 0 (value: "%d").', $firstResult));
+        }
+
         $this->firstResult = $firstResult;
 
         return $this;
@@ -380,6 +411,26 @@ class QueryBuilder
     public function getFirstResult(): ?int
     {
         return $this->firstResult;
+    }
+
+    /**
+     * Reinitialize the query builder with FROM clause.
+     */
+    public function reset(string $modelName = null): self
+    {
+        if (null !== $modelName) {
+            $this->from($modelName);
+        }
+
+        $this->select = [];
+        $this->ids = [];
+        $this->values = [];
+        $this->where = null;
+        $this->orders = [];
+        $this->maxResults = null;
+        $this->firstResult = null;
+
+        return $this;
     }
 
     /**
@@ -482,5 +533,17 @@ class QueryBuilder
     public function expr(): ExpressionBuilderInterface
     {
         return $this->recordManager->getExpressionBuilder();
+    }
+
+    /**
+     * @internal
+     */
+    private function assertMethodQueryBuilderType(string $methodName, array|string $types): void
+    {
+        $allowedTypes = \is_array($types) ? $types : [$types];
+
+        if (!\in_array($this->type, $allowedTypes, true)) {
+            throw new QueryException(sprintf('You cannot call the method "%s" when the query type is "%s" (possible types: "%s").', $methodName, $this->type, implode('", "', $allowedTypes)));
+        }
     }
 }

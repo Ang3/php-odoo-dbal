@@ -101,9 +101,10 @@ final class RecordRepositoryTest extends TestCase
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
         $queryBuilder->expects(self::once())->method('select')->with()->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('update')->with($ids, $data)->willReturn($queryBuilder);
+        $queryBuilder->expects(self::once())->method('update')->willReturn($queryBuilder);
+        $queryBuilder->expects(self::once())->method('setIds')->with($ids)->willReturn($queryBuilder);
+        $queryBuilder->expects(self::once())->method('setValues')->with($data)->willReturn($queryBuilder);
         $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('setValues');
         $queryBuilder->expects(self::never())->method('delete');
         $queryBuilder->expects(self::never())->method('where');
         $queryBuilder->expects(self::never())->method('andWhere');
@@ -149,7 +150,8 @@ final class RecordRepositoryTest extends TestCase
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
         $queryBuilder->expects(self::once())->method('select')->with()->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('delete')->with($ids)->willReturn($queryBuilder);
+        $queryBuilder->expects(self::once())->method('delete')->willReturn($queryBuilder);
+        $queryBuilder->expects(self::once())->method('setIds')->with($ids)->willReturn($queryBuilder);
         $queryBuilder->expects(self::never())->method('insert');
         $queryBuilder->expects(self::never())->method('setValues');
         $queryBuilder->expects(self::never())->method('update');
