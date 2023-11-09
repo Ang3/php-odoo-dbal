@@ -10,7 +10,6 @@ Summary
 - [Repositories](./repositories.md)
 - [Query builder](./query_builder.md)
   - [Expression builder](./expression_builder.md)
-- [Paginator](./paginator.md)
 
 Getting started
 ---------------
