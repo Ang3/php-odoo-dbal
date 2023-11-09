@@ -106,7 +106,7 @@ class QueryBuilder
      */
     public function addSelect(string $fieldName): self
     {
-        $this->assertMethodQueryBuilderType(__METHOD__, self::SELECT);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, self::SELECT);
 
         if (self::isEmptyName($fieldName)) {
             throw new \InvalidArgumentException(sprintf('The field name cannot be empty (value: "%s").', $fieldName));
@@ -178,7 +178,7 @@ class QueryBuilder
      */
     public function setIds(null|array|int $ids): self
     {
-        $this->assertMethodQueryBuilderType(__METHOD__, [self::UPDATE, self::DELETE]);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [self::UPDATE, self::DELETE]);
         $this->ids = [];
 
         if (null !== $ids) {
@@ -199,7 +199,7 @@ class QueryBuilder
      */
     public function addId(int $id): self
     {
-        $this->assertMethodQueryBuilderType(__METHOD__, [self::UPDATE, self::DELETE]);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [self::UPDATE, self::DELETE]);
 
         if ($id <= 0) {
             throw new \InvalidArgumentException('An IDentifiers cannot be less than or equal to 0.');
@@ -227,7 +227,7 @@ class QueryBuilder
      */
     public function setValues(array $values = []): self
     {
-        $this->assertMethodQueryBuilderType(__METHOD__, [self::INSERT, self::UPDATE]);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [self::INSERT, self::UPDATE]);
         $this->values = [];
 
         foreach ($values as $fieldName => $value) {
@@ -244,7 +244,7 @@ class QueryBuilder
      */
     public function set(string $fieldName, mixed $value): self
     {
-        $this->assertMethodQueryBuilderType(__METHOD__, [self::INSERT, self::UPDATE]);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [self::INSERT, self::UPDATE]);
         $this->values[$fieldName] = $value;
 
         return $this;
