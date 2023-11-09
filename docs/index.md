@@ -26,14 +26,6 @@ use Ang3\Component\Odoo\DBAL\RecordManager;
 $recordManager = new RecordManager($client);
 ```
 
-### Find a record
-
-The manager has a shortcut method to find a record by ID:
-
-```php
-$myCompany = $recordManager->find('res.company', 7); // array or NULL if company was not found.
-```
-
 For more advanced queries, please read the next section for repositories.
 
 ### Get a repository
@@ -48,6 +40,14 @@ $allCompanies = $companyRepository->findAll();
 ```
 
 Please read the [documentation of repositories](./repositories.md) for more information about available methods.
+
+#### Find a record
+
+The manager has a shortcut method to find a record by ID. You can use it directly instead of calling a repository:
+
+```php
+$myCompany = $recordManager->find('res.company', 7); // array or NULL if company was not found.
+```
 
 ### Add a custom repository
 
