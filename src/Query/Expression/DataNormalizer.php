@@ -15,6 +15,7 @@ use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Operation\OperationInterface;
+use Ang3\Component\Odoo\DBAL\Schema\Enum\DateTimeFormat;
 
 class DataNormalizer implements DataNormalizerInterface
 {
@@ -48,6 +49,27 @@ class DataNormalizer implements DataNormalizerInterface
             return $value;
         }
 
+        if ($value instanceof DomainInterface) {
+            return $this->normalizeValue($value->toArray());
+        }
+
+        if ($value instanceof OperationInterface) {
+            return $this->normalizeValue($value->toArray());
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            try {
+                $date = new \DateTime(sprintf('@%s', $value->getTimestamp()));
+            } catch (\Exception $e) {
+                throw new ConversionException(sprintf('Failed to convert date from timestamp "%d"', $value->getTimestamp()), 0, $e);
+            }
+
+            return $date
+                ->setTimezone(new \DateTimeZone('UTC'))
+                ->format(DateTimeFormat::Long->value)
+            ;
+        }
+
         if (\is_array($value) || is_iterable($value)) {
             $values = [];
 
@@ -56,29 +78,6 @@ class DataNormalizer implements DataNormalizerInterface
             }
 
             return $values;
-        }
-
-        if (\is_object($value)) {
-            if ($value instanceof DomainInterface) {
-                return $this->normalizeValue($value->toArray());
-            }
-
-            if ($value instanceof OperationInterface) {
-                return $this->normalizeValue($value->toArray());
-            }
-
-            if ($value instanceof \DateTimeInterface) {
-                try {
-                    $date = new \DateTime(sprintf('@%s', $value->getTimestamp()));
-                } catch (\Exception $e) {
-                    throw new ConversionException(sprintf('Failed to convert date from timestamp "%d"', $value->getTimestamp()), 0, $e);
-                }
-
-                return $date
-                    ->setTimezone(new \DateTimeZone('UTC'))
-                    ->format('Y-m-d H:i:s')
-                ;
-            }
         }
 
         return (string) $value;
