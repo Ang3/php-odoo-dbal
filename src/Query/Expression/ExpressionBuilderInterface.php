@@ -14,7 +14,6 @@ namespace Ang3\Component\Odoo\DBAL\Query\Expression;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\Comparison;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Operation\CollectionOperation;
 
 interface ExpressionBuilderInterface
@@ -137,15 +136,4 @@ interface ExpressionBuilderInterface
      * /!\ Can not be used in record create operation.
      */
     public function clearRecords(): CollectionOperation;
-
-    /**
-     * @throws \InvalidArgumentException when $criteria value is not valid
-     * @throws ConversionException       on data conversion failure
-     */
-    public function normalizeDomains(iterable $criteria = null): array;
-
-    /**
-     * @throws ConversionException on data conversion failure
-     */
-    public function normalizeData(array $data = []): array;
 }

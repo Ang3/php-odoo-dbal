@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL;
 
 use Ang3\Component\Odoo\Client;
+use Ang3\Component\Odoo\DBAL\Query\Expression\DataNormalizer;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
@@ -32,15 +33,18 @@ class RecordManager
     private Schema $schema;
     private RepositoryRegistryInterface $repositoryRegistry;
     private ExpressionBuilderInterface $expressionBuilder;
+    private DataNormalizer $dataNormalizer;
 
     public function __construct(
         private readonly Client $client,
         RepositoryRegistryInterface $repositoryRegistry = null,
-        ExpressionBuilderInterface $expressionBuilder = null
+        ExpressionBuilderInterface $expressionBuilder = null,
+        DataNormalizer $dataNormalizer = null,
     ) {
         $this->schema = new Schema($this);
         $this->setRepositoryRegistry($repositoryRegistry);
         $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
+        $this->dataNormalizer = $dataNormalizer ?: new DataNormalizer();
     }
 
     public function find(string $modelName, int $id, ?array $fields = []): ?array
@@ -102,6 +106,11 @@ class RecordManager
     public function getExpressionBuilder(): ExpressionBuilderInterface
     {
         return $this->expressionBuilder;
+    }
+
+    public function getDataNormalizer(): DataNormalizer
+    {
+        return $this->dataNormalizer;
     }
 
     public function getSchema(): Schema

@@ -11,25 +11,17 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query;
 
-use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Enum\QueryBuilderMethod;
 
 class QueryFactory implements QueryFactoryInterface
 {
     public function create(QueryBuilder $queryBuilder): OrmQuery
     {
-        $method = match ($queryBuilder->getMethod()) {
-            QueryBuilderMethod::Select => OrmQueryMethod::SearchAndRead,
-            QueryBuilderMethod::Search => OrmQueryMethod::Search,
-            QueryBuilderMethod::Insert => OrmQueryMethod::Create,
-            QueryBuilderMethod::Update => OrmQueryMethod::Write,
-            QueryBuilderMethod::Delete => OrmQueryMethod::Unlink,
-        };
-
-        $query = new OrmQuery($queryBuilder->getRecordManager(), $queryBuilder->getFrom(), $method->value);
+        $ormQueryMethod = $queryBuilder->getMethod()->getOrmQueryMethod();
+        $query = new OrmQuery($queryBuilder->getRecordManager(), $queryBuilder->getFrom(), $ormQueryMethod->value);
 
         if (\in_array($queryBuilder->getMethod(), [QueryBuilderMethod::Select, QueryBuilderMethod::Search], true)) {
-            $parameters = $queryBuilder->expr()->normalizeDomains($queryBuilder->getWhere());
+            $parameters = $queryBuilder->getRecordManager()->getDataNormalizer()->normalizeDomains($queryBuilder->getWhere());
         } elseif (QueryBuilderMethod::Delete === $queryBuilder->getMethod()) {
             if (!$queryBuilder->getIds()) {
                 throw new QueryException('You must set indexes for queries of type "DELETE".');
@@ -41,7 +33,7 @@ class QueryFactory implements QueryFactoryInterface
                 throw new QueryException('You must set values for queries of type "INSERT" and "UPDATE".');
             }
 
-            $parameters = $queryBuilder->expr()->normalizeData($queryBuilder->getValues());
+            $parameters = $queryBuilder->getRecordManager()->getDataNormalizer()->normalizeData($queryBuilder->getValues());
 
             if (QueryBuilderMethod::Update === $queryBuilder->getMethod()) {
                 if (!$queryBuilder->getIds()) {

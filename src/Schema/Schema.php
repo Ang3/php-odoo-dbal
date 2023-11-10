@@ -45,7 +45,7 @@ class Schema
             $expr = $this->recordManager->getExpressionBuilder();
             $modelData = (array) $this->recordManager
                 ->getClient()
-                ->executeKw(self::IR_MODEL, OrmQueryMethod::SearchAndRead->value, $expr->normalizeDomains($expr->eq('model', $modelName)))
+                ->executeKw(self::IR_MODEL, OrmQueryMethod::SearchAndRead->value, $this->recordManager->getDataNormalizer()->normalizeDomains($expr->eq('model', $modelName)))
             ;
 
             $modelData = $modelData[0] ?? null;
@@ -94,7 +94,7 @@ class Schema
             ->executeKw(
                 self::IR_MODEL_FIELDS,
                 OrmQueryMethod::SearchAndRead->value,
-                $expr->normalizeDomains($expr->eq('model_id', $modelData['id']))
+                $this->recordManager->getDataNormalizer()->normalizeDomains($expr->eq('model_id', $modelData['id']))
             )
         ;
 
@@ -110,7 +110,7 @@ class Schema
                     ->executeKw(
                         self::IR_MODEL_FIELD_SELECTION,
                         OrmQueryMethod::SearchAndRead->value,
-                        $expr->normalizeDomains($expr->eq('field_id', $fieldData['id']))
+                        $this->recordManager->getDataNormalizer()->normalizeDomains($expr->eq('field_id', $fieldData['id']))
                     )
                 ;
 

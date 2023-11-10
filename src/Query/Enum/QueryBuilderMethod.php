@@ -18,4 +18,15 @@ enum QueryBuilderMethod: string
     case Insert = 'insert';
     case Update = 'update';
     case Delete = 'delete';
+
+    public function getOrmQueryMethod(): OrmQueryMethod
+    {
+        return match ($this) {
+            QueryBuilderMethod::Select => OrmQueryMethod::SearchAndRead,
+            QueryBuilderMethod::Search => OrmQueryMethod::Search,
+            QueryBuilderMethod::Insert => OrmQueryMethod::Create,
+            QueryBuilderMethod::Update => OrmQueryMethod::Write,
+            QueryBuilderMethod::Delete => OrmQueryMethod::Unlink,
+        };
+    }
 }
