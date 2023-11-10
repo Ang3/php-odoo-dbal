@@ -481,7 +481,7 @@ class QueryBuilder
                 $options['order'] = implode(', ', $normalizedOrders);
             }
 
-            if ($this->firstResult) {
+            if (null !== $this->firstResult) {
                 $options['offset'] = $this->firstResult;
             }
 
