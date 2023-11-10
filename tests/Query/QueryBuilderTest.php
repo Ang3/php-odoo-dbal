@@ -773,7 +773,7 @@ final class QueryBuilderTest extends TestCase
         ?int $maxResults = null,
         ?int $firstResult = null
     ): void {
-        self::assertEquals(is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getType());
+        self::assertEquals(is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
         self::assertEquals($from ?: $this->modelName, $this->queryBuilder->getFrom());
         self::assertEquals($select, $this->queryBuilder->getSelect());
         self::assertEquals($values, $this->queryBuilder->getValues());
@@ -799,7 +799,7 @@ final class QueryBuilderTest extends TestCase
      */
     private function setQueryBuilderMethod(QueryBuilderMethod|string $method): void
     {
-        $this->setQueryBuilderPropertyValue('type', $method instanceof QueryBuilderMethod ? $method : QueryBuilderMethod::from($method));
+        $this->setQueryBuilderPropertyValue('method', $method instanceof QueryBuilderMethod ? $method : QueryBuilderMethod::from($method));
     }
 
     /**
