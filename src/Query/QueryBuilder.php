@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Query;
 
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
+use Ang3\Component\Odoo\DBAL\Query\Enum\QueryBuilderMethod;
+use Ang3\Component\Odoo\DBAL\Query\Enum\QueryOrder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
@@ -22,27 +24,16 @@ use function Symfony\Component\String\s;
 class QueryBuilder
 {
     /**
-     * Query methods.
-     */
-    public const SELECT = 'select';
-    public const SEARCH = 'search';
-    public const INSERT = 'insert';
-    public const UPDATE = 'update';
-    public const DELETE = 'delete';
-
-    /**
      * The type of query this is. Can be select, search, insert, update or delete.
      */
-    private string $type = self::SELECT;
+    private QueryBuilderMethod $type = QueryBuilderMethod::Select;
     private string $from;
-
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private array $select = [];
     private array $ids = [];
     private array $values = [];
     private ?DomainInterface $where = null;
+    /** @var array<string, QueryOrder> */
     private array $orders = [];
     private ?int $maxResults = null;
     private ?int $firstResult = null;
@@ -89,7 +80,7 @@ class QueryBuilder
     public function select(array|string $fields = null): self
     {
         $this->reset();
-        $this->type = self::SELECT;
+        $this->type = QueryBuilderMethod::Select;
         $fields = array_filter(\is_array($fields) ? $fields : [$fields], static fn ($value) => null !== $value);
 
         foreach ($fields as $fieldName) {
@@ -106,7 +97,7 @@ class QueryBuilder
      */
     public function addSelect(string $fieldName): self
     {
-        $this->assertMethodQueryBuilderType(__FUNCTION__, self::SELECT);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, QueryBuilderMethod::Select);
 
         if (self::isEmptyName($fieldName)) {
             throw new \InvalidArgumentException(sprintf('The field name cannot be empty (value: "%s").', $fieldName));
@@ -133,7 +124,7 @@ class QueryBuilder
     public function search(string $modelName = null): self
     {
         $this->reset($modelName);
-        $this->type = self::SEARCH;
+        $this->type = QueryBuilderMethod::Search;
 
         return $this;
     }
@@ -144,7 +135,7 @@ class QueryBuilder
     public function insert(string $modelName = null): self
     {
         $this->reset($modelName);
-        $this->type = self::INSERT;
+        $this->type = QueryBuilderMethod::Insert;
 
         return $this;
     }
@@ -155,7 +146,7 @@ class QueryBuilder
     public function update(string $modelName = null): self
     {
         $this->reset($modelName);
-        $this->type = self::UPDATE;
+        $this->type = QueryBuilderMethod::Update;
 
         return $this;
     }
@@ -166,7 +157,7 @@ class QueryBuilder
     public function delete(string $modelName = null): self
     {
         $this->reset($modelName);
-        $this->type = self::DELETE;
+        $this->type = QueryBuilderMethod::Delete;
 
         return $this;
     }
@@ -178,7 +169,7 @@ class QueryBuilder
      */
     public function setIds(null|array|int $ids): self
     {
-        $this->assertMethodQueryBuilderType(__FUNCTION__, [self::UPDATE, self::DELETE]);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Update, QueryBuilderMethod::Delete]);
         $this->ids = [];
 
         if (null !== $ids) {
@@ -199,7 +190,7 @@ class QueryBuilder
      */
     public function addId(int $id): self
     {
-        $this->assertMethodQueryBuilderType(__FUNCTION__, [self::UPDATE, self::DELETE]);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Update, QueryBuilderMethod::Delete]);
 
         if ($id <= 0) {
             throw new \InvalidArgumentException('An IDentifiers cannot be less than or equal to 0.');
@@ -227,7 +218,7 @@ class QueryBuilder
      */
     public function setValues(array $values = []): self
     {
-        $this->assertMethodQueryBuilderType(__FUNCTION__, [self::INSERT, self::UPDATE]);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Insert, QueryBuilderMethod::Update]);
         $this->values = [];
 
         foreach ($values as $fieldName => $value) {
@@ -244,7 +235,7 @@ class QueryBuilder
      */
     public function set(string $fieldName, mixed $value): self
     {
-        $this->assertMethodQueryBuilderType(__FUNCTION__, [self::INSERT, self::UPDATE]);
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Insert, QueryBuilderMethod::Update]);
         $this->values[$fieldName] = $value;
 
         return $this;
@@ -306,22 +297,11 @@ class QueryBuilder
     }
 
     /**
-     * @internal
-     *
-     * @throws QueryException when the type of the query is not "SELECT" nor "SEARCH"
-     */
-    private function assertSupportsWhereClause(): void
-    {
-        if (!\in_array($this->type, [self::SELECT, self::SEARCH], true)) {
-            throw new QueryException('You can set criteria in query of type "SELECT" or "SEARCH" only.');
-        }
-    }
-
-    /**
      * Sets orders.
      */
     public function setOrders(array $orders = []): self
     {
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Select, QueryBuilderMethod::Search]);
         $this->orders = [];
 
         foreach ($orders as $fieldName => $isAsc) {
@@ -334,11 +314,12 @@ class QueryBuilder
     /**
      * Clears orders and adds one.
      */
-    public function orderBy(string $fieldName, bool $isAsc = true): self
+    public function orderBy(string $fieldName, QueryOrder|string $order = QueryOrder::ASC): self
     {
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Select, QueryBuilderMethod::Search]);
         $this->orders = [];
 
-        return $this->addOrderBy($fieldName, $isAsc);
+        return $this->addOrderBy($fieldName, $order);
     }
 
     /**
@@ -346,17 +327,15 @@ class QueryBuilder
      *
      * @throws QueryException when the query type is not valid
      */
-    public function addOrderBy(string $fieldName, bool $isAsc = true): self
+    public function addOrderBy(string $fieldName, QueryOrder|string $order = QueryOrder::ASC): self
     {
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Select, QueryBuilderMethod::Search]);
+
         if (self::isEmptyName($fieldName)) {
             throw new \InvalidArgumentException(sprintf('The field name cannot be empty (value: "%s").', $fieldName));
         }
 
-        if (!\in_array($this->type, [self::SELECT, self::SEARCH], true)) {
-            throw new QueryException('You can set orders in query of type "SELECT", "SEARCH" only.');
-        }
-
-        $this->orders[$fieldName] = $isAsc;
+        $this->orders[$fieldName] = $order instanceof QueryOrder ? $order : QueryOrder::from(strtolower($order));
 
         return $this;
     }
@@ -374,6 +353,8 @@ class QueryBuilder
      */
     public function setMaxResults(?int $maxResults): self
     {
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Select, QueryBuilderMethod::Search]);
+
         if (null !== $maxResults && $maxResults <= 0) {
             throw new \InvalidArgumentException(sprintf('The first result cannot be less than or equal to 0 (value: "%d").', $maxResults));
         }
@@ -396,6 +377,8 @@ class QueryBuilder
      */
     public function setFirstResult(?int $firstResult): self
     {
+        $this->assertMethodQueryBuilderType(__FUNCTION__, [QueryBuilderMethod::Select, QueryBuilderMethod::Search]);
+
         if (null !== $firstResult && $firstResult < 0) {
             throw new \InvalidArgumentException(sprintf('The first result cannot be less than 0 (value: "%d").', $firstResult));
         }
@@ -442,19 +425,18 @@ class QueryBuilder
     public function getQuery(): OrmQuery
     {
         $method = match ($this->type) {
-            self::SELECT => OrmQueryMethod::SearchAndRead,
-            self::SEARCH => OrmQueryMethod::Search,
-            self::INSERT => OrmQueryMethod::Create,
-            self::UPDATE => OrmQueryMethod::Write,
-            self::DELETE => OrmQueryMethod::Unlink,
-            default => throw new \InvalidArgumentException(sprintf('The query type "%s" is not valid.', $this->type)),
+            QueryBuilderMethod::Select => OrmQueryMethod::SearchAndRead,
+            QueryBuilderMethod::Search => OrmQueryMethod::Search,
+            QueryBuilderMethod::Insert => OrmQueryMethod::Create,
+            QueryBuilderMethod::Update => OrmQueryMethod::Write,
+            QueryBuilderMethod::Delete => OrmQueryMethod::Unlink,
         };
 
         $query = new OrmQuery($this->recordManager, $this->from, $method->value);
 
-        if (\in_array($this->type, [self::SELECT, self::SEARCH], true)) {
+        if (\in_array($this->type, [QueryBuilderMethod::Select, QueryBuilderMethod::Search], true)) {
             $parameters = $this->expr()->normalizeDomains($this->where);
-        } elseif (self::DELETE === $this->type) {
+        } elseif (QueryBuilderMethod::Delete === $this->type) {
             if (!$this->ids) {
                 throw new QueryException('You must set indexes for queries of type "DELETE".');
             }
@@ -467,7 +449,7 @@ class QueryBuilder
 
             $parameters = $this->expr()->normalizeData($this->values);
 
-            if (self::UPDATE === $this->type) {
+            if (QueryBuilderMethod::Update === $this->type) {
                 if (!$this->ids) {
                     throw new QueryException('You must set indexes for queries of type "UPDATE".');
                 }
@@ -480,21 +462,23 @@ class QueryBuilder
 
         $query->setParameters($parameters);
 
-        if (\in_array($this->type, [self::SELECT, self::SEARCH], true)) {
+        if (\in_array($this->type, [QueryBuilderMethod::Select, QueryBuilderMethod::Search], true)) {
             $options = [];
 
-            if (self::SELECT === $this->type && $this->select) {
+            if (QueryBuilderMethod::Select === $this->type && $this->select) {
                 $options['fields'] = $this->select;
             }
 
             $orders = $this->orders;
 
             if ($orders) {
-                foreach ($orders as $fieldName => $isAsc) {
-                    $orders[$fieldName] = sprintf('%s %s', $fieldName, $isAsc ? 'asc' : 'desc');
+                $normalizedOrders = [];
+
+                foreach ($orders as $fieldName => $order) {
+                    $normalizedOrders[$fieldName] = sprintf('%s %s', $fieldName, $order->value);
                 }
 
-                $options['order'] = implode(', ', $orders);
+                $options['order'] = implode(', ', $normalizedOrders);
             }
 
             if ($this->firstResult) {
@@ -514,7 +498,7 @@ class QueryBuilder
     /**
      * Gets the type of the query.
      */
-    public function getType(): string
+    public function getType(): QueryBuilderMethod
     {
         return $this->type;
     }
@@ -537,13 +521,25 @@ class QueryBuilder
 
     /**
      * @internal
+     *
+     * @throws QueryException when the type of the query is not "SELECT" nor "SEARCH"
      */
-    private function assertMethodQueryBuilderType(string $methodName, array|string $types): void
+    private function assertSupportsWhereClause(): void
     {
-        $allowedTypes = \is_array($types) ? $types : [$types];
+        if (!\in_array($this->type, [QueryBuilderMethod::Select, QueryBuilderMethod::Search], true)) {
+            throw new QueryException('You can set criteria in query of type "SELECT" or "SEARCH" only.');
+        }
+    }
 
-        if (!\in_array($this->type, $allowedTypes, true)) {
-            throw new QueryException(sprintf('You cannot call the method "%s" when the query type is "%s" (possible types: "%s").', $methodName, $this->type, implode('", "', $allowedTypes)));
+    /**
+     * @internal
+     */
+    private function assertMethodQueryBuilderType(string $methodName, array|QueryBuilderMethod|string $types): void
+    {
+        $allowedTypes = array_map(static fn ($value) => $value instanceof QueryBuilderMethod ? $value->value : $value, \is_array($types) ? $types : [$types]);
+
+        if (!\in_array($this->type->value, $allowedTypes, true)) {
+            throw new QueryException(sprintf('You cannot call the method "%s" when the query type is "%s" (possible types: "%s").', $methodName, $this->type->value, implode('", "', $allowedTypes)));
         }
     }
 }
