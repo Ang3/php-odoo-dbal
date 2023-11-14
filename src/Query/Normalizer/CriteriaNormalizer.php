@@ -19,11 +19,14 @@ use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 
 class CriteriaNormalizer
 {
+    private readonly ValueNormalizer $valueNormalizer;
+
     public function __construct(private readonly RecordManager $recordManager)
     {
+        $this->valueNormalizer = new ValueNormalizer($this->recordManager);
     }
 
-    public function normalize(ModelMetadata $model, DomainInterface|array $criteria = null): array
+    public function normalize(ModelMetadata $model, array|DomainInterface $criteria = null): array
     {
         if (!$criteria) {
             return [[]];
@@ -55,7 +58,7 @@ class CriteriaNormalizer
 
         if ($domain instanceof Comparison) {
             $field = $this->recordManager->getSchema()->getField($model, $domain->getFieldName());
-            $domain->setValue($this->recordManager->getTypeConverter()->convertToDatabaseValue($domain->getValue(), $field->getType()->value));
+            $domain->setValue($this->valueNormalizer->normalizeFieldValue($field, $domain->getValue()));
         }
 
         return $domain;

@@ -15,21 +15,18 @@ use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\IrModel;
 
-class MetadataFactory
+class MetadataFactory implements MetadataFactoryInterface
 {
-    public function __construct(private readonly RecordManager $recordManager)
-    {
-    }
+    public function __construct(private readonly RecordManager $recordManager) {}
 
-    public function createModel(array $modelData): ModelMetadata
+    public function createModel(array $payload): ModelMetadata
     {
-        $expr = $this->recordManager->getExpressionBuilder();
         $fields = (array) $this->recordManager
             ->getClient()
             ->executeKw(
                 IrModel::Fields->value,
                 OrmQueryMethod::SearchAndRead->value,
-                $this->recordManager->getDataNormalizer()->normalizeDomains($expr->eq('model_id', $modelData['id']))
+                [['model_id', '=', $payload['id']]]
             )
         ;
 
@@ -45,7 +42,7 @@ class MetadataFactory
                     ->executeKw(
                         IrModel::FieldsSelection->value,
                         OrmQueryMethod::SearchAndRead->value,
-                        $this->recordManager->getDataNormalizer()->normalizeDomains($expr->eq('field_id', $fieldData['id']))
+                        [['field_id', '=', $fieldData['id']]]
                     )
                 ;
 
@@ -71,6 +68,6 @@ class MetadataFactory
             $fields[$key] = new FieldMetadata($fieldData);
         }
 
-        return new ModelMetadata($modelData, $fields);
+        return new ModelMetadata($payload, $fields);
     }
 }

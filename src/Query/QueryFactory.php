@@ -12,15 +12,22 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Query;
 
 use Ang3\Component\Odoo\DBAL\Query\Normalizer\CriteriaNormalizer;
+use Ang3\Component\Odoo\DBAL\Query\Normalizer\OrderNormalizer;
+use Ang3\Component\Odoo\DBAL\Query\Normalizer\ValueNormalizer;
 use Ang3\Component\Odoo\DBAL\RecordManager;
+use Ang3\Component\Odoo\DBAL\Schema\SchemaException;
 
 class QueryFactory implements QueryFactoryInterface
 {
     private readonly CriteriaNormalizer $criteriaNormalizer;
+    private readonly ValueNormalizer $valueNormalizer;
+    private readonly OrderNormalizer $orderNormalizer;
 
     public function __construct(private readonly RecordManager $recordManager)
     {
         $this->criteriaNormalizer = new CriteriaNormalizer($this->recordManager);
+        $this->valueNormalizer = new ValueNormalizer($this->recordManager);
+        $this->orderNormalizer = new OrderNormalizer();
     }
 
     public function create(QueryBuilder $queryBuilder): OrmQuery
@@ -42,7 +49,7 @@ class QueryFactory implements QueryFactoryInterface
                 throw new QueryException('You must set values for queries of type "INSERT" and "UPDATE".');
             }
 
-            $parameters = $queryBuilder->getRecordManager()->getDataNormalizer()->normalizeData($queryBuilder->getValues());
+            $parameters = $this->valueNormalizer->normalize($model, $queryBuilder->getValues());
 
             if ($queryBuilder->getMethod()->isUpdate()) {
                 if (!$queryBuilder->getIds()) {
@@ -62,18 +69,20 @@ class QueryFactory implements QueryFactoryInterface
 
             if ($queryBuilder->getMethod()->isSelection() && $queryBuilder->getSelect()) {
                 $options['fields'] = $queryBuilder->getSelect();
+
+                foreach ($options['fields'] as $fieldName) {
+                    if (!\is_string($fieldName)) {
+                        throw new QueryException(sprintf('Expected selected fields of type "string", got "%s".', get_debug_type($fieldName)));
+                    }
+
+                    if (!$model->hasField($fieldName)) {
+                        throw SchemaException::fieldNotFound($model->getName(), $fieldName);
+                    }
+                }
             }
 
-            $orders = $queryBuilder->getOrders();
-
-            if ($orders) {
-                $normalizedOrders = [];
-
-                foreach ($orders as $fieldName => $order) {
-                    $normalizedOrders[$fieldName] = sprintf('%s %s', $fieldName, $order->value);
-                }
-
-                $options['order'] = implode(', ', $normalizedOrders);
+            if ($orders = $this->orderNormalizer->normalize($model, $queryBuilder->getOrders())) {
+                $options['order'] = $orders;
             }
 
             if (null !== $queryBuilder->getFirstResult()) {

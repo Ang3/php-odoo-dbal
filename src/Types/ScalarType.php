@@ -18,7 +18,7 @@ class ScalarType extends Type
         return 'scalar';
     }
 
-    public function convertToDatabaseValue(mixed $value, array $context = []): bool|int|float|string|null
+    public function convertToDatabaseValue(mixed $value, array $context = []): null|bool|float|int|string
     {
         if (null === $value) {
             return null;
@@ -31,7 +31,7 @@ class ScalarType extends Type
         return $value;
     }
 
-    public function convertToPhpValue(mixed $value, array $context = []): bool|int|float|string|null
+    public function convertToPhpValue(mixed $value, array $context = []): null|bool|float|int|string
     {
         if (null === $value) {
             return null;

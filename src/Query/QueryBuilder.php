@@ -39,8 +39,11 @@ class QueryBuilder
 
     private QueryFactoryInterface $queryFactory;
 
-    public function __construct(private readonly RecordManager $recordManager, string $from, QueryFactoryInterface $queryFactory = null)
-    {
+    public function __construct(
+        private readonly RecordManager $recordManager,
+        string $from,
+        QueryFactoryInterface $queryFactory = null
+    ) {
         $this->from($from);
         $this->queryFactory = $queryFactory ?: new QueryFactory($recordManager);
     }

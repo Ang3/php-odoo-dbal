@@ -19,7 +19,7 @@ use Ang3\Component\Odoo\DBAL\Schema\Metadata\FieldMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Resolver\FieldResolver;
 
-class Schema
+class Schema implements SchemaInterface
 {
     private FieldResolver $fieldResolver;
 
@@ -31,16 +31,6 @@ class Schema
         $this->fieldResolver = new FieldResolver($this);
     }
 
-    public function getField(ModelMetadata|string $model, string $fieldName): FieldMetadata
-    {
-        $model = $model instanceof ModelMetadata ? $model : $this->getModel($model);
-
-        return $this->fieldResolver->getField($model, $fieldName);
-    }
-
-    /**
-     * @throws SchemaException when the model was not found
-     */
     public function getModel(string $modelName): ModelMetadata
     {
         if (!$this->hasModel($modelName)) {
@@ -59,15 +49,12 @@ class Schema
             return $model;
         }
 
-        $expr = $this->recordManager->getExpressionBuilder();
         $modelData = (array) $this->recordManager
             ->getClient()
             ->executeKw(
                 IrModel::Model->value,
                 OrmQueryMethod::SearchAndRead->value,
-                $this->recordManager
-                    ->getDataNormalizer()
-                    ->normalizeDomains($expr->eq('model', $modelName))
+                [['model', '=', $modelName]]
             )
         ;
 
@@ -89,16 +76,18 @@ class Schema
         return $model;
     }
 
+    public function getField(ModelMetadata|string $model, string $fieldName): FieldMetadata
+    {
+        $model = $model instanceof ModelMetadata ? $model : $this->getModel($model);
+
+        return $this->fieldResolver->getField($model, $fieldName);
+    }
+
     public function hasModel(string $modelName): bool
     {
         return \in_array($modelName, $this->getModelNames(), true);
     }
 
-    /**
-     * Gets all model names.
-     *
-     * @return string[]
-     */
     public function getModelNames(): array
     {
         if (!$this->modelNames) {
@@ -133,10 +122,5 @@ class Schema
         }
 
         return $this->modelNames;
-    }
-
-    public function getFieldResolver(): FieldResolver
-    {
-        return $this->fieldResolver;
     }
 }

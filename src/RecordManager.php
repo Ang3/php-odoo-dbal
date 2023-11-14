@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL;
 
 use Ang3\Component\Odoo\Client;
-use Ang3\Component\Odoo\DBAL\Query\Expression\DataNormalizer;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
@@ -24,10 +23,11 @@ use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistryInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\MetadataFactory;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\MetadataFactoryInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
+use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
 use Ang3\Component\Odoo\DBAL\Types\TypeConverter;
-use Ang3\Component\Odoo\DBAL\Types\TypeRegistry;
-use Ang3\Component\Odoo\DBAL\Types\TypeRegistryInterface;
+use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>
@@ -35,31 +35,26 @@ use Ang3\Component\Odoo\DBAL\Types\TypeRegistryInterface;
 class RecordManager
 {
     private Configuration $configuration;
-    private Schema $schema;
-    private TypeRegistryInterface $typeRegistry;
+    private SchemaInterface $schema;
+    private TypeConverterInterface $typeConverter;
     private RepositoryRegistryInterface $repositoryRegistry;
+    private MetadataFactoryInterface $metadataFactory;
     private ExpressionBuilderInterface $expressionBuilder;
-    private TypeConverter $typeConverter;
-    private DataNormalizer $dataNormalizer;
-    private MetadataFactory $metadataFactory;
 
     public function __construct(
         private readonly Client $client,
         Configuration $configuration = null,
-        TypeRegistryInterface $typeRegistry = null,
+        TypeConverterInterface $typeConverter = null,
         RepositoryRegistryInterface $repositoryRegistry = null,
+        MetadataFactoryInterface $metadataFactory = null,
         ExpressionBuilderInterface $expressionBuilder = null,
-        DataNormalizer $dataNormalizer = null,
-        MetadataFactory $metadataFactory = null,
     ) {
         $this->configuration = $configuration ?: new Configuration();
         $this->schema = new Schema($this);
-        $this->typeRegistry = $typeRegistry ?: new TypeRegistry();
+        $this->typeConverter = $typeConverter ?: new TypeConverter();
         $this->setRepositoryRegistry($repositoryRegistry);
-        $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
-        $this->typeConverter = new TypeConverter();
-        $this->dataNormalizer = $dataNormalizer ?: new DataNormalizer();
         $this->metadataFactory = $metadataFactory ?: new MetadataFactory($this);
+        $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
     }
 
     public function find(string $modelName, int $id, ?array $fields = []): ?array
@@ -123,19 +118,9 @@ class RecordManager
         return $this->client;
     }
 
-    public function getTypeRegistry(): TypeRegistryInterface
-    {
-        return $this->typeRegistry;
-    }
-
-    public function getTypeConverter(): TypeConverter
+    public function getTypeConverter(): TypeConverterInterface
     {
         return $this->typeConverter;
-    }
-
-    public function getDataNormalizer(): DataNormalizer
-    {
-        return $this->dataNormalizer;
     }
 
     public function getConfiguration(): Configuration
@@ -143,12 +128,12 @@ class RecordManager
         return $this->configuration;
     }
 
-    public function getSchema(): Schema
+    public function getSchema(): SchemaInterface
     {
         return $this->schema;
     }
 
-    public function getMetadataFactory(): MetadataFactory
+    public function getMetadataFactory(): MetadataFactoryInterface
     {
         return $this->metadataFactory;
     }

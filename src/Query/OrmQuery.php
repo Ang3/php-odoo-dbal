@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Query;
 
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
+use Ang3\Component\Odoo\DBAL\Query\Normalizer\ResultNormalizer;
 
 class OrmQuery extends AbstractQuery implements QueryInterface
 {
@@ -166,7 +167,10 @@ class OrmQuery extends AbstractQuery implements QueryInterface
             throw new QueryException(sprintf('You can get results with search queries only, but the query method is "%s".', $this->method));
         }
 
-        return (array) $this->execute();
+        $model = $this->recordManager->getSchema()->getModel($this->name);
+        $resultNormalizer = new ResultNormalizer($this->recordManager);
+
+        return $resultNormalizer->normalize($model, (array) $this->execute());
     }
 
     /**

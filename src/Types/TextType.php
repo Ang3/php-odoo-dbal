@@ -18,12 +18,12 @@ class TextType extends ScalarType
         return Types::TEXT;
     }
 
-    public function convertToDatabaseValue(mixed $value, array $context = []): bool|int|float|string|null
+    public function convertToDatabaseValue(mixed $value, array $context = []): null|bool|float|int|string
     {
         return null !== $value ? (string) parent::convertToDatabaseValue($value, $context) : null;
     }
 
-    public function convertToPhpValue(mixed $value, array $context = []): bool|int|float|string|null
+    public function convertToPhpValue(mixed $value, array $context = []): null|bool|float|int|string
     {
         return null !== $value ? (string) parent::convertToPhpValue($value, $context) : null;
     }

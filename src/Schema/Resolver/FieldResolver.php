@@ -16,13 +16,16 @@ use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaException;
 
+/**
+ * This resolver is used to get recursive field from a model.
+ */
 class FieldResolver
 {
-    public function __construct(private readonly Schema $schema)
-    {
-    }
+    public function __construct(private readonly Schema $schema) {}
 
     /**
+     * Gets the metadata of a field recursively with dot notation.
+     *
      * @throws \InvalidArgumentException on invalid field name
      * @throws SchemaException           when the field was not found
      */

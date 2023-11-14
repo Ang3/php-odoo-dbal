@@ -20,10 +20,9 @@ class Configuration
     private CacheItemPoolInterface $metadataCache;
 
     public function __construct(
-        ?DatabaseSettings $databaseSettings = null,
-        ?CacheItemPoolInterface $metadataCache = null
-    )
-    {
+        DatabaseSettings $databaseSettings = null,
+        CacheItemPoolInterface $metadataCache = null
+    ) {
         $this->databaseSettings = $databaseSettings ?: new DatabaseSettings();
         $this->metadataCache = $metadataCache ?: new FilesystemAdapter();
     }

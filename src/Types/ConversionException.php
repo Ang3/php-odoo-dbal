@@ -19,7 +19,7 @@ class ConversionException extends TypeException
     /**
      * Thrown when a PHP to Database Type Conversion fails.
      */
-    public static function conversionToPhpFailed(mixed $value, string $toType, ?\Throwable $previous = null): self
+    public static function conversionToPhpFailed(mixed $value, string $toType, \Throwable $previous = null): self
     {
         $value = self::getValueAsString($value);
 
@@ -29,7 +29,7 @@ class ConversionException extends TypeException
     /**
      * Thrown when a Database to PHP Type Conversion fails and we can make a statement about the expected format.
      */
-    public static function unexpectedDatabaseFormat(mixed $value, string $toType, string $expectedFormat, ?\Throwable $previous = null): self
+    public static function unexpectedDatabaseFormat(mixed $value, string $toType, string $expectedFormat, \Throwable $previous = null): self
     {
         $value = self::getValueAsString($value);
 
@@ -46,7 +46,7 @@ class ConversionException extends TypeException
      *
      * @param string[] $possibleTypes
      */
-    public static function unexpectedType(mixed $value, string $toType, array $possibleTypes, ?\Throwable $previous = null): self
+    public static function unexpectedType(mixed $value, string $toType, array $possibleTypes, \Throwable $previous = null): self
     {
         if (\is_scalar($value) || null === $value) {
             return new self(sprintf(

@@ -18,7 +18,7 @@ class FloatType extends Type
         return Types::FLOAT;
     }
 
-    public function convertToDatabaseValue(mixed $value, array $context = []): int|float|null
+    public function convertToDatabaseValue(mixed $value, array $context = []): null|float|int
     {
         if (null === $value) {
             return null;

@@ -9,6 +9,9 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Query;
+namespace Ang3\Component\Odoo\DBAL\Schema\Metadata;
 
-class NativeQuery extends AbstractQuery implements QueryInterface {}
+interface MetadataFactoryInterface
+{
+    public function createModel(array $payload): ModelMetadata;
+}
