@@ -12,10 +12,13 @@ This library uses the [PHP Odoo API client](https://github.com/Ang3/php-odoo-api
 
 **Main features**
 
-- Record manager
-- Query builder
-- Repositories
-- Paginator
+- Record manager - Main entrypoint of DBAL API
+- Schema - Get models and fields metadata
+- Custom metadata caching
+- Types converter and custom types
+- Query builder to make queries easily
+- Repositories for built-in methods and reusable queries
+- Lazy result for massive data (select/search)
 
 Installation
 ------------
