@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Schema;
 
 use Ang3\Component\Odoo\DBAL\Exception\BaseException;
+use Ang3\Component\Odoo\DBAL\Schema\Enum\ColumnType;
 
 class SchemaException extends BaseException
 {
@@ -28,5 +29,10 @@ class SchemaException extends BaseException
     public static function modelNotFound(string $modelName): self
     {
         return new self(sprintf('The model "%s" was not found on the database.', $modelName));
+    }
+
+    public static function invalidFieldType(string $modelName, string $fieldName, ColumnType $type, array $expectedTypes): self
+    {
+        return new self(sprintf('Expected type "%s" for the field "%s" from model "%s", got "%s".', implode('", "', $expectedTypes), $fieldName, $modelName, $type->value));
     }
 }

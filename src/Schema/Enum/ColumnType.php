@@ -30,4 +30,13 @@ enum ColumnType: string
     case ManyToOne = 'many2one';
     case ManyToMany = 'many2many';
     case OneToMany = 'one2many';
+
+    public static function associations(): array
+    {
+        return [
+            ColumnType::ManyToOne,
+            ColumnType::ManyToMany,
+            ColumnType::OneToMany,
+        ];
+    }
 }

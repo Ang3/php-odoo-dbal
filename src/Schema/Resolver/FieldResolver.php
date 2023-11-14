@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Schema\Resolver;
 
+use Ang3\Component\Odoo\DBAL\Schema\Enum\ColumnType;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\FieldMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
@@ -49,7 +50,7 @@ class FieldResolver
         $flattenedCurrentFieldName = implode('.', $context['traversed_fields']);
 
         if (!$field->isAssociation()) {
-            throw SchemaException::fieldNotFound($model->getName(), $flattenedCurrentFieldName);
+            throw SchemaException::invalidFieldType($model->getName(), $flattenedCurrentFieldName, $field->getType(), ColumnType::associations());
         }
 
         $targetModelName = $field->getTargetModelName();
