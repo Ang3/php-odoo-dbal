@@ -13,51 +13,80 @@ namespace Ang3\Component\Odoo\DBAL\Schema;
 
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\RecordManager;
+use Ang3\Component\Odoo\DBAL\Schema\Enum\CacheKey;
+use Ang3\Component\Odoo\DBAL\Schema\Enum\IrModel;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\FieldMetadata;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
+use Ang3\Component\Odoo\DBAL\Schema\Resolver\FieldResolver;
 
 class Schema
 {
-    public const IR_MODEL = 'ir.model';
-    public const IR_MODEL_FIELDS = 'ir.model.fields';
-    public const IR_MODEL_FIELD_SELECTION = 'ir.model.fields.selection';
+    private FieldResolver $fieldResolver;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private array $modelNames = [];
 
-    /**
-     * @var Model[]
-     */
-    private array $loadedModels = [];
+    public function __construct(private readonly RecordManager $recordManager)
+    {
+        $this->fieldResolver = new FieldResolver($this);
+    }
 
-    public function __construct(private readonly RecordManager $recordManager) {}
+    public function getField(ModelMetadata|string $model, string $fieldName): FieldMetadata
+    {
+        $model = $model instanceof ModelMetadata ? $model : $this->getModel($model);
+
+        return $this->fieldResolver->getField($model, $fieldName);
+    }
 
     /**
      * @throws SchemaException when the model was not found
      */
-    public function getModel(string $modelName): Model
+    public function getModel(string $modelName): ModelMetadata
     {
         if (!$this->hasModel($modelName)) {
             throw SchemaException::modelNotFound($modelName);
         }
 
-        if (!isset($this->loadedModels[$modelName])) {
-            $expr = $this->recordManager->getExpressionBuilder();
-            $modelData = (array) $this->recordManager
-                ->getClient()
-                ->executeKw(self::IR_MODEL, OrmQueryMethod::SearchAndRead->value, $this->recordManager->getDataNormalizer()->normalizeDomains($expr->eq('model', $modelName)))
-            ;
+        $modelItem = $this->recordManager
+            ->getConfiguration()
+            ->getMetadataCache()
+            ->getItem(CacheKey::model($modelName))
+        ;
 
-            $modelData = $modelData[0] ?? null;
+        $model = $modelItem->get();
 
-            if (!\is_array($modelData)) {
-                throw SchemaException::modelNotFound($modelName);
-            }
-
-            $this->loadedModels[$modelName] = $this->createModel($modelData);
+        if ($model instanceof ModelMetadata) {
+            return $model;
         }
 
-        return $this->loadedModels[$modelName];
+        $expr = $this->recordManager->getExpressionBuilder();
+        $modelData = (array) $this->recordManager
+            ->getClient()
+            ->executeKw(
+                IrModel::Model->value,
+                OrmQueryMethod::SearchAndRead->value,
+                $this->recordManager
+                    ->getDataNormalizer()
+                    ->normalizeDomains($expr->eq('model', $modelName))
+            )
+        ;
+
+        $modelData = $modelData[0] ?? null;
+
+        if (!\is_array($modelData)) {
+            throw SchemaException::modelNotFound($modelName);
+        }
+
+        $model = $this->recordManager->getMetadataFactory()->createModel($modelData);
+
+        // Caching
+        $this->recordManager
+            ->getConfiguration()
+            ->getMetadataCache()
+            ->save($modelItem->set($model))
+        ;
+
+        return $model;
     }
 
     public function hasModel(string $modelName): bool
@@ -73,69 +102,41 @@ class Schema
     public function getModelNames(): array
     {
         if (!$this->modelNames) {
-            $this->modelNames = array_column((array) $this->recordManager
+            $modelNamesItem = $this->recordManager
+                ->getConfiguration()
+                ->getMetadataCache()
+                ->getItem(CacheKey::ModelNames->value)
+            ;
+
+            $modelNames = $modelNamesItem->get();
+
+            if (\is_array($modelNames)) {
+                $this->modelNames = $modelNames;
+
+                return $this->modelNames;
+            }
+
+            $modelNames = array_column((array) $this->recordManager
                 ->getClient()
-                ->executeKw(self::IR_MODEL, OrmQueryMethod::SearchAndRead->value, [[]], [
+                ->executeKw(IrModel::Model->value, OrmQueryMethod::SearchAndRead->value, [[]], [
                     'fields' => ['model'],
                 ]), 'model');
+
+            $this->modelNames = $modelNames;
+
+            // Caching
+            $this->recordManager
+                ->getConfiguration()
+                ->getMetadataCache()
+                ->save($modelNamesItem->set($modelNames))
+            ;
         }
 
         return $this->modelNames;
     }
 
-    /**
-     * @internal
-     */
-    private function createModel(array $modelData): Model
+    public function getFieldResolver(): FieldResolver
     {
-        $expr = $this->recordManager->getExpressionBuilder();
-        $fields = (array) $this->recordManager
-            ->getClient()
-            ->executeKw(
-                self::IR_MODEL_FIELDS,
-                OrmQueryMethod::SearchAndRead->value,
-                $this->recordManager->getDataNormalizer()->normalizeDomains($expr->eq('model_id', $modelData['id']))
-            )
-        ;
-
-        foreach ($fields as $key => $fieldData) {
-            $choices = [];
-            $fieldData = (array) $fieldData;
-            $selectionsIds = (array) ($fieldData['selection_ids'] ?? []);
-            $selectionsIds = array_filter($selectionsIds);
-
-            if (!empty($selectionsIds)) {
-                $choices = (array) $this->recordManager
-                    ->getClient()
-                    ->executeKw(
-                        self::IR_MODEL_FIELD_SELECTION,
-                        OrmQueryMethod::SearchAndRead->value,
-                        $this->recordManager->getDataNormalizer()->normalizeDomains($expr->eq('field_id', $fieldData['id']))
-                    )
-                ;
-
-                foreach ($choices as $index => $choice) {
-                    if (\is_array($choice)) {
-                        $choices[$index] = new Choice((string) $choice['name'], $choice['value'], (int) $choice['id']);
-                    }
-                }
-            } elseif (!empty($fieldData['selection'])) {
-                if (preg_match_all('#^\[\s*(\(\'(\w+)\'\,\s*\'(\w+)\'\)\s*\,?\s*)*\s*\]$#', trim($fieldData['selection']), $matches, PREG_SET_ORDER)) {
-                    foreach ($matches as $match) {
-                        if (isset($match[2], $match[3])) {
-                            $choices[] = new Choice($match[3], $match[2]);
-                        }
-                    }
-                }
-            }
-
-            if ($choices) {
-                $fieldData['selection'] = $choices;
-            }
-
-            $fields[$key] = new Field($fieldData);
-        }
-
-        return new Model($this, $modelData, $fields);
+        return $this->fieldResolver;
     }
 }

@@ -35,7 +35,9 @@ class CompositeDomain implements DomainInterface
     /**
      * @param DomainInterface[] $domains
      */
-    public function __construct(private string $operator, private array $domains = []) {}
+    public function __construct(private string $operator, private array $domains = [])
+    {
+    }
 
     public static function criteria(array $criteria = []): self
     {
@@ -199,6 +201,13 @@ class CompositeDomain implements DomainInterface
                 unset($this->domains[$key]);
             }
         }
+
+        return $this;
+    }
+
+    public function resetDomains(): self
+    {
+        $this->domains = [];
 
         return $this;
     }

@@ -10,7 +10,7 @@ helper methods to simplify your programmer's life.
 Here is an example of how to get a builder from the client:
 
 ```php
-$expr = $client->getExpressionBuilder();
+$expr = $recordManager->getExpressionBuilder();
 ```
 
 You can still use the expression builder as standalone by creating a new instance:
@@ -37,10 +37,10 @@ The only one method of this interface is ```toArray()``` to get a normalized arr
 To illustrate how to work with it, here is an example using ```ExpressionBuilder``` helper methods:
 
 ```php
-// Get the expression builder
-$expr = $client->expr();
+// Get the expression builder from a repository or the record manager
+$expr = $repository->expr();
 
-$result = $client->findBy('model_name', $expr->andX( // Logical node "AND"
+$result = $repository->findBy('model_name', $expr->andX( // Logical node "AND"
 	$expr->gte('id', 10), // id >= 10
 	$expr->lte('id', 100), // id <= 10
 ));
@@ -62,8 +62,7 @@ $result = $client->findBy('model_name', $expr->andX(
 ));
 ```
 
-Internally, the client formats automatically all domains by calling the special builder
-method ```normalizeDomains()```.
+Internally, q query builder is created and the query is automatically normalized by the data normalizer.
 
 Here is a complete list of helper methods available in ```ExpressionBuilder``` for domain expressions:
 

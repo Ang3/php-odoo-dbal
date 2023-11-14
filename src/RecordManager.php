@@ -23,28 +23,43 @@ use Ang3\Component\Odoo\DBAL\Repository\RecordRepository;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistryInterface;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\MetadataFactory;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
+use Ang3\Component\Odoo\DBAL\Types\TypeConverter;
+use Ang3\Component\Odoo\DBAL\Types\TypeRegistry;
+use Ang3\Component\Odoo\DBAL\Types\TypeRegistryInterface;
 
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>
  */
 class RecordManager
 {
+    private Configuration $configuration;
     private Schema $schema;
+    private TypeRegistryInterface $typeRegistry;
     private RepositoryRegistryInterface $repositoryRegistry;
     private ExpressionBuilderInterface $expressionBuilder;
+    private TypeConverter $typeConverter;
     private DataNormalizer $dataNormalizer;
+    private MetadataFactory $metadataFactory;
 
     public function __construct(
         private readonly Client $client,
+        Configuration $configuration = null,
+        TypeRegistryInterface $typeRegistry = null,
         RepositoryRegistryInterface $repositoryRegistry = null,
         ExpressionBuilderInterface $expressionBuilder = null,
         DataNormalizer $dataNormalizer = null,
+        MetadataFactory $metadataFactory = null,
     ) {
+        $this->configuration = $configuration ?: new Configuration();
         $this->schema = new Schema($this);
+        $this->typeRegistry = $typeRegistry ?: new TypeRegistry();
         $this->setRepositoryRegistry($repositoryRegistry);
         $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
+        $this->typeConverter = new TypeConverter();
         $this->dataNormalizer = $dataNormalizer ?: new DataNormalizer();
+        $this->metadataFactory = $metadataFactory ?: new MetadataFactory($this);
     }
 
     public function find(string $modelName, int $id, ?array $fields = []): ?array
@@ -103,9 +118,19 @@ class RecordManager
         return $this;
     }
 
-    public function getExpressionBuilder(): ExpressionBuilderInterface
+    public function getClient(): Client
     {
-        return $this->expressionBuilder;
+        return $this->client;
+    }
+
+    public function getTypeRegistry(): TypeRegistryInterface
+    {
+        return $this->typeRegistry;
+    }
+
+    public function getTypeConverter(): TypeConverter
+    {
+        return $this->typeConverter;
     }
 
     public function getDataNormalizer(): DataNormalizer
@@ -113,13 +138,23 @@ class RecordManager
         return $this->dataNormalizer;
     }
 
+    public function getConfiguration(): Configuration
+    {
+        return $this->configuration;
+    }
+
     public function getSchema(): Schema
     {
         return $this->schema;
     }
 
-    public function getClient(): Client
+    public function getMetadataFactory(): MetadataFactory
     {
-        return $this->client;
+        return $this->metadataFactory;
+    }
+
+    public function getExpressionBuilder(): ExpressionBuilderInterface
+    {
+        return $this->expressionBuilder;
     }
 }

@@ -9,8 +9,11 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Query;
+namespace Ang3\Component\Odoo\DBAL\Schema\Enum;
 
-class NativeQuery extends AbstractQuery implements QueryInterface
+enum IrModel: string
 {
+    case Model = 'ir.model';
+    case Fields = 'ir.model.fields';
+    case FieldsSelection = 'ir.model.fields.selection';
 }

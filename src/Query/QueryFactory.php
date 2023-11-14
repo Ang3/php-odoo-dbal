@@ -11,18 +11,27 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query;
 
-use Ang3\Component\Odoo\DBAL\Query\Enum\QueryBuilderMethod;
+use Ang3\Component\Odoo\DBAL\Query\Normalizer\CriteriaNormalizer;
+use Ang3\Component\Odoo\DBAL\RecordManager;
 
 class QueryFactory implements QueryFactoryInterface
 {
+    private readonly CriteriaNormalizer $criteriaNormalizer;
+
+    public function __construct(private readonly RecordManager $recordManager)
+    {
+        $this->criteriaNormalizer = new CriteriaNormalizer($this->recordManager);
+    }
+
     public function create(QueryBuilder $queryBuilder): OrmQuery
     {
         $ormQueryMethod = $queryBuilder->getMethod()->getOrmQueryMethod();
         $query = new OrmQuery($queryBuilder->getRecordManager(), $queryBuilder->getFrom(), $ormQueryMethod->value);
+        $model = $this->recordManager->getSchema()->getModel($queryBuilder->getFrom());
 
-        if (\in_array($queryBuilder->getMethod(), [QueryBuilderMethod::Select, QueryBuilderMethod::Search], true)) {
-            $parameters = $queryBuilder->getRecordManager()->getDataNormalizer()->normalizeDomains($queryBuilder->getWhere());
-        } elseif (QueryBuilderMethod::Delete === $queryBuilder->getMethod()) {
+        if ($queryBuilder->getMethod()->isReadingContext()) {
+            $parameters = $this->criteriaNormalizer->normalize($model, $queryBuilder->getWhere());
+        } elseif ($queryBuilder->getMethod()->isDeletion()) {
             if (!$queryBuilder->getIds()) {
                 throw new QueryException('You must set indexes for queries of type "DELETE".');
             }
@@ -35,7 +44,7 @@ class QueryFactory implements QueryFactoryInterface
 
             $parameters = $queryBuilder->getRecordManager()->getDataNormalizer()->normalizeData($queryBuilder->getValues());
 
-            if (QueryBuilderMethod::Update === $queryBuilder->getMethod()) {
+            if ($queryBuilder->getMethod()->isUpdate()) {
                 if (!$queryBuilder->getIds()) {
                     throw new QueryException('You must set indexes for queries of type "UPDATE".');
                 }
@@ -48,10 +57,10 @@ class QueryFactory implements QueryFactoryInterface
 
         $query->setParameters($parameters);
 
-        if (\in_array($queryBuilder->getMethod(), [QueryBuilderMethod::Select, QueryBuilderMethod::Search], true)) {
+        if ($queryBuilder->getMethod()->isReadingContext()) {
             $options = [];
 
-            if (QueryBuilderMethod::Select === $queryBuilder->getMethod() && $queryBuilder->getSelect()) {
+            if ($queryBuilder->getMethod()->isSelection() && $queryBuilder->getSelect()) {
                 $options['fields'] = $queryBuilder->getSelect();
             }
 

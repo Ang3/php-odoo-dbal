@@ -14,9 +14,9 @@ namespace Ang3\Component\Odoo\DBAL\Query;
 use Ang3\Component\Odoo\DBAL\Query\Enum\QueryBuilderMethod;
 use Ang3\Component\Odoo\DBAL\Query\Enum\QueryOrder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\RecordManager;
+use Ang3\Component\Odoo\DBAL\Types\ConversionException;
 
 use function Symfony\Component\String\s;
 
@@ -42,7 +42,7 @@ class QueryBuilder
     public function __construct(private readonly RecordManager $recordManager, string $from, QueryFactoryInterface $queryFactory = null)
     {
         $this->from($from);
-        $this->queryFactory = $queryFactory ?: new QueryFactory();
+        $this->queryFactory = $queryFactory ?: new QueryFactory($recordManager);
     }
 
     private static function isEmptyName(string $fieldName = null): bool

@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
+namespace Ang3\Component\Odoo\DBAL;
+
+use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+
+class Configuration
+{
+    private DatabaseSettings $databaseSettings;
+    private CacheItemPoolInterface $metadataCache;
+
+    public function __construct(
+        ?DatabaseSettings $databaseSettings = null,
+        ?CacheItemPoolInterface $metadataCache = null
+    )
+    {
+        $this->databaseSettings = $databaseSettings ?: new DatabaseSettings();
+        $this->metadataCache = $metadataCache ?: new FilesystemAdapter();
+    }
+
+    public function getDatabaseSettings(): DatabaseSettings
+    {
+        return $this->databaseSettings;
+    }
+
+    public function getMetadataCache(): CacheItemPoolInterface
+    {
+        return $this->metadataCache;
+    }
+}

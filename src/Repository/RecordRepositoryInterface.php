@@ -14,7 +14,7 @@ namespace Ang3\Component\Odoo\DBAL\Repository;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
-use Ang3\Component\Odoo\DBAL\Schema\Model;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>
@@ -24,7 +24,7 @@ interface RecordRepositoryInterface
     /**
      * Gets the model metadata from the schema.
      */
-    public function getMetadata(): Model;
+    public function getMetadata(): ModelMetadata;
 
     /**
      * Insert a new record.

@@ -9,20 +9,23 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Schema;
+namespace Ang3\Component\Odoo\DBAL\Schema\Metadata;
 
-class Selection
+class SelectionMetadata
 {
     /**
-     * @var Choice[]
+     * @var ChoiceMetadata[]
      */
     private array $choices;
 
     /**
-     * @param Choice[] $choices
+     * @param string|ChoiceMetadata[] $choices
      */
-    public function __construct(array $choices = [])
+    public function __construct(array|string $choices = null)
     {
+        /** @var ChoiceMetadata[] $choices */
+        $choices = \is_string($choices) ? (array) json_decode($choices, true) : (array) $choices;
+
         foreach ($choices as $choice) {
             $this->addChoice($choice);
         }
@@ -62,18 +65,28 @@ class Selection
     }
 
     /**
-     * @return Choice[]
+     * @return ChoiceMetadata[]
      */
     public function getChoices(): array
     {
         return $this->choices;
     }
 
-    /**
-     * @internal
-     */
-    private function addChoice(Choice $choice): void
+    public function setChoices(array $choices): self
+    {
+        $this->choices = [];
+
+        foreach ($choices as $choice) {
+            $this->addChoice($choice);
+        }
+
+        return $this;
+    }
+
+    public function addChoice(ChoiceMetadata $choice): self
     {
         $this->choices[] = $choice;
+
+        return $this;
     }
 }

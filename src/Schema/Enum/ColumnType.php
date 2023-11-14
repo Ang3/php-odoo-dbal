@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Schema\Enum;
 
-enum FieldType: string
+enum ColumnType: string
 {
     // Basics
     case Binary = 'binary';

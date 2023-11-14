@@ -29,4 +29,39 @@ enum QueryBuilderMethod: string
             QueryBuilderMethod::Delete => OrmQueryMethod::Unlink,
         };
     }
+
+    public function isWritingContext(): bool
+    {
+        return $this->isInsertion() || $this->isUpdate();
+    }
+
+    public function isReadingContext(): bool
+    {
+        return $this->isSelection() || $this->isSearch();
+    }
+
+    public function isSelection(): bool
+    {
+        return QueryBuilderMethod::Select === $this;
+    }
+
+    public function isSearch(): bool
+    {
+        return QueryBuilderMethod::Search === $this;
+    }
+
+    public function isInsertion(): bool
+    {
+        return QueryBuilderMethod::Insert === $this;
+    }
+
+    public function isUpdate(): bool
+    {
+        return QueryBuilderMethod::Update === $this;
+    }
+
+    public function isDeletion(): bool
+    {
+        return QueryBuilderMethod::Delete === $this;
+    }
 }

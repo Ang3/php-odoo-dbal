@@ -16,7 +16,7 @@ use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
-use Ang3\Component\Odoo\DBAL\Schema\Model;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>
@@ -28,7 +28,7 @@ class RecordRepository implements RecordRepositoryInterface
         $recordManager->addRepository($this);
     }
 
-    public function getMetadata(): Model
+    public function getMetadata(): ModelMetadata
     {
         return $this->recordManager->getSchema()->getModel($this->modelName);
     }

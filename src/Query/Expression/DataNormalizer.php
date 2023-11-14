@@ -13,9 +13,9 @@ namespace Ang3\Component\Odoo\DBAL\Query\Expression;
 
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Operation\OperationInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\DateTimeFormat;
+use Ang3\Component\Odoo\DBAL\Types\ConversionException;
 
 class DataNormalizer implements DataNormalizerInterface
 {

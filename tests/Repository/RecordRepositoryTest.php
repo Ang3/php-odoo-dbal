@@ -18,7 +18,7 @@ use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Repository\RecordNotFoundException;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepository;
-use Ang3\Component\Odoo\DBAL\Schema\Model;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -49,7 +49,7 @@ final class RecordRepositoryTest extends TestCase
         $schema = $this->createMock(Schema::class);
         $this->recordManager->expects(self::once())->method('getSchema')->willReturn($schema);
 
-        $expectedResult = $this->createMock(Model::class);
+        $expectedResult = $this->createMock(ModelMetadata::class);
         $schema->expects(self::once())->method('getModel')->with($this->modelName)->willReturn($expectedResult);
 
         self::assertSame($expectedResult, $this->recordRepository->getMetadata());

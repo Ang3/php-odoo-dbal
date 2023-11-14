@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query\Expression;
 
-use Ang3\Component\Odoo\DBAL\Query\Expression\Exception\ConversionException;
+use Ang3\Component\Odoo\DBAL\Types\ConversionException;
 
 interface DataNormalizerInterface
 {

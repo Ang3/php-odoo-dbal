@@ -9,45 +9,57 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Schema;
+namespace Ang3\Component\Odoo\DBAL\Schema\Metadata;
 
+use Ang3\Component\Odoo\DBAL\Schema\Enum\ColumnType;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\DateTimeFormat;
-use Ang3\Component\Odoo\DBAL\Schema\Enum\FieldType;
 
-class Field
+class FieldMetadata
 {
-    private Model $model;
+    private ModelMetadata $model;
     private int $id;
     private string $name;
-    private FieldType $type;
+    private ColumnType $type;
     private bool $required;
     private bool $readOnly;
     private ?string $displayName;
     private ?int $size;
-    private ?Selection $selection;
+    private ?SelectionMetadata $selection;
     private ?string $targetModelName;
     private ?string $targetFieldName;
 
-    public function __construct(array $data)
+    public function __construct(array $data = [])
+    {
+        $this->setData($data);
+    }
+
+    public static function create(array $data): self
+    {
+        return new self($data);
+    }
+
+    public function setData(array $data): self
     {
         $this->id = (int) $data['id'];
         $this->name = (string) $data['name'];
-        $this->type = FieldType::from((string) $data['ttype']);
+        $this->type = ColumnType::from((string) $data['ttype']);
         $this->required = (bool) $data['required'];
         $this->readOnly = (bool) $data['readonly'];
         $this->displayName = $data['display_name'] ?? null;
         $this->size = $data['size'] ?? null;
-        $this->selection = $data['selection'] ?? null;
-        $this->targetModelName = $data['relation'] ?? null;
-        $this->targetFieldName = $data['relation_field'] ?? null;
+        $this->selection = $data['selection'] ?? null ? new SelectionMetadata($data['selection']) : null;
+        $this->targetModelName = $data['relation'] ?? null ? $data['relation'] : null;
+        $this->targetFieldName = $data['relation_field'] ?? null ? $data['relation_field'] : null;
+
+        return $this;
     }
 
-    public function getModel(): Model
+    public function getModel(): ModelMetadata
     {
         return $this->model;
     }
 
-    public function setModel(Model $model): self
+    public function setModel(ModelMetadata $model): self
     {
         $this->model = $model;
 
@@ -64,7 +76,7 @@ class Field
         return $this->name;
     }
 
-    public function getType(): FieldType
+    public function getType(): ColumnType
     {
         return $this->type;
     }
@@ -89,7 +101,7 @@ class Field
         return $this->size;
     }
 
-    public function getSelection(): ?Selection
+    public function getSelection(): ?SelectionMetadata
     {
         return $this->selection;
     }
@@ -111,22 +123,22 @@ class Field
 
     public function isBinary(): bool
     {
-        return FieldType::Binary === $this->type;
+        return ColumnType::Binary === $this->type;
     }
 
     public function isBoolean(): bool
     {
-        return FieldType::Boolean === $this->type;
+        return ColumnType::Boolean === $this->type;
     }
 
     public function isInteger(): bool
     {
-        return FieldType::Integer === $this->type;
+        return ColumnType::Integer === $this->type;
     }
 
     public function isFloat(): bool
     {
-        return \in_array($this->type, [FieldType::Float, FieldType::Monetary], true);
+        return \in_array($this->type, [ColumnType::Float, ColumnType::Monetary], true);
     }
 
     public function isNumber(): bool
@@ -136,22 +148,22 @@ class Field
 
     public function isString(): bool
     {
-        return \in_array($this->type, [FieldType::Char, FieldType::Text, FieldType::Html], true);
+        return \in_array($this->type, [ColumnType::Char, ColumnType::Text, ColumnType::Html], true);
     }
 
     public function isDate(): bool
     {
-        return \in_array($this->type, [FieldType::Date, FieldType::DateTime], true);
+        return \in_array($this->type, [ColumnType::Date, ColumnType::DateTime], true);
     }
 
     public function getDateFormat(): DateTimeFormat
     {
-        return FieldType::DateTime === $this->type ? DateTimeFormat::Long : DateTimeFormat::Short;
+        return ColumnType::DateTime === $this->type ? DateTimeFormat::Long : DateTimeFormat::Short;
     }
 
     public function isSelection(): bool
     {
-        return FieldType::Selection === $this->type;
+        return ColumnType::Selection === $this->type;
     }
 
     public function isSelectable(): bool
@@ -166,14 +178,14 @@ class Field
 
     public function isSingleAssociation(): bool
     {
-        return FieldType::ManyToOne === $this->type;
+        return ColumnType::ManyToOne === $this->type;
     }
 
     public function isMultipleAssociation(): bool
     {
         return \in_array($this->type, [
-            FieldType::ManyToMany,
-            FieldType::OneToMany,
+            ColumnType::ManyToMany,
+            ColumnType::OneToMany,
         ], true);
     }
 }

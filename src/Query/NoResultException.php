@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query;
 
-class NoResultException extends \RuntimeException
+use Ang3\Component\Odoo\DBAL\Exception\BaseException;
+
+class NoResultException extends BaseException
 {
     public function __construct(string $message = null)
     {

@@ -9,15 +9,16 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Schema;
+namespace Ang3\Component\Odoo\DBAL\Schema\Metadata;
 
-class Choice
+class ChoiceMetadata
 {
     public function __construct(
         private readonly string $name,
         private readonly string $value,
         private readonly ?int $id = null
-    ) {}
+    ) {
+    }
 
     public function getId(): ?int
     {

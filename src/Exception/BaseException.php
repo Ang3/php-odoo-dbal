@@ -9,9 +9,8 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Query\Expression\Exception;
+namespace Ang3\Component\Odoo\DBAL\Exception;
 
-/**
- * @author Joanis ROUANET <https://github.com/Ang3>
- */
-class ConversionException extends \RuntimeException {}
+class BaseException extends \RuntimeException implements ExceptionInterface
+{
+}

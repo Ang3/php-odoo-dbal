@@ -27,7 +27,9 @@ class CollectionOperation implements OperationInterface
     public const CLEAR = 5;
     public const REPLACE = 6;
 
-    public function __construct(private int $type, private int $id = 0, private array|int $data = 0) {}
+    public function __construct(private int $type, private int $id = 0, private ?array $data = null)
+    {
+    }
 
     /**
      * @throws \InvalidArgumentException when data is empty
@@ -105,12 +107,12 @@ class CollectionOperation implements OperationInterface
         return $this;
     }
 
-    public function getData(): array|int
+    public function getData(): ?array
     {
         return $this->data;
     }
 
-    public function setData(array|int $data): self
+    public function setData(?array $data = null): self
     {
         $this->data = $data;
 
@@ -119,6 +121,6 @@ class CollectionOperation implements OperationInterface
 
     public function toArray(): array
     {
-        return [$this->type, $this->id, $this->data];
+        return [$this->type, $this->id, $this->data ?: 0];
     }
 }
