@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL;
 
+use Ang3\Component\Odoo\DBAL\Config\DatabaseSettings;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 

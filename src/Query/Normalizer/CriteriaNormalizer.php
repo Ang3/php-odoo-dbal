@@ -22,7 +22,8 @@ class CriteriaNormalizer
     public function __construct(
         private readonly SchemaInterface $schema,
         private readonly ValueNormalizer $valueNormalizer
-    ) {}
+    ) {
+    }
 
     public function normalize(ModelMetadata $model, array|DomainInterface $criteria = null): array
     {

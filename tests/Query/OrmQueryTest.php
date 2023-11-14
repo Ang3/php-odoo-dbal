@@ -39,6 +39,9 @@ final class OrmQueryTest extends TestCase
         $this->recordManager = $this->createMock(RecordManager::class);
     }
 
+	/**
+	 * @covers \Ang3\Component\Odoo\DBAL\Query\OrmQuery
+	 */
     public function testQueryInterface(): void
     {
         $class = new \ReflectionClass(OrmQuery::class);

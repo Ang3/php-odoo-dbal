@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Types;
 
-use Ang3\Component\Odoo\DBAL\DatabaseSettings;
+use Ang3\Component\Odoo\DBAL\Config\DatabaseSettings;
 
 class DateType extends Type
 {

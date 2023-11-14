@@ -9,7 +9,7 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL;
+namespace Ang3\Component\Odoo\DBAL\Config;
 
 class DatabaseSettings
 {
@@ -18,7 +18,9 @@ class DatabaseSettings
      */
     public const DEFAULT_TIMEZONE = 'UTC';
 
-    public function __construct(private readonly string $timezone = self::DEFAULT_TIMEZONE) {}
+    public function __construct(private readonly string $timezone = self::DEFAULT_TIMEZONE)
+    {
+    }
 
     public function getTimezone(): string
     {

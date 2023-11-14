@@ -39,6 +39,10 @@ final class QueryBuilderTest extends TestCase
         $this->queryBuilder = new QueryBuilder($this->recordManager, $this->modelName);
     }
 
+	/**
+	 * @covers ::from
+	 * @covers ::getFrom
+	 */
     public function testFrom(): void
     {
         $this->queryBuilder->from($modelName = 'res.company');
