@@ -19,6 +19,8 @@ use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryException;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\RecordManager;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
+use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -52,16 +54,9 @@ final class OrmQueryTest extends TestCase
         $query = new OrmQuery($this->recordManager, 'model_name', OrmQueryMethod::SearchAndCount->value);
         $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($expectedResult = 1337);
 
+        $this->assertResult($this->recordManager, false);
         $result = $query->count();
         self::assertEquals($expectedResult, $result);
-    }
-
-    public static function searchMethodsProvider(): iterable
-    {
-        return [
-            [OrmQueryMethod::Search->value],
-            [OrmQueryMethod::SearchAndRead->value],
-        ];
     }
 
     /**
@@ -80,18 +75,9 @@ final class OrmQueryTest extends TestCase
                 && $query->getParameters() === $ormQuery->getParameters();
         }))->willReturn($expectedResult = 1337);
 
+        $this->assertResult($this->recordManager, false);
         $result = $query->count();
         self::assertEquals($expectedResult, $result);
-    }
-
-    public static function nonSearchMethodsProvider(): iterable
-    {
-        return [
-            [OrmQueryMethod::Create->value],
-            [OrmQueryMethod::Write->value],
-            [OrmQueryMethod::Read->value],
-            [OrmQueryMethod::Unlink->value],
-        ];
     }
 
     /**
@@ -104,6 +90,7 @@ final class OrmQueryTest extends TestCase
         $this->expectException(QueryException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $invalidMethod);
 
+        $this->assertResult($this->recordManager, false);
         $query->count();
     }
 
@@ -115,12 +102,13 @@ final class OrmQueryTest extends TestCase
     public function testGetSingleScalarResult(string $method): void
     {
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             [
                 'id' => $expectedResult = 1337,
             ],
         ]);
 
+        $this->assertResult($this->recordManager, $result);
         self::assertEquals($expectedResult, $query->getSingleScalarResult());
     }
 
@@ -134,6 +122,7 @@ final class OrmQueryTest extends TestCase
         $this->expectException(QueryException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $invalidMethod);
 
+        $this->assertResult($this->recordManager, false);
         $query->getSingleScalarResult();
     }
 
@@ -146,8 +135,9 @@ final class OrmQueryTest extends TestCase
     {
         $this->expectException(NoResultException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([]);
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = []);
 
+        $this->assertResult($this->recordManager, $result);
         $query->getSingleScalarResult();
     }
 
@@ -160,7 +150,7 @@ final class OrmQueryTest extends TestCase
     {
         $this->expectException(NoUniqueResultException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             [
                 'id' => 1,
             ],
@@ -169,6 +159,7 @@ final class OrmQueryTest extends TestCase
             ],
         ]);
 
+        $this->assertResult($this->recordManager, $result);
         $query->getSingleScalarResult();
     }
 
@@ -180,13 +171,14 @@ final class OrmQueryTest extends TestCase
     public function testGetOneOrNullScalarResult(string $method): void
     {
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             [
                 'id' => $expectedResult = 1337,
             ],
         ]);
 
-        self::assertSame($expectedResult, $query->getOneOrNullScalarResult());
+        $this->assertResult($this->recordManager, $result);
+        self::assertEquals($expectedResult, $query->getOneOrNullScalarResult());
     }
 
     /**
@@ -199,6 +191,7 @@ final class OrmQueryTest extends TestCase
         $this->expectException(QueryException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $invalidMethod);
 
+        $this->assertResult($this->recordManager, false);
         $query->getOneOrNullScalarResult();
     }
 
@@ -210,8 +203,9 @@ final class OrmQueryTest extends TestCase
     public function testGetOneOrNullScalarResultWithNoResult(string $method): void
     {
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([]);
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = []);
 
+        $this->assertResult($this->recordManager, $result);
         $result = $query->getOneOrNullScalarResult();
         self::assertNull($result);
     }
@@ -225,7 +219,7 @@ final class OrmQueryTest extends TestCase
     {
         $this->expectException(NoUniqueResultException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             [
                 'id' => 1,
             ],
@@ -234,6 +228,7 @@ final class OrmQueryTest extends TestCase
             ],
         ]);
 
+        $this->assertResult($this->recordManager, $result);
         $query->getOneOrNullScalarResult();
     }
 
@@ -246,7 +241,7 @@ final class OrmQueryTest extends TestCase
     {
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
         $query->setOption('fields', ['selected_field_name']);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             [
                 'non_selected_field_name' => 'foo',
                 'selected_field_name' => 'bar',
@@ -257,6 +252,7 @@ final class OrmQueryTest extends TestCase
             ],
         ]);
 
+        $this->assertResult($this->recordManager, $result);
         self::assertEquals(['bar', 'lux'], $query->getScalarResult());
     }
 
@@ -270,6 +266,7 @@ final class OrmQueryTest extends TestCase
         $this->expectException(QueryException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $invalidMethod);
 
+        $this->assertResult($this->recordManager, false);
         $query->getScalarResult();
     }
 
@@ -281,8 +278,9 @@ final class OrmQueryTest extends TestCase
     public function testGetScalarResultWithNoResult(string $method): void
     {
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([]);
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = []);
 
+        $this->assertResult($this->recordManager, $result);
         $result = $query->getScalarResult();
         self::assertEquals([], $result);
     }
@@ -295,13 +293,14 @@ final class OrmQueryTest extends TestCase
     public function testGetSingleResult(string $method): void
     {
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             $firstRow = [
                 'non_selected_field_name' => 'foo',
                 'selected_field_name' => 'bar',
             ],
         ]);
 
+        $this->assertResult($this->recordManager, $result);
         self::assertEquals($firstRow, $query->getSingleResult());
     }
 
@@ -315,6 +314,7 @@ final class OrmQueryTest extends TestCase
         $this->expectException(QueryException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $invalidMethod);
 
+        $this->assertResult($this->recordManager, false);
         $query->getSingleResult();
     }
 
@@ -327,8 +327,9 @@ final class OrmQueryTest extends TestCase
     {
         $this->expectException(NoResultException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([]);
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = []);
 
+        $this->assertResult($this->recordManager, $result);
         $query->getSingleResult();
     }
 
@@ -341,7 +342,7 @@ final class OrmQueryTest extends TestCase
     {
         $this->expectException(NoUniqueResultException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             [
                 'non_selected_field_name' => 'foo',
                 'selected_field_name' => 'bar',
@@ -351,6 +352,8 @@ final class OrmQueryTest extends TestCase
                 'selected_field_name' => 'lux',
             ],
         ]);
+
+        $this->assertResult($this->recordManager, $result);
         $query->getSingleResult();
     }
 
@@ -362,13 +365,14 @@ final class OrmQueryTest extends TestCase
     public function testGetOneOrNullResult(string $method): void
     {
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             $firstRow = [
                 'non_selected_field_name' => 'foo',
                 'selected_field_name' => 'bar',
             ],
         ]);
 
+        $this->assertResult($this->recordManager, $result);
         self::assertEquals($firstRow, $query->getOneOrNullResult());
     }
 
@@ -381,6 +385,8 @@ final class OrmQueryTest extends TestCase
     {
         $this->expectException(QueryException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $invalidMethod);
+
+        $this->assertResult($this->recordManager, false);
         $query->getOneOrNullResult();
     }
 
@@ -392,8 +398,9 @@ final class OrmQueryTest extends TestCase
     public function testGetOneOrNullResultWithNoResult(string $method): void
     {
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([]);
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = []);
 
+        $this->assertResult($this->recordManager, $result);
         $result = $query->getOneOrNullResult();
         self::assertNull($result);
     }
@@ -407,7 +414,7 @@ final class OrmQueryTest extends TestCase
     {
         $this->expectException(NoUniqueResultException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $method);
-        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn([
+        $this->recordManager->expects(self::once())->method('executeQuery')->with($query)->willReturn($result = [
             [
                 'non_selected_field_name' => 'foo',
                 'selected_field_name' => 'bar',
@@ -417,6 +424,8 @@ final class OrmQueryTest extends TestCase
                 'selected_field_name' => 'lux',
             ],
         ]);
+
+        $this->assertResult($this->recordManager, $result);
         $query->getOneOrNullResult();
     }
 
@@ -439,7 +448,8 @@ final class OrmQueryTest extends TestCase
             ],
         ]);
 
-        self::assertSame($result, $query->getResult());
+        $this->assertResult($this->recordManager, $result);
+        self::assertEquals($result, $query->getResult());
     }
 
     /**
@@ -452,6 +462,7 @@ final class OrmQueryTest extends TestCase
         $this->expectException(QueryException::class);
         $query = new OrmQuery($this->recordManager, 'model_name', $invalidMethod);
 
+        $this->assertResult($this->recordManager, false);
         $query->getResult();
     }
 
@@ -494,5 +505,48 @@ final class OrmQueryTest extends TestCase
         $query = new OrmQuery($this->recordManager, 'model_name', $invalidMethod);
 
         $query->getLazyResult();
+    }
+
+    /**
+     * @internal
+     */
+    protected static function searchMethodsProvider(): iterable
+    {
+        return [
+            [OrmQueryMethod::Search->value],
+            [OrmQueryMethod::SearchAndRead->value],
+        ];
+    }
+
+    /**
+     * @internal
+     */
+    protected static function nonSearchMethodsProvider(): iterable
+    {
+        return [
+            [OrmQueryMethod::Create->value],
+            [OrmQueryMethod::Write->value],
+            [OrmQueryMethod::Read->value],
+            [OrmQueryMethod::Unlink->value],
+        ];
+    }
+
+    /**
+     * @internal
+     */
+    private function assertResult(MockObject $recordManager, array|false $result): void
+    {
+        $schema = $this->createMock(SchemaInterface::class);
+
+        if (\is_array($result)) {
+            $recordManager->expects(self::once())->method('getSchema')->willReturn($schema);
+            $modelMetadata = $this->createMock(ModelMetadata::class);
+            $schema->expects(self::once())->method('getModel')->willReturn($modelMetadata);
+            $recordManager->expects(self::once())->method('normalizeResult')->with($modelMetadata, $result)->willReturn($result);
+        } else {
+            $recordManager->expects(self::never())->method('getSchema');
+            $schema->expects(self::never())->method('getModel');
+            $recordManager->expects(self::never())->method('normalizeResult');
+        }
     }
 }

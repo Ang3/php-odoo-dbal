@@ -1,5 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests\Query\Expression;
 
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\Comparison;
@@ -7,7 +16,6 @@ use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Operation\CollectionOperation;
-use InvalidArgumentException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -16,7 +24,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @internal
  */
-class ExpressionBuilderTest extends TestCase
+final class ExpressionBuilderTest extends TestCase
 {
     private ExpressionBuilder $expressionBuilder;
     private MockObject $domainA;
@@ -26,7 +34,7 @@ class ExpressionBuilderTest extends TestCase
     private string $fieldName = 'field_name';
     private string $fieldValue = 'field_value';
     private array $dataSet = [
-        'field_name' => 'field_value'
+        'field_name' => 'field_value',
     ];
 
     protected function setUp(): void
@@ -157,6 +165,7 @@ class ExpressionBuilderTest extends TestCase
 
     /**
      * @covers ::like
+     *
      * @testWith ["=like", true, true]
      *           ["=ilike", true, false]
      *           ["=like", true, true]
@@ -173,6 +182,7 @@ class ExpressionBuilderTest extends TestCase
 
     /**
      * @covers ::notLike
+     *
      * @testWith ["not like", true]
      *           ["not ilike", false]
      */
@@ -187,6 +197,7 @@ class ExpressionBuilderTest extends TestCase
 
     /**
      * @covers ::in
+     *
      * @testWith [true, [true]]
      *           [1, [1]]
      *           [1.1, [1.1]]
@@ -204,6 +215,7 @@ class ExpressionBuilderTest extends TestCase
 
     /**
      * @covers ::notIn
+     *
      * @testWith [true, [true]]
      *           [1, [1]]
      *           [1.1, [1.1]]
@@ -248,7 +260,7 @@ class ExpressionBuilderTest extends TestCase
      */
     public function testUpdateRecordWithEmptyData(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(\InvalidArgumentException::class);
         $this->expressionBuilder->updateRecord($id = 3, []);
     }
 

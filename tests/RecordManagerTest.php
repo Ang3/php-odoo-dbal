@@ -12,16 +12,16 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Tests;
 
 use Ang3\Component\Odoo\Client;
+use Ang3\Component\Odoo\DBAL\Configuration;
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
 use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
-use Ang3\Component\Odoo\DBAL\Query\QueryException;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
-use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistryInterface;
+use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
 use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -38,6 +38,7 @@ final class RecordManagerTest extends TestCase
     private MockObject $client;
     private MockObject $configuration;
     private MockObject $schema;
+    private MockObject $repositoryRegistry;
     private MockObject $typeConverter;
     private MockObject $expressionBuilder;
 
@@ -45,11 +46,16 @@ final class RecordManagerTest extends TestCase
     {
         parent::setUp();
         $this->client = $this->createMock(Client::class);
-        $this->configuration = $this->createMock(RepositoryRegistryInterface::class);
+        $this->configuration = $this->createMock(Configuration::class);
         $this->schema = $this->createMock(SchemaInterface::class);
+        $this->repositoryRegistry = $this->createMock(RepositoryRegistry::class);
         $this->typeConverter = $this->createMock(TypeConverterInterface::class);
         $this->expressionBuilder = $this->createMock(ExpressionBuilderInterface::class);
         $this->recordManager = new RecordManager($this->client, $this->configuration, $this->typeConverter);
+
+        // Override internal dependencies
+        (new \ReflectionProperty(RecordManager::class, 'schema'))->setValue($this->recordManager, $this->schema);
+        (new \ReflectionProperty(RecordManager::class, 'repositoryRegistry'))->setValue($this->recordManager, $this->repositoryRegistry);
     }
 
     /**
@@ -85,18 +91,7 @@ final class RecordManagerTest extends TestCase
      */
     public function testCreateOrmQuery(string $name, string $method): void
     {
-        self::assertEquals(new OrmQuery($this->recordManager, $name, $method), $this->recordManager->createOrmQuery($name, $method));
-    }
-
-    /**
-     * @covers ::createOrmQuery
-     *
-     * @testWith ["model_name", "invalid_method"]
-     */
-    public function testCreateOrmQueryWithInvalidMethod(string $name, string $invalidMethod): void
-    {
-        $this->expectException(QueryException::class);
-        $this->recordManager->createOrmQuery($name, $invalidMethod);
+        self::assertEquals(new OrmQuery($this->recordManager, $name, $method), $this->recordManager->createOrmQuery($name, OrmQueryMethod::from($method)));
     }
 
     /**
@@ -145,7 +140,10 @@ final class RecordManagerTest extends TestCase
         self::assertEquals($repository, $this->recordManager->getRepository($modelName));
     }
 
-    public static function provideCreateOrmQueryCases(): iterable
+    /**
+     * @internal
+     */
+    protected static function provideCreateOrmQueryCases(): iterable
     {
         return [
             ['model_name', OrmQueryMethod::Create->value],

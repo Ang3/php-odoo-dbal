@@ -194,12 +194,12 @@ class RecordRepository implements RecordRepositoryInterface
 
     public function createQueryBuilder(): QueryBuilder
     {
-        return (new QueryBuilder($this->recordManager, $this->modelName))->select();
+        return $this->recordManager->createQueryBuilder($this->modelName);
     }
 
     public function createOrmQuery(OrmQueryMethod $method): OrmQuery
     {
-        return new OrmQuery($this->recordManager, $this->modelName, $method->value);
+        return $this->recordManager->createOrmQuery($this->modelName, $method);
     }
 
     public function getRecordManager(): RecordManager

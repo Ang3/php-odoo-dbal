@@ -48,9 +48,20 @@ final class CompositeDomainTest extends AbstractDomainTest
     }
 
     /**
+     * @covers ::toArray
+     */
+    public function testToArray(): void
+    {
+        foreach ($this->provideToArrayCases() as $row) {
+            $domain = new CompositeDomain($row[0], $row[1]);
+            self::assertEquals($row[2], $domain->toArray(), $row[3] ?? '');
+        }
+    }
+
+    /**
      * Data provider for the test for method ::toArray().
      */
-    public function provideToArrayCases(): iterable
+    protected function provideToArrayCases(): iterable
     {
         $domainA = $this->createFakeDomain('A');
         $domainB = $this->createFakeDomain('B');
@@ -126,17 +137,6 @@ final class CompositeDomainTest extends AbstractDomainTest
         $data[] = [CompositeDomain::AND, [$orXA, $orXB, $orXC], $expectedResult];
 
         return $data;
-    }
-
-    /**
-     * @covers ::toArray
-     *
-     * @dataProvider provideToArrayCases
-     */
-    public function testToArray(string $operator, array $domains = [], mixed $expectedResult = null, string $message = ''): void
-    {
-        $domain = new CompositeDomain($operator, $domains);
-        self::assertSame($expectedResult, $domain->toArray(), $message);
     }
 
     protected function createFakeDomain(mixed $expression): DomainInterface

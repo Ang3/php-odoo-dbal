@@ -17,6 +17,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 {
     /**
      * Counts the number of records from parameters.
+     *
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws QueryException on invalid query method
@@ -39,6 +40,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     /**
      * Gets just ONE scalar result from the FIRST row result.
+     *
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws NoUniqueResultException on no unique result
@@ -62,6 +64,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     /**
      * Gets just ONE scalar result from the FIRST row result, or NULL if no result.
+     *
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws NoUniqueResultException on no unique result
@@ -85,6 +88,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     /**
      * Gets a list of scalar result for each row from selected field name.
+     *
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @return array<bool|int|float|string>
@@ -119,6 +123,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     /**
      * Gets the FIRST row.
+     *
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws NoUniqueResultException on no unique result
@@ -138,6 +143,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     /**
      * Gets the FIRST row, or NULL if empty.
+     *
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws NoUniqueResultException on no unique result
@@ -156,6 +162,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     /**
      * Gets ALL result rows.
+     *
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws QueryException on invalid query method
@@ -172,7 +179,10 @@ class OrmQuery extends AbstractQuery implements QueryInterface
     }
 
     /**
-     * Gets lazy results for mass volumes.
+     * Gets lazy results (for mass volumes).
+     * A lazy result is an iterator splitting query to multiple sub-queries after a count query.
+     * Each sub-queries will load $bufferSize item(s) using offset and limit defined before.
+     *
      * Allowed methods: SEARCH, SEARCH_READ.
      *
      * @throws QueryException on invalid query method

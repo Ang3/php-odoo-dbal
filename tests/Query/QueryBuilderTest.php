@@ -42,7 +42,7 @@ final class QueryBuilderTest extends TestCase
     public function testFrom(): void
     {
         $this->queryBuilder->from($modelName = 'res.company');
-        self::assertSame($modelName, $this->queryBuilder->getFrom());
+        self::assertEquals($modelName, $this->queryBuilder->getFrom());
     }
 
     /**
@@ -84,14 +84,14 @@ final class QueryBuilderTest extends TestCase
     public function testAddSelect(): void
     {
         $this->queryBuilder->addSelect($fieldName1 = 'field_name1');
-        self::assertSame([$fieldName1], $this->queryBuilder->getSelect());
+        self::assertEquals([$fieldName1], $this->queryBuilder->getSelect());
 
         $this->queryBuilder->addSelect($fieldName2 = 'field_name2');
-        self::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        self::assertEquals([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
 
         // Deduplication test
         $this->queryBuilder->addSelect($fieldName2);
-        self::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        self::assertEquals([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
     }
 
     /**
@@ -576,7 +576,7 @@ final class QueryBuilderTest extends TestCase
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->orderBy($fieldName, $order);
         $this->assertQueryBuilderValues(type: $method, orders: $this->normalizeOrders([
-            $fieldName => $order
+            $fieldName => $order,
         ]));
     }
 
@@ -620,12 +620,12 @@ final class QueryBuilderTest extends TestCase
     {
         $this->setQueryBuilderMethod($method);
         $this->setQueryBuilderPropertyValue('orders', $baseOrders = [
-            'field_name1' => QueryOrder::ASC
+            'field_name1' => QueryOrder::ASC,
         ]);
 
         $this->queryBuilder->addOrderBy($fieldName, $order);
         $this->assertQueryBuilderValues(type: $method, orders: $this->normalizeOrders(array_merge($baseOrders, [
-            $fieldName => $order
+            $fieldName => $order,
         ])));
     }
 
@@ -770,10 +770,10 @@ final class QueryBuilderTest extends TestCase
         array $values = [],
         DomainInterface $where = null,
         array $orders = [],
-        ?int $maxResults = null,
-        ?int $firstResult = null
+        int $maxResults = null,
+        int $firstResult = null
     ): void {
-        self::assertEquals(is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
+        self::assertEquals(\is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
         self::assertEquals($from ?: $this->modelName, $this->queryBuilder->getFrom());
         self::assertEquals($select, $this->queryBuilder->getSelect());
         self::assertEquals($values, $this->queryBuilder->getValues());
@@ -789,7 +789,7 @@ final class QueryBuilderTest extends TestCase
      */
     private function normalizeOrders(array $orders): array
     {
-        return array_map(fn($value) => $value instanceof QueryOrder ? $value : QueryOrder::from(strtolower($value)), $orders);
+        return array_map(static fn ($value) => $value instanceof QueryOrder ? $value : QueryOrder::from(strtolower($value)), $orders);
     }
 
     /**

@@ -35,11 +35,11 @@ use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 class RecordManager
 {
     private readonly Configuration $configuration;
-    private readonly SchemaInterface $schema;
-    private readonly RepositoryRegistry $repositoryRegistry;
-    private readonly TypeConverterInterface $typeConverter;
-    private readonly ResultNormalizerInterface $resultNormalizer;
-    private readonly ExpressionBuilderInterface $expressionBuilder;
+    private SchemaInterface $schema;
+    private RepositoryRegistry $repositoryRegistry;
+    private TypeConverterInterface $typeConverter;
+    private ResultNormalizerInterface $resultNormalizer;
+    private ExpressionBuilderInterface $expressionBuilder;
 
     public function __construct(
         private readonly Client $client,
@@ -62,12 +62,12 @@ class RecordManager
 
     public function createQueryBuilder(string $modelName): QueryBuilder
     {
-        return $this->getRepository($modelName)->createQueryBuilder();
+        return new QueryBuilder($this, $modelName);
     }
 
     public function createOrmQuery(string $modelName, OrmQueryMethod $method): OrmQuery
     {
-        return $this->getRepository($modelName)->createOrmQuery($method);
+        return new OrmQuery($this, $modelName, $method->value);
     }
 
     public function createNativeQuery(string $name, string $method): NativeQuery
