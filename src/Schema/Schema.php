@@ -16,18 +16,25 @@ use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\CacheKey;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\IrModel;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\FieldMetadata;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\MetadataFactory;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\MetadataFactoryInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Resolver\FieldResolver;
 
 class Schema implements SchemaInterface
 {
+    private MetadataFactoryInterface $metadataFactory;
     private FieldResolver $fieldResolver;
 
     /** @var string[] */
     private array $modelNames = [];
 
-    public function __construct(private readonly RecordManager $recordManager)
+    public function __construct(
+        private readonly RecordManager $recordManager,
+        ?MetadataFactoryInterface $metadataFactory = null
+    )
     {
+        $this->metadataFactory = $metadataFactory ?: new MetadataFactory($this->recordManager->getClient());
         $this->fieldResolver = new FieldResolver($this);
     }
 
@@ -64,7 +71,7 @@ class Schema implements SchemaInterface
             throw SchemaException::modelNotFound($modelName);
         }
 
-        $model = $this->recordManager->getMetadataFactory()->createModel($modelData);
+        $model = $this->metadataFactory->createModel($modelData);
 
         // Caching
         $this->recordManager
@@ -122,5 +129,15 @@ class Schema implements SchemaInterface
         }
 
         return $this->modelNames;
+    }
+
+    public function getMetadataFactory(): MetadataFactoryInterface
+    {
+        return $this->metadataFactory;
+    }
+
+    public function getFieldResolver(): FieldResolver
+    {
+        return $this->fieldResolver;
     }
 }

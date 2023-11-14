@@ -13,7 +13,7 @@ namespace Ang3\Component\Odoo\DBAL\Types;
 
 class Type implements TypeInterface
 {
-    public const DEFAULT_TYPE = 'default';
+    private const DEFAULT_TYPE = 'default';
 
     public function getName(): string
     {

@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Types;
 
+use Ang3\Component\Odoo\DBAL\DatabaseSettings;
+
 class DateType extends Type
 {
     /**
@@ -67,6 +69,6 @@ class DateType extends Type
 
     protected function getTimezone(array $context): \DateTimeZone
     {
-        return new \DateTimeZone($context[self::TIMEZONE_KEY] ?? 'UTC');
+        return new \DateTimeZone($context[self::TIMEZONE_KEY] ?? DatabaseSettings::DEFAULT_TIMEZONE);
     }
 }

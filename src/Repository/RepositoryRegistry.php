@@ -13,15 +13,10 @@ namespace Ang3\Component\Odoo\DBAL\Repository;
 
 use Ang3\Component\Odoo\DBAL\RecordManager;
 
-class RepositoryRegistry implements RepositoryRegistryInterface
+class RepositoryRegistry
 {
-    public function __construct(private RecordManager $recordManager, private array $repositories = []) {}
-
-    public function setRecordManager(RecordManager $recordManager): self
+    public function __construct(private readonly RecordManager $recordManager, private array $repositories = [])
     {
-        $this->recordManager = $recordManager;
-
-        return $this;
     }
 
     public function add(RecordRepositoryInterface $repository): self

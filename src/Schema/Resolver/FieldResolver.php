@@ -14,15 +14,17 @@ namespace Ang3\Component\Odoo\DBAL\Schema\Resolver;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\ColumnType;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\FieldMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
-use Ang3\Component\Odoo\DBAL\Schema\Schema;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaException;
+use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
 
 /**
  * This resolver is used to get recursive field from a model.
  */
 class FieldResolver
 {
-    public function __construct(private readonly Schema $schema) {}
+    public function __construct(private readonly SchemaInterface $schema)
+    {
+    }
 
     /**
      * Gets the metadata of a field recursively with dot notation.

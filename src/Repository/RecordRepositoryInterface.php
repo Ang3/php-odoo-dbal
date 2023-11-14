@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Repository;
 
+use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
+use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
@@ -21,6 +23,11 @@ use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
  */
 interface RecordRepositoryInterface
 {
+    /**
+     * Register the related record manager of the repository.
+     */
+    public function setRecordManager(RecordManager $recordManager): void;
+
     /**
      * Gets the model metadata from the schema.
      */
@@ -119,6 +126,8 @@ interface RecordRepositoryInterface
     public function count(array|DomainInterface $criteria = null): int;
 
     public function createQueryBuilder(): QueryBuilder;
+
+    public function createOrmQuery(OrmQueryMethod $method): OrmQuery;
 
     public function getRecordManager(): RecordManager;
 

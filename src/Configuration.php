@@ -16,6 +16,8 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class Configuration
 {
+    public const PACKAGE_PREFIX = 'ang3_odoo_dbal';
+
     private DatabaseSettings $databaseSettings;
     private CacheItemPoolInterface $metadataCache;
 
@@ -24,7 +26,7 @@ class Configuration
         CacheItemPoolInterface $metadataCache = null
     ) {
         $this->databaseSettings = $databaseSettings ?: new DatabaseSettings();
-        $this->metadataCache = $metadataCache ?: new FilesystemAdapter();
+        $this->metadataCache = $metadataCache ?: new FilesystemAdapter(self::PACKAGE_PREFIX);
     }
 
     public function getDatabaseSettings(): DatabaseSettings

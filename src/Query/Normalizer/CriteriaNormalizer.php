@@ -14,16 +14,18 @@ namespace Ang3\Component\Odoo\DBAL\Query\Normalizer;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\Comparison;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
+use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
+use Ang3\Component\Odoo\DBAL\Types\TypeConverter;
+use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 
 class CriteriaNormalizer
 {
     private readonly ValueNormalizer $valueNormalizer;
 
-    public function __construct(private readonly RecordManager $recordManager)
+    public function __construct(private readonly SchemaInterface $schema, ?TypeConverterInterface $typeConverter = null)
     {
-        $this->valueNormalizer = new ValueNormalizer($this->recordManager);
+        $this->valueNormalizer = new ValueNormalizer($typeConverter ?: new TypeConverter());
     }
 
     public function normalize(ModelMetadata $model, array|DomainInterface $criteria = null): array
@@ -57,7 +59,7 @@ class CriteriaNormalizer
         }
 
         if ($domain instanceof Comparison) {
-            $field = $this->recordManager->getSchema()->getField($model, $domain->getFieldName());
+            $field = $this->schema->getField($model, $domain->getFieldName());
             $domain->setValue($this->valueNormalizer->normalizeFieldValue($field, $domain->getValue()));
         }
 

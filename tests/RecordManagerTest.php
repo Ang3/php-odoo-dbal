@@ -22,6 +22,8 @@ use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistryInterface;
+use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
+use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -34,16 +36,20 @@ final class RecordManagerTest extends TestCase
 {
     private RecordManager $recordManager;
     private MockObject $client;
-    private MockObject $repositoryRegistry;
+    private MockObject $configuration;
+    private MockObject $schema;
+    private MockObject $typeConverter;
     private MockObject $expressionBuilder;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->client = $this->createMock(Client::class);
-        $this->repositoryRegistry = $this->createMock(RepositoryRegistryInterface::class);
+        $this->configuration = $this->createMock(RepositoryRegistryInterface::class);
+        $this->schema = $this->createMock(SchemaInterface::class);
+        $this->typeConverter = $this->createMock(TypeConverterInterface::class);
         $this->expressionBuilder = $this->createMock(ExpressionBuilderInterface::class);
-        $this->recordManager = new RecordManager($this->client, $this->repositoryRegistry, $this->expressionBuilder);
+        $this->recordManager = new RecordManager($this->client, $this->configuration, $this->typeConverter);
     }
 
     /**

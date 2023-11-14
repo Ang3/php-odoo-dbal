@@ -11,12 +11,14 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query\Normalizer;
 
-use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
+use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 
 class ResultNormalizer
 {
-    public function __construct(private readonly RecordManager $recordManager) {}
+    public function __construct(private readonly TypeConverterInterface $typeConverter)
+    {
+    }
 
     public function normalize(ModelMetadata $model, array $rows = []): array
     {
@@ -25,7 +27,7 @@ class ResultNormalizer
                 $field = $model->getField($fieldName);
 
                 if ('id' !== $fieldName && !$field->isAssociation()) {
-                    $rows[$index][$fieldName] = $this->recordManager->getTypeConverter()->convertToPhpValue($value, $field->getType()->value);
+                    $rows[$index][$fieldName] = $this->typeConverter->convertToPhpValue($value, $field->getType()->value);
                 }
             }
         }

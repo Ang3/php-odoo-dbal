@@ -168,7 +168,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
         }
 
         $model = $this->recordManager->getSchema()->getModel($this->name);
-        $resultNormalizer = new ResultNormalizer($this->recordManager);
+        $resultNormalizer = new ResultNormalizer($this->recordManager->getTypeConverter());
 
         return $resultNormalizer->normalize($model, (array) $this->execute());
     }

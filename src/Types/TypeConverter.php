@@ -11,22 +11,34 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Types;
 
+use Ang3\Component\Odoo\DBAL\DatabaseSettings;
+
 class TypeConverter implements TypeConverterInterface
 {
     private TypeRegistryInterface $typeRegistry;
 
-    public function __construct(TypeRegistryInterface $typeRegistry = null)
+    private array $defaultContext = [
+        DateType::TIMEZONE_KEY => DatabaseSettings::DEFAULT_TIMEZONE,
+    ];
+
+    public function __construct(TypeRegistryInterface $typeRegistry = null, array $defaultContext = [])
     {
         $this->typeRegistry = $typeRegistry ?: new TypeRegistry();
+        $this->defaultContext = array_merge($this->defaultContext, $defaultContext);
     }
 
     public function convertToDatabaseValue(mixed $value, string $type, array $context = []): mixed
     {
-        return $this->typeRegistry->get($type)->convertToDatabaseValue($value, $context);
+        return $this->typeRegistry->get($type)->convertToDatabaseValue($value, $this->getContext($context));
     }
 
     public function convertToPhpValue(mixed $value, string $type, array $context = []): mixed
     {
-        return $this->typeRegistry->get($type)->convertToPhpValue($value, $context);
+        return $this->typeRegistry->get($type)->convertToPhpValue($value, $this->getContext($context));
+    }
+
+    public function getContext(array $context): array
+    {
+        return array_merge($this->defaultContext, $context);
     }
 }

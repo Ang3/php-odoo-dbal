@@ -12,18 +12,15 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL;
 
 use Ang3\Component\Odoo\Client;
+use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
 use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
-use Ang3\Component\Odoo\DBAL\Repository\RecordRepository;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
-use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistryInterface;
-use Ang3\Component\Odoo\DBAL\Schema\Metadata\MetadataFactory;
-use Ang3\Component\Odoo\DBAL\Schema\Metadata\MetadataFactoryInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
 use Ang3\Component\Odoo\DBAL\Types\TypeConverter;
@@ -34,26 +31,22 @@ use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
  */
 class RecordManager
 {
-    private Configuration $configuration;
-    private SchemaInterface $schema;
-    private TypeConverterInterface $typeConverter;
-    private RepositoryRegistryInterface $repositoryRegistry;
-    private MetadataFactoryInterface $metadataFactory;
-    private ExpressionBuilderInterface $expressionBuilder;
+    private readonly Configuration $configuration;
+    private readonly SchemaInterface $schema;
+    private readonly RepositoryRegistry $repositoryRegistry;
+    private readonly TypeConverterInterface $typeConverter;
+    private readonly ExpressionBuilderInterface $expressionBuilder;
 
     public function __construct(
         private readonly Client $client,
         Configuration $configuration = null,
         TypeConverterInterface $typeConverter = null,
-        RepositoryRegistryInterface $repositoryRegistry = null,
-        MetadataFactoryInterface $metadataFactory = null,
-        ExpressionBuilderInterface $expressionBuilder = null,
+        ExpressionBuilderInterface $expressionBuilder = null
     ) {
         $this->configuration = $configuration ?: new Configuration();
         $this->schema = new Schema($this);
+        $this->repositoryRegistry = new RepositoryRegistry($this);
         $this->typeConverter = $typeConverter ?: new TypeConverter();
-        $this->setRepositoryRegistry($repositoryRegistry);
-        $this->metadataFactory = $metadataFactory ?: new MetadataFactory($this);
         $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
     }
 
@@ -64,12 +57,12 @@ class RecordManager
 
     public function createQueryBuilder(string $modelName): QueryBuilder
     {
-        return new QueryBuilder($this, $modelName);
+        return $this->getRepository($modelName)->createQueryBuilder();
     }
 
-    public function createOrmQuery(string $name, string $method): OrmQuery
+    public function createOrmQuery(string $modelName, OrmQueryMethod $method): OrmQuery
     {
-        return new OrmQuery($this, $name, $method);
+        return $this->getRepository($modelName)->createOrmQuery($method);
     }
 
     public function createNativeQuery(string $name, string $method): NativeQuery
@@ -93,22 +86,10 @@ class RecordManager
         return $this->repositoryRegistry->get($modelName);
     }
 
-    public function getRepositoryRegistry(): RepositoryRegistryInterface
-    {
-        return $this->repositoryRegistry;
-    }
-
-    public function setRepositoryRegistry(RepositoryRegistryInterface $repositoryRegistry = null): self
-    {
-        $this->repositoryRegistry = $repositoryRegistry ?: new RepositoryRegistry($this);
-        $this->repositoryRegistry->setRecordManager($this);
-
-        return $this;
-    }
-
-    public function addRepository(RecordRepository $repository): self
+    public function addRepository(RecordRepositoryInterface $repository): self
     {
         $this->repositoryRegistry->add($repository);
+        $repository->setRecordManager($this);
 
         return $this;
     }
@@ -116,11 +97,6 @@ class RecordManager
     public function getClient(): Client
     {
         return $this->client;
-    }
-
-    public function getTypeConverter(): TypeConverterInterface
-    {
-        return $this->typeConverter;
     }
 
     public function getConfiguration(): Configuration
@@ -133,9 +109,14 @@ class RecordManager
         return $this->schema;
     }
 
-    public function getMetadataFactory(): MetadataFactoryInterface
+    public function getRepositoryRegistry(): RepositoryRegistry
     {
-        return $this->metadataFactory;
+        return $this->repositoryRegistry;
+    }
+
+    public function getTypeConverter(): TypeConverterInterface
+    {
+        return $this->typeConverter;
     }
 
     public function getExpressionBuilder(): ExpressionBuilderInterface

@@ -12,13 +12,15 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Query\Normalizer;
 
 use Ang3\Component\Odoo\DBAL\Query\Expression\Operation\OperationInterface;
-use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\FieldMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
+use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 
 class ValueNormalizer
 {
-    public function __construct(private readonly RecordManager $recordManager) {}
+    public function __construct(private readonly TypeConverterInterface $typeConverter)
+    {
+    }
 
     public function normalize(ModelMetadata $model, array $values = []): array
     {
@@ -57,6 +59,6 @@ class ValueNormalizer
             return $value;
         }
 
-        return $this->recordManager->getTypeConverter()->convertToDatabaseValue($value, $field->getType()->value);
+        return $this->typeConverter->convertToDatabaseValue($value, $field->getType()->value);
     }
 }

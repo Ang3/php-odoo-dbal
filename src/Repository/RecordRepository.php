@@ -11,9 +11,11 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Repository;
 
+use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
+use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
@@ -28,9 +30,17 @@ class RecordRepository implements RecordRepositoryInterface
         $recordManager->addRepository($this);
     }
 
+    public function setRecordManager(RecordManager $recordManager): void
+    {
+        $this->recordManager = $recordManager;
+    }
+
     public function getMetadata(): ModelMetadata
     {
-        return $this->recordManager->getSchema()->getModel($this->modelName);
+        return $this->recordManager
+            ->getSchema()
+            ->getModel($this->modelName)
+        ;
     }
 
     public function insert(array $data): int
@@ -184,17 +194,12 @@ class RecordRepository implements RecordRepositoryInterface
 
     public function createQueryBuilder(): QueryBuilder
     {
-        return $this->recordManager
-            ->createQueryBuilder($this->modelName)
-            ->select()
-        ;
+        return (new QueryBuilder($this->recordManager, $this->modelName))->select();
     }
 
-    public function setRecordManager(RecordManager $recordManager): self
+    public function createOrmQuery(OrmQueryMethod $method): OrmQuery
     {
-        $this->recordManager = $recordManager;
-
-        return $this;
+        return new OrmQuery($this->recordManager, $this->modelName, $method->value);
     }
 
     public function getRecordManager(): RecordManager

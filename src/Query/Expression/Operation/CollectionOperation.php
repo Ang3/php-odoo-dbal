@@ -27,7 +27,9 @@ class CollectionOperation implements OperationInterface
     public const CLEAR = 5;
     public const REPLACE = 6;
 
-    public function __construct(private int $type, private int $id = 0, private ?array $data = null) {}
+    public function __construct(private int $type, private int $id = 0, private ?array $data = null)
+    {
+    }
 
     /**
      * @throws \InvalidArgumentException when data is empty

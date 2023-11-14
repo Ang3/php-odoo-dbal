@@ -13,9 +13,14 @@ namespace Ang3\Component\Odoo\DBAL;
 
 class DatabaseSettings
 {
+    /**
+     * Default Odoo database timezone.
+     */
     public const DEFAULT_TIMEZONE = 'UTC';
 
-    public function __construct(private readonly string $timezone = self::DEFAULT_TIMEZONE) {}
+    public function __construct(private readonly string $timezone = self::DEFAULT_TIMEZONE)
+    {
+    }
 
     public function getTimezone(): string
     {

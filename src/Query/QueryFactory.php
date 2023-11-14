@@ -25,8 +25,8 @@ class QueryFactory implements QueryFactoryInterface
 
     public function __construct(private readonly RecordManager $recordManager)
     {
-        $this->criteriaNormalizer = new CriteriaNormalizer($this->recordManager);
-        $this->valueNormalizer = new ValueNormalizer($this->recordManager);
+        $this->criteriaNormalizer = new CriteriaNormalizer($this->recordManager->getSchema(), $this->recordManager->getTypeConverter());
+        $this->valueNormalizer = new ValueNormalizer($this->recordManager->getTypeConverter());
         $this->orderNormalizer = new OrderNormalizer();
     }
 
