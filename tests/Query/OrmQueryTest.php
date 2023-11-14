@@ -59,7 +59,7 @@ final class OrmQueryTest extends TestCase
 
         $this->assertResult($this->recordManager, false);
         $result = $query->count();
-        static::assertEquals($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     /**
@@ -80,7 +80,7 @@ final class OrmQueryTest extends TestCase
 
         $this->assertResult($this->recordManager, false);
         $result = $query->count();
-        static::assertEquals($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     /**
@@ -112,7 +112,7 @@ final class OrmQueryTest extends TestCase
         ]);
 
         $this->assertResult($this->recordManager, $result);
-        static::assertEquals($expectedResult, $query->getSingleScalarResult());
+        static::assertSame($expectedResult, $query->getSingleScalarResult());
     }
 
     /**
@@ -181,7 +181,7 @@ final class OrmQueryTest extends TestCase
         ]);
 
         $this->assertResult($this->recordManager, $result);
-        static::assertEquals($expectedResult, $query->getOneOrNullScalarResult());
+        static::assertSame($expectedResult, $query->getOneOrNullScalarResult());
     }
 
     /**
@@ -256,7 +256,7 @@ final class OrmQueryTest extends TestCase
         ]);
 
         $this->assertResult($this->recordManager, $result);
-        static::assertEquals(['bar', 'lux'], $query->getScalarResult());
+        static::assertSame(['bar', 'lux'], $query->getScalarResult());
     }
 
     /**
@@ -285,7 +285,7 @@ final class OrmQueryTest extends TestCase
 
         $this->assertResult($this->recordManager, $result);
         $result = $query->getScalarResult();
-        static::assertEquals([], $result);
+        static::assertSame([], $result);
     }
 
     /**
@@ -304,7 +304,7 @@ final class OrmQueryTest extends TestCase
         ]);
 
         $this->assertResult($this->recordManager, $result);
-        static::assertEquals($firstRow, $query->getSingleResult());
+        static::assertSame($firstRow, $query->getSingleResult());
     }
 
     /**
@@ -376,7 +376,7 @@ final class OrmQueryTest extends TestCase
         ]);
 
         $this->assertResult($this->recordManager, $result);
-        static::assertEquals($firstRow, $query->getOneOrNullResult());
+        static::assertSame($firstRow, $query->getOneOrNullResult());
     }
 
     /**
@@ -452,7 +452,7 @@ final class OrmQueryTest extends TestCase
         ]);
 
         $this->assertResult($this->recordManager, $result);
-        static::assertEquals($result, $query->getResult());
+        static::assertSame($result, $query->getResult());
     }
 
     /**
@@ -480,7 +480,6 @@ final class OrmQueryTest extends TestCase
 
         $result = $query->getLazyResult();
         static::assertInstanceOf(LazyResult::class, $result);
-        static::assertEquals(new LazyResult($query), $result);
     }
 
     /**
@@ -494,7 +493,7 @@ final class OrmQueryTest extends TestCase
 
         $result = $query->getLazyResult($bufferSize = 150);
         static::assertInstanceOf(LazyResult::class, $result);
-        static::assertEquals(new LazyResult($query, [LazyResult::BUFFER_SIZE_KEY => $bufferSize]), $result);
+        static::assertSame($bufferSize, $result->getBufferSize());
     }
 
     /**

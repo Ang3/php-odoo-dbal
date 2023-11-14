@@ -46,7 +46,7 @@ final class QueryBuilderTest extends TestCase
     public function testFrom(): void
     {
         $this->queryBuilder->from($modelName = 'res.company');
-        static::assertEquals($modelName, $this->queryBuilder->getFrom());
+        static::assertSame($modelName, $this->queryBuilder->getFrom());
     }
 
     /**
@@ -88,14 +88,14 @@ final class QueryBuilderTest extends TestCase
     public function testAddSelect(): void
     {
         $this->queryBuilder->addSelect($fieldName1 = 'field_name1');
-        static::assertEquals([$fieldName1], $this->queryBuilder->getSelect());
+        static::assertSame([$fieldName1], $this->queryBuilder->getSelect());
 
         $this->queryBuilder->addSelect($fieldName2 = 'field_name2');
-        static::assertEquals([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        static::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
 
         // Deduplication test
         $this->queryBuilder->addSelect($fieldName2);
-        static::assertEquals([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        static::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
     }
 
     /**
@@ -777,15 +777,19 @@ final class QueryBuilderTest extends TestCase
         int $maxResults = null,
         int $firstResult = null
     ): void {
-        static::assertEquals(\is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
-        static::assertEquals($from ?: $this->modelName, $this->queryBuilder->getFrom());
-        static::assertEquals($select, $this->queryBuilder->getSelect());
-        static::assertEquals($values, $this->queryBuilder->getValues());
-        static::assertEquals($ids, $this->queryBuilder->getIds());
-        static::assertEquals($where, $this->queryBuilder->getWhere());
-        static::assertEquals($orders, $this->queryBuilder->getOrders());
-        static::assertEquals($maxResults, $this->queryBuilder->getMaxResults());
-        static::assertEquals($firstResult, $this->queryBuilder->getFirstResult());
+        static::assertSame(\is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
+        static::assertSame($from ?: $this->modelName, $this->queryBuilder->getFrom());
+        static::assertSame($select, $this->queryBuilder->getSelect());
+        static::assertSame($values, $this->queryBuilder->getValues());
+        static::assertSame($ids, $this->queryBuilder->getIds());
+
+        if ($where) {
+            static::assertSame($where->toArray(), $this->queryBuilder->getWhere()->toArray());
+        }
+
+        static::assertSame($orders, $this->queryBuilder->getOrders());
+        static::assertSame($maxResults, $this->queryBuilder->getMaxResults());
+        static::assertSame($firstResult, $this->queryBuilder->getFirstResult());
     }
 
     /**

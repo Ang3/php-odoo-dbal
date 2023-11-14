@@ -53,8 +53,8 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->andX($this->domainA, $this->domainB);
         static::assertInstanceOf(CompositeDomain::class, $domain);
-        static::assertEquals(CompositeDomain::AND, $domain->getOperator());
-        static::assertEquals($this->domains, $domain->getDomains());
+        static::assertSame(CompositeDomain::AND, $domain->getOperator());
+        static::assertSame($this->domains, $domain->getDomains());
     }
 
     /**
@@ -64,8 +64,8 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->orX($this->domainA, $this->domainB);
         static::assertInstanceOf(CompositeDomain::class, $domain);
-        static::assertEquals(CompositeDomain::OR, $domain->getOperator());
-        static::assertEquals($this->domains, $domain->getDomains());
+        static::assertSame(CompositeDomain::OR, $domain->getOperator());
+        static::assertSame($this->domains, $domain->getDomains());
     }
 
     /**
@@ -75,8 +75,8 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->notX($this->domainA, $this->domainB);
         static::assertInstanceOf(CompositeDomain::class, $domain);
-        static::assertEquals(CompositeDomain::NOT, $domain->getOperator());
-        static::assertEquals($this->domains, $domain->getDomains());
+        static::assertSame(CompositeDomain::NOT, $domain->getOperator());
+        static::assertSame($this->domains, $domain->getDomains());
     }
 
     /**
@@ -86,9 +86,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->eq($this->fieldName, $this->fieldValue);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::EQUAL_TO, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame(Comparison::EQUAL_TO, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -98,9 +98,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->neq($this->fieldName, $this->fieldValue);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::NOT_EQUAL_TO, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame(Comparison::NOT_EQUAL_TO, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -110,9 +110,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->ueq($this->fieldName, $this->fieldValue);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::UNSET_OR_EQUAL_TO, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame(Comparison::UNSET_OR_EQUAL_TO, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -122,9 +122,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->lt($this->fieldName, $this->fieldValue);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::LESS_THAN, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame(Comparison::LESS_THAN, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -134,9 +134,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->lte($this->fieldName, $this->fieldValue);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::LESS_THAN_OR_EQUAL, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame(Comparison::LESS_THAN_OR_EQUAL, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -146,9 +146,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->gt($this->fieldName, $this->fieldValue);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::GREATER_THAN, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame(Comparison::GREATER_THAN, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -158,9 +158,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->gte($this->fieldName, $this->fieldValue);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::GREATER_THAN_OR_EQUAL, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame(Comparison::GREATER_THAN_OR_EQUAL, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -175,9 +175,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->like($this->fieldName, $this->fieldValue, $strict, $caseSensitive);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals($expectedOperator, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame($expectedOperator, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -190,9 +190,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->notLike($this->fieldName, $this->fieldValue, $caseSensitive);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals($expectedOperator, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertSame($expectedOperator, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -208,9 +208,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->in($this->fieldName, $values);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::IN, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($expectedValues, $domain->getValue());
+        static::assertSame(Comparison::IN, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($expectedValues, $domain->getValue());
     }
 
     /**
@@ -226,9 +226,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $domain = $this->expressionBuilder->notIn($this->fieldName, $values);
         static::assertInstanceOf(Comparison::class, $domain);
-        static::assertEquals(Comparison::NOT_IN, $domain->getOperator());
-        static::assertEquals($this->fieldName, $domain->getFieldName());
-        static::assertEquals($expectedValues, $domain->getValue());
+        static::assertSame(Comparison::NOT_IN, $domain->getOperator());
+        static::assertSame($this->fieldName, $domain->getFieldName());
+        static::assertSame($expectedValues, $domain->getValue());
     }
 
     /**
@@ -238,9 +238,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $operation = $this->expressionBuilder->createRecord($this->dataSet);
         static::assertInstanceOf(CollectionOperation::class, $operation);
-        static::assertEquals(CollectionOperation::CREATE, $operation->getType());
-        static::assertEquals(0, $operation->getId());
-        static::assertEquals($this->dataSet, $operation->getData());
+        static::assertSame(CollectionOperation::CREATE, $operation->getType());
+        static::assertSame(0, $operation->getId());
+        static::assertSame($this->dataSet, $operation->getData());
     }
 
     /**
@@ -250,9 +250,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $operation = $this->expressionBuilder->updateRecord($id = 3, $this->dataSet);
         static::assertInstanceOf(CollectionOperation::class, $operation);
-        static::assertEquals(CollectionOperation::UPDATE, $operation->getType());
-        static::assertEquals($id, $operation->getId());
-        static::assertEquals($this->dataSet, $operation->getData());
+        static::assertSame(CollectionOperation::UPDATE, $operation->getType());
+        static::assertSame($id, $operation->getId());
+        static::assertSame($this->dataSet, $operation->getData());
     }
 
     /**
@@ -271,9 +271,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $operation = $this->expressionBuilder->addRecord($id = 3);
         static::assertInstanceOf(CollectionOperation::class, $operation);
-        static::assertEquals(CollectionOperation::ADD, $operation->getType());
-        static::assertEquals($id, $operation->getId());
-        static::assertEquals(0, $operation->getData());
+        static::assertSame(CollectionOperation::ADD, $operation->getType());
+        static::assertSame($id, $operation->getId());
+        static::assertNull($operation->getData());
     }
 
     /**
@@ -283,9 +283,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $operation = $this->expressionBuilder->removeRecord($id = 3);
         static::assertInstanceOf(CollectionOperation::class, $operation);
-        static::assertEquals(CollectionOperation::REMOVE, $operation->getType());
-        static::assertEquals($id, $operation->getId());
-        static::assertEquals(0, $operation->getData());
+        static::assertSame(CollectionOperation::REMOVE, $operation->getType());
+        static::assertSame($id, $operation->getId());
+        static::assertNull($operation->getData());
     }
 
     /**
@@ -295,9 +295,9 @@ final class ExpressionBuilderTest extends TestCase
     {
         $operation = $this->expressionBuilder->deleteRecord($id = 3);
         static::assertInstanceOf(CollectionOperation::class, $operation);
-        static::assertEquals(CollectionOperation::DELETE, $operation->getType());
-        static::assertEquals($id, $operation->getId());
-        static::assertEquals(0, $operation->getData());
+        static::assertSame(CollectionOperation::DELETE, $operation->getType());
+        static::assertSame($id, $operation->getId());
+        static::assertNull($operation->getData());
     }
 
     /**
@@ -307,8 +307,8 @@ final class ExpressionBuilderTest extends TestCase
     {
         $operation = $this->expressionBuilder->clearRecords();
         static::assertInstanceOf(CollectionOperation::class, $operation);
-        static::assertEquals(CollectionOperation::CLEAR, $operation->getType());
-        static::assertEquals(0, $operation->getId());
-        static::assertEquals(0, $operation->getData());
+        static::assertSame(CollectionOperation::CLEAR, $operation->getType());
+        static::assertSame(0, $operation->getId());
+        static::assertNull($operation->getData());
     }
 }

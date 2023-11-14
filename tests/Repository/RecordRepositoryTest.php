@@ -52,7 +52,7 @@ final class RecordRepositoryTest extends TestCase
         $expectedResult = $this->createMock(ModelMetadata::class);
         $schema->expects(static::once())->method('getModel')->with($this->modelName)->willReturn($expectedResult);
 
-        static::assertEquals($expectedResult, $this->recordRepository->getMetadata());
+        static::assertSame($expectedResult, $this->recordRepository->getMetadata());
     }
 
     /**
@@ -82,7 +82,7 @@ final class RecordRepositoryTest extends TestCase
         $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
         $query->expects(static::once())->method('execute')->with()->willReturn((string) ($result = 3));
 
-        static::assertEquals($result, $this->recordRepository->insert($data));
+        static::assertSame($result, $this->recordRepository->insert($data));
     }
 
     /**
@@ -213,7 +213,7 @@ final class RecordRepositoryTest extends TestCase
         $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
         $query->expects(static::once())->method('getOneOrNullScalarResult')->willReturn($result = 3);
 
-        static::assertEquals($result, $this->recordRepository->searchOne($criteria, $orders));
+        static::assertSame($result, $this->recordRepository->searchOne($criteria, $orders));
     }
 
     /**
@@ -244,7 +244,7 @@ final class RecordRepositoryTest extends TestCase
         $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
         $query->expects(static::once())->method('getScalarResult')->willReturn($result = [1, 2, 3]);
 
-        static::assertEquals($result, $this->recordRepository->searchAll($orders, $limit, $offset));
+        static::assertSame($result, $this->recordRepository->searchAll($orders, $limit, $offset));
     }
 
     /**
@@ -275,7 +275,7 @@ final class RecordRepositoryTest extends TestCase
         $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
         $query->expects(static::once())->method('getScalarResult')->willReturn($result = [1, 2, 3]);
 
-        static::assertEquals($result, $this->recordRepository->search($criteria, $orders, $limit, $offset));
+        static::assertSame($result, $this->recordRepository->search($criteria, $orders, $limit, $offset));
     }
 
     /**
@@ -298,7 +298,7 @@ final class RecordRepositoryTest extends TestCase
             ],
         ]);
 
-        static::assertEquals($firstRow, $this->recordRepository->read($id, $fields));
+        static::assertSame($firstRow, $this->recordRepository->read($id, $fields));
     }
 
     /**
@@ -338,7 +338,7 @@ final class RecordRepositoryTest extends TestCase
             ],
         ]);
 
-        static::assertEquals($result, $this->recordRepository->find($id, $fields));
+        static::assertSame($result, $this->recordRepository->find($id, $fields));
     }
 
     /**
@@ -377,7 +377,7 @@ final class RecordRepositoryTest extends TestCase
             ],
         ]);
 
-        static::assertEquals($result, $this->recordRepository->findOneBy($criteria, $fields, $orders, $offset));
+        static::assertSame($result, $this->recordRepository->findOneBy($criteria, $fields, $orders, $offset));
     }
 
     /**
@@ -389,7 +389,7 @@ final class RecordRepositoryTest extends TestCase
     {
         $queryBuilder = $this->prepareSearchQueryBuilder($criteria, $fields, $orders, $limit, $offset);
 
-        static::assertEquals($queryBuilder, $this->recordRepository->prepare($criteria, $fields, $orders, $limit, $offset));
+        static::assertSame($queryBuilder, $this->recordRepository->prepare($criteria, $fields, $orders, $limit, $offset));
     }
 
     /**
@@ -505,7 +505,7 @@ final class RecordRepositoryTest extends TestCase
         $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
         $query->expects(static::once())->method('count')->willReturn($expectedResult = 3);
 
-        static::assertEquals($expectedResult, $this->recordRepository->countAll());
+        static::assertSame($expectedResult, $this->recordRepository->countAll());
     }
 
     /**
@@ -537,7 +537,7 @@ final class RecordRepositoryTest extends TestCase
         $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
         $query->expects(static::once())->method('count')->willReturn($expectedResult = 3);
 
-        static::assertEquals($expectedResult, $this->recordRepository->count($criteria));
+        static::assertSame($expectedResult, $this->recordRepository->count($criteria));
     }
 
     /**
