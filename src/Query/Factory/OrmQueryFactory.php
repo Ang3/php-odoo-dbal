@@ -9,31 +9,35 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Query;
+namespace Ang3\Component\Odoo\DBAL\Query\Factory;
 
 use Ang3\Component\Odoo\DBAL\Query\Normalizer\CriteriaNormalizer;
 use Ang3\Component\Odoo\DBAL\Query\Normalizer\OrderNormalizer;
 use Ang3\Component\Odoo\DBAL\Query\Normalizer\ValueNormalizer;
+use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
+use Ang3\Component\Odoo\DBAL\Query\OrmQueryFactoryInterface;
+use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
+use Ang3\Component\Odoo\DBAL\Query\QueryException;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaException;
 
-class QueryFactory implements QueryFactoryInterface
+class OrmQueryFactory implements OrmQueryFactoryInterface
 {
-    private readonly CriteriaNormalizer $criteriaNormalizer;
     private readonly ValueNormalizer $valueNormalizer;
+    private readonly CriteriaNormalizer $criteriaNormalizer;
     private readonly OrderNormalizer $orderNormalizer;
 
     public function __construct(private readonly RecordManager $recordManager)
     {
-        $this->criteriaNormalizer = new CriteriaNormalizer($this->recordManager->getSchema(), $this->recordManager->getTypeConverter());
-        $this->valueNormalizer = new ValueNormalizer($this->recordManager->getTypeConverter());
+        $this->valueNormalizer = new ValueNormalizer($recordManager->getTypeConverter());
+        $this->criteriaNormalizer = new CriteriaNormalizer($recordManager->getSchema(), $this->valueNormalizer);
         $this->orderNormalizer = new OrderNormalizer();
     }
 
     public function create(QueryBuilder $queryBuilder): OrmQuery
     {
         $ormQueryMethod = $queryBuilder->getMethod()->getOrmQueryMethod();
-        $query = new OrmQuery($queryBuilder->getRecordManager(), $queryBuilder->getFrom(), $ormQueryMethod->value);
+        $query = new OrmQuery($this->recordManager, $queryBuilder->getFrom(), $ormQueryMethod->value);
         $model = $this->recordManager->getSchema()->getModel($queryBuilder->getFrom());
 
         if ($queryBuilder->getMethod()->isReadingContext()) {
@@ -97,5 +101,25 @@ class QueryFactory implements QueryFactoryInterface
         }
 
         return $query;
+    }
+
+    public function getRecordManager(): RecordManager
+    {
+        return $this->recordManager;
+    }
+
+    public function getValueNormalizer(): ValueNormalizer
+    {
+        return $this->valueNormalizer;
+    }
+
+    public function getCriteriaNormalizer(): CriteriaNormalizer
+    {
+        return $this->criteriaNormalizer;
+    }
+
+    public function getOrderNormalizer(): OrderNormalizer
+    {
+        return $this->orderNormalizer;
     }
 }

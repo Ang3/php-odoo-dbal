@@ -20,4 +20,25 @@ enum OrmQueryMethod: string
     case SearchAndRead = 'search_read';
     case SearchAndCount = 'search_count';
     case Unlink = 'unlink';
+
+    public function isReadingContext(): bool
+    {
+        return \in_array($this, [
+            OrmQueryMethod::Search,
+            OrmQueryMethod::SearchAndRead,
+        ], true);
+    }
+
+    public function isWritingContext(): bool
+    {
+        return \in_array($this, [
+            OrmQueryMethod::Create,
+            OrmQueryMethod::Write,
+        ], true);
+    }
+
+    public function isCount(): bool
+    {
+        return self::SearchAndCount === $this;
+    }
 }

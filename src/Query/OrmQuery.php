@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Query;
 
 use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
-use Ang3\Component\Odoo\DBAL\Query\Normalizer\ResultNormalizer;
 
 class OrmQuery extends AbstractQuery implements QueryInterface
 {
@@ -27,7 +26,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
         if ($this->isCount()) {
             $query = $this;
         } else {
-            if (!$this->isSearch()) {
+            if (!$this->isRead()) {
                 throw new QueryException(sprintf('You can count results with search methods only, but the query method is "%s".', $this->method));
             }
 
@@ -48,7 +47,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function getSingleScalarResult(): bool|float|int|string
     {
-        if (!$this->isSearch()) {
+        if (!$this->isRead()) {
             throw new QueryException(sprintf('You can get single scalar result with search methods only, but the query method is "%s".', $this->method));
         }
 
@@ -71,7 +70,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function getOneOrNullScalarResult(): null|bool|float|int|string
     {
-        if (!$this->isSearch()) {
+        if (!$this->isRead()) {
             throw new QueryException(sprintf('You can get single scalar result with search methods only, but the query method is "%s".', $this->method));
         }
 
@@ -94,7 +93,7 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function getScalarResult(): array
     {
-        if (!$this->isSearch() && !$this->isCount()) {
+        if (!$this->isRead() && !$this->isCount()) {
             throw new QueryException(sprintf('You can get scalar results with search/count methods only, but the query method is "%s".', $this->method));
         }
 
@@ -163,14 +162,13 @@ class OrmQuery extends AbstractQuery implements QueryInterface
      */
     public function getResult(): array
     {
-        if (!$this->isSearch()) {
+        if (!$this->isRead()) {
             throw new QueryException(sprintf('You can get results with search queries only, but the query method is "%s".', $this->method));
         }
 
         $model = $this->recordManager->getSchema()->getModel($this->name);
-        $resultNormalizer = new ResultNormalizer($this->recordManager->getTypeConverter());
 
-        return $resultNormalizer->normalize($model, (array) $this->execute());
+        return $this->recordManager->normalizeResult($model, (array) $this->execute());
     }
 
     /**
@@ -230,23 +228,17 @@ class OrmQuery extends AbstractQuery implements QueryInterface
 
     public function isWrite(): bool
     {
-        return \in_array($this->method, [
-            OrmQueryMethod::Create->value,
-            OrmQueryMethod::Write->value,
-        ], true);
+        return OrmQueryMethod::from($this->method)->isWritingContext();
     }
 
-    public function isSearch(): bool
+    public function isRead(): bool
     {
-        return \in_array($this->method, [
-            OrmQueryMethod::Search->value,
-            OrmQueryMethod::SearchAndRead->value,
-        ], true);
+        return OrmQueryMethod::from($this->method)->isReadingContext();
     }
 
     public function isCount(): bool
     {
-        return OrmQueryMethod::SearchAndCount->value === $this->method;
+        return OrmQueryMethod::from($this->method)->isCount();
     }
 
     public function isDeletion(): bool

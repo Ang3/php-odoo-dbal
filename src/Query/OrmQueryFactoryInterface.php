@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query;
 
-interface QueryFactoryInterface
+interface OrmQueryFactoryInterface
 {
     public function create(QueryBuilder $queryBuilder): OrmQuery;
 }

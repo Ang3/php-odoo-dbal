@@ -16,17 +16,13 @@ use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
-use Ang3\Component\Odoo\DBAL\Types\TypeConverter;
-use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 
 class CriteriaNormalizer
 {
-    private readonly ValueNormalizer $valueNormalizer;
-
-    public function __construct(private readonly SchemaInterface $schema, ?TypeConverterInterface $typeConverter = null)
-    {
-        $this->valueNormalizer = new ValueNormalizer($typeConverter ?: new TypeConverter());
-    }
+    public function __construct(
+        private readonly SchemaInterface $schema,
+        private readonly ValueNormalizer $valueNormalizer
+    ) {}
 
     public function normalize(ModelMetadata $model, array|DomainInterface $criteria = null): array
     {

@@ -31,9 +31,8 @@ class Schema implements SchemaInterface
 
     public function __construct(
         private readonly RecordManager $recordManager,
-        ?MetadataFactoryInterface $metadataFactory = null
-    )
-    {
+        MetadataFactoryInterface $metadataFactory = null
+    ) {
         $this->metadataFactory = $metadataFactory ?: new MetadataFactory($this->recordManager->getClient());
         $this->fieldResolver = new FieldResolver($this);
     }

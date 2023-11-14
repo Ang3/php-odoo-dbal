@@ -16,11 +16,14 @@ use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
 use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
+use Ang3\Component\Odoo\DBAL\Query\Normalizer\ResultNormalizer;
+use Ang3\Component\Odoo\DBAL\Query\Normalizer\ResultNormalizerInterface;
 use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
+use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
 use Ang3\Component\Odoo\DBAL\Types\TypeConverter;
@@ -35,6 +38,7 @@ class RecordManager
     private readonly SchemaInterface $schema;
     private readonly RepositoryRegistry $repositoryRegistry;
     private readonly TypeConverterInterface $typeConverter;
+    private readonly ResultNormalizerInterface $resultNormalizer;
     private readonly ExpressionBuilderInterface $expressionBuilder;
 
     public function __construct(
@@ -47,6 +51,7 @@ class RecordManager
         $this->schema = new Schema($this);
         $this->repositoryRegistry = new RepositoryRegistry($this);
         $this->typeConverter = $typeConverter ?: new TypeConverter();
+        $this->resultNormalizer = new ResultNormalizer($this->typeConverter);
         $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
     }
 
@@ -79,6 +84,13 @@ class RecordManager
         }
 
         return $this->client->executeKw($query->getName(), $query->getMethod(), $query->getParameters(), $options);
+    }
+
+    public function normalizeResult(ModelMetadata|string $model, array $payload, array $context = []): array
+    {
+        $model = $model instanceof ModelMetadata ? $model : $this->schema->getModel($model);
+
+        return $this->resultNormalizer->normalize($model, $payload, $context);
     }
 
     public function getRepository(string $modelName): RecordRepositoryInterface
@@ -117,6 +129,11 @@ class RecordManager
     public function getTypeConverter(): TypeConverterInterface
     {
         return $this->typeConverter;
+    }
+
+    public function getResultNormalizer(): ResultNormalizerInterface
+    {
+        return $this->resultNormalizer;
     }
 
     public function getExpressionBuilder(): ExpressionBuilderInterface

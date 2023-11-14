@@ -15,9 +15,7 @@ use Ang3\Component\Odoo\DBAL\RecordManager;
 
 class RepositoryRegistry
 {
-    public function __construct(private readonly RecordManager $recordManager, private array $repositories = [])
-    {
-    }
+    public function __construct(private readonly RecordManager $recordManager, private array $repositories = []) {}
 
     public function add(RecordRepositoryInterface $repository): self
     {

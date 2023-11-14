@@ -34,7 +34,7 @@ class LazyResult implements \IteratorAggregate
      */
     public function __construct(OrmQuery $query, ?array $defaultContext = [])
     {
-        if (!$query->isSearch()) {
+        if (!$query->isRead()) {
             throw new QueryException(sprintf('You can get lazy result only search queries, but the query method is "%s".', $query->getMethod()));
         }
 

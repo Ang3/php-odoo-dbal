@@ -15,6 +15,7 @@ use Ang3\Component\Odoo\DBAL\Query\Enum\QueryBuilderMethod;
 use Ang3\Component\Odoo\DBAL\Query\Enum\QueryOrder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
+use Ang3\Component\Odoo\DBAL\Query\Factory\OrmQueryFactory;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Types\ConversionException;
 
@@ -36,16 +37,12 @@ class QueryBuilder
     private array $orders = [];
     private ?int $maxResults = null;
     private ?int $firstResult = null;
+    private OrmQueryFactory $ormQueryFactory;
 
-    private QueryFactoryInterface $queryFactory;
-
-    public function __construct(
-        private readonly RecordManager $recordManager,
-        string $from,
-        QueryFactoryInterface $queryFactory = null
-    ) {
+    public function __construct(private readonly RecordManager $recordManager, string $from)
+    {
+        $this->ormQueryFactory = new OrmQueryFactory($this->recordManager);
         $this->from($from);
-        $this->queryFactory = $queryFactory ?: new QueryFactory($recordManager);
     }
 
     private static function isEmptyName(string $fieldName = null): bool
@@ -429,7 +426,7 @@ class QueryBuilder
      */
     public function getQuery(): OrmQuery
     {
-        return $this->queryFactory->create($this);
+        return $this->ormQueryFactory->create($this);
     }
 
     /**

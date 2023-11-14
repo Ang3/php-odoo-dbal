@@ -35,9 +35,7 @@ class CompositeDomain implements DomainInterface
     /**
      * @param DomainInterface[] $domains
      */
-    public function __construct(private string $operator, private array $domains = [])
-    {
-    }
+    public function __construct(private string $operator, private array $domains = []) {}
 
     public static function criteria(array $criteria = []): self
     {
