@@ -1,44 +1,50 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests\Config;
 
 use Ang3\Component\Odoo\DBAL\Config\DatabaseSettings;
-use Ang3\Component\Odoo\DBAL\Configuration;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Config\DatabaseSettings
  *
  * @internal
  */
-class DatabaseSettingsTest extends TestCase
+final class DatabaseSettingsTest extends TestCase
 {
-	private DatabaseSettings $databaseSettings;
-	private string $timezone = 'Europe/Paris';
+    private DatabaseSettings $databaseSettings;
+    private string $timezone = 'Europe/Paris';
 
-	protected function setUp(): void
-	{
-		parent::setUp();
-		$this->databaseSettings = new DatabaseSettings($this->timezone);
-	}
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->databaseSettings = new DatabaseSettings($this->timezone);
+    }
 
-	/**
-	 * @covers ::__construct
-	 * @covers ::getTimezone
-	 */
-	public function testEmptyConstructor(): void
-	{
-		$databaseSettings = new DatabaseSettings();
-		self::assertSame(DatabaseSettings::DEFAULT_TIMEZONE, $databaseSettings->getTimezone());
-	}
+    /**
+     * @covers ::__construct
+     * @covers ::getTimezone
+     */
+    public function testEmptyConstructor(): void
+    {
+        $databaseSettings = new DatabaseSettings();
+        static::assertSame(DatabaseSettings::DEFAULT_TIMEZONE, $databaseSettings->getTimezone());
+    }
 
-	/**
-	 * @covers ::getTimezone
-	 */
-	public function testTimezone(): void
-	{
-		self::assertSame($this->timezone, $this->databaseSettings->getTimezone());
-	}
+    /**
+     * @covers ::getTimezone
+     */
+    public function testTimezone(): void
+    {
+        static::assertSame($this->timezone, $this->databaseSettings->getTimezone());
+    }
 }

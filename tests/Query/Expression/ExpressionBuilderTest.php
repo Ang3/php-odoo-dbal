@@ -52,9 +52,9 @@ final class ExpressionBuilderTest extends TestCase
     public function testAndX(): void
     {
         $domain = $this->expressionBuilder->andX($this->domainA, $this->domainB);
-        self::assertInstanceOf(CompositeDomain::class, $domain);
-        self::assertEquals(CompositeDomain::AND, $domain->getOperator());
-        self::assertEquals($this->domains, $domain->getDomains());
+        static::assertInstanceOf(CompositeDomain::class, $domain);
+        static::assertEquals(CompositeDomain::AND, $domain->getOperator());
+        static::assertEquals($this->domains, $domain->getDomains());
     }
 
     /**
@@ -63,9 +63,9 @@ final class ExpressionBuilderTest extends TestCase
     public function testOrX(): void
     {
         $domain = $this->expressionBuilder->orX($this->domainA, $this->domainB);
-        self::assertInstanceOf(CompositeDomain::class, $domain);
-        self::assertEquals(CompositeDomain::OR, $domain->getOperator());
-        self::assertEquals($this->domains, $domain->getDomains());
+        static::assertInstanceOf(CompositeDomain::class, $domain);
+        static::assertEquals(CompositeDomain::OR, $domain->getOperator());
+        static::assertEquals($this->domains, $domain->getDomains());
     }
 
     /**
@@ -74,9 +74,9 @@ final class ExpressionBuilderTest extends TestCase
     public function testNotX(): void
     {
         $domain = $this->expressionBuilder->notX($this->domainA, $this->domainB);
-        self::assertInstanceOf(CompositeDomain::class, $domain);
-        self::assertEquals(CompositeDomain::NOT, $domain->getOperator());
-        self::assertEquals($this->domains, $domain->getDomains());
+        static::assertInstanceOf(CompositeDomain::class, $domain);
+        static::assertEquals(CompositeDomain::NOT, $domain->getOperator());
+        static::assertEquals($this->domains, $domain->getDomains());
     }
 
     /**
@@ -85,10 +85,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testEq(): void
     {
         $domain = $this->expressionBuilder->eq($this->fieldName, $this->fieldValue);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::EQUAL_TO, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::EQUAL_TO, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -97,10 +97,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testNeq(): void
     {
         $domain = $this->expressionBuilder->neq($this->fieldName, $this->fieldValue);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::NOT_EQUAL_TO, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::NOT_EQUAL_TO, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -109,10 +109,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testUeq(): void
     {
         $domain = $this->expressionBuilder->ueq($this->fieldName, $this->fieldValue);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::UNSET_OR_EQUAL_TO, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::UNSET_OR_EQUAL_TO, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -121,10 +121,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testLt(): void
     {
         $domain = $this->expressionBuilder->lt($this->fieldName, $this->fieldValue);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::LESS_THAN, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::LESS_THAN, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -133,10 +133,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testLte(): void
     {
         $domain = $this->expressionBuilder->lte($this->fieldName, $this->fieldValue);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::LESS_THAN_OR_EQUAL, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::LESS_THAN_OR_EQUAL, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -145,10 +145,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testGt(): void
     {
         $domain = $this->expressionBuilder->gt($this->fieldName, $this->fieldValue);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::GREATER_THAN, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::GREATER_THAN, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -157,10 +157,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testGte(): void
     {
         $domain = $this->expressionBuilder->gte($this->fieldName, $this->fieldValue);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::GREATER_THAN_OR_EQUAL, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::GREATER_THAN_OR_EQUAL, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -174,10 +174,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testLike(string $expectedOperator, bool $strict = false, bool $caseSensitive = true): void
     {
         $domain = $this->expressionBuilder->like($this->fieldName, $this->fieldValue, $strict, $caseSensitive);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals($expectedOperator, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals($expectedOperator, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -189,10 +189,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testNotLike(string $expectedOperator, bool $caseSensitive = true): void
     {
         $domain = $this->expressionBuilder->notLike($this->fieldName, $this->fieldValue, $caseSensitive);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals($expectedOperator, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($this->fieldValue, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals($expectedOperator, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($this->fieldValue, $domain->getValue());
     }
 
     /**
@@ -207,10 +207,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testIn(array|bool|float|int|string $values, array $expectedValues): void
     {
         $domain = $this->expressionBuilder->in($this->fieldName, $values);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::IN, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($expectedValues, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::IN, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($expectedValues, $domain->getValue());
     }
 
     /**
@@ -225,10 +225,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testNotIn(array|bool|float|int|string $values, array $expectedValues): void
     {
         $domain = $this->expressionBuilder->notIn($this->fieldName, $values);
-        self::assertInstanceOf(Comparison::class, $domain);
-        self::assertEquals(Comparison::NOT_IN, $domain->getOperator());
-        self::assertEquals($this->fieldName, $domain->getFieldName());
-        self::assertEquals($expectedValues, $domain->getValue());
+        static::assertInstanceOf(Comparison::class, $domain);
+        static::assertEquals(Comparison::NOT_IN, $domain->getOperator());
+        static::assertEquals($this->fieldName, $domain->getFieldName());
+        static::assertEquals($expectedValues, $domain->getValue());
     }
 
     /**
@@ -237,10 +237,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testCreateRecord(): void
     {
         $operation = $this->expressionBuilder->createRecord($this->dataSet);
-        self::assertInstanceOf(CollectionOperation::class, $operation);
-        self::assertEquals(CollectionOperation::CREATE, $operation->getType());
-        self::assertEquals(0, $operation->getId());
-        self::assertEquals($this->dataSet, $operation->getData());
+        static::assertInstanceOf(CollectionOperation::class, $operation);
+        static::assertEquals(CollectionOperation::CREATE, $operation->getType());
+        static::assertEquals(0, $operation->getId());
+        static::assertEquals($this->dataSet, $operation->getData());
     }
 
     /**
@@ -249,10 +249,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testUpdateRecord(): void
     {
         $operation = $this->expressionBuilder->updateRecord($id = 3, $this->dataSet);
-        self::assertInstanceOf(CollectionOperation::class, $operation);
-        self::assertEquals(CollectionOperation::UPDATE, $operation->getType());
-        self::assertEquals($id, $operation->getId());
-        self::assertEquals($this->dataSet, $operation->getData());
+        static::assertInstanceOf(CollectionOperation::class, $operation);
+        static::assertEquals(CollectionOperation::UPDATE, $operation->getType());
+        static::assertEquals($id, $operation->getId());
+        static::assertEquals($this->dataSet, $operation->getData());
     }
 
     /**
@@ -270,10 +270,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testAddRecord(): void
     {
         $operation = $this->expressionBuilder->addRecord($id = 3);
-        self::assertInstanceOf(CollectionOperation::class, $operation);
-        self::assertEquals(CollectionOperation::ADD, $operation->getType());
-        self::assertEquals($id, $operation->getId());
-        self::assertEquals(0, $operation->getData());
+        static::assertInstanceOf(CollectionOperation::class, $operation);
+        static::assertEquals(CollectionOperation::ADD, $operation->getType());
+        static::assertEquals($id, $operation->getId());
+        static::assertEquals(0, $operation->getData());
     }
 
     /**
@@ -282,10 +282,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testRemoveRecord(): void
     {
         $operation = $this->expressionBuilder->removeRecord($id = 3);
-        self::assertInstanceOf(CollectionOperation::class, $operation);
-        self::assertEquals(CollectionOperation::REMOVE, $operation->getType());
-        self::assertEquals($id, $operation->getId());
-        self::assertEquals(0, $operation->getData());
+        static::assertInstanceOf(CollectionOperation::class, $operation);
+        static::assertEquals(CollectionOperation::REMOVE, $operation->getType());
+        static::assertEquals($id, $operation->getId());
+        static::assertEquals(0, $operation->getData());
     }
 
     /**
@@ -294,10 +294,10 @@ final class ExpressionBuilderTest extends TestCase
     public function testDeleteRecord(): void
     {
         $operation = $this->expressionBuilder->deleteRecord($id = 3);
-        self::assertInstanceOf(CollectionOperation::class, $operation);
-        self::assertEquals(CollectionOperation::DELETE, $operation->getType());
-        self::assertEquals($id, $operation->getId());
-        self::assertEquals(0, $operation->getData());
+        static::assertInstanceOf(CollectionOperation::class, $operation);
+        static::assertEquals(CollectionOperation::DELETE, $operation->getType());
+        static::assertEquals($id, $operation->getId());
+        static::assertEquals(0, $operation->getData());
     }
 
     /**
@@ -306,9 +306,9 @@ final class ExpressionBuilderTest extends TestCase
     public function testClearRecords(): void
     {
         $operation = $this->expressionBuilder->clearRecords();
-        self::assertInstanceOf(CollectionOperation::class, $operation);
-        self::assertEquals(CollectionOperation::CLEAR, $operation->getType());
-        self::assertEquals(0, $operation->getId());
-        self::assertEquals(0, $operation->getData());
+        static::assertInstanceOf(CollectionOperation::class, $operation);
+        static::assertEquals(CollectionOperation::CLEAR, $operation->getType());
+        static::assertEquals(0, $operation->getId());
+        static::assertEquals(0, $operation->getData());
     }
 }

@@ -54,7 +54,7 @@ final class CompositeDomainTest extends AbstractDomainTest
     {
         foreach ($this->provideToArrayCases() as $row) {
             $domain = new CompositeDomain($row[0], $row[1]);
-            self::assertEquals($row[2], $domain->toArray(), $row[3] ?? '');
+            static::assertEquals($row[2], $domain->toArray(), $row[3] ?? '');
         }
     }
 

@@ -49,6 +49,6 @@ final class ComparisonTest extends AbstractDomainTest
     {
         $comparison = new Comparison('foo', Comparison::EQUAL_TO, 'bar');
 
-        self::assertEquals(['foo', '=', 'bar'], $comparison->toArray());
+        static::assertEquals(['foo', '=', 'bar'], $comparison->toArray());
     }
 }

@@ -39,14 +39,14 @@ final class QueryBuilderTest extends TestCase
         $this->queryBuilder = new QueryBuilder($this->recordManager, $this->modelName);
     }
 
-	/**
-	 * @covers ::from
-	 * @covers ::getFrom
-	 */
+    /**
+     * @covers ::from
+     * @covers ::getFrom
+     */
     public function testFrom(): void
     {
         $this->queryBuilder->from($modelName = 'res.company');
-        self::assertEquals($modelName, $this->queryBuilder->getFrom());
+        static::assertEquals($modelName, $this->queryBuilder->getFrom());
     }
 
     /**
@@ -88,14 +88,14 @@ final class QueryBuilderTest extends TestCase
     public function testAddSelect(): void
     {
         $this->queryBuilder->addSelect($fieldName1 = 'field_name1');
-        self::assertEquals([$fieldName1], $this->queryBuilder->getSelect());
+        static::assertEquals([$fieldName1], $this->queryBuilder->getSelect());
 
         $this->queryBuilder->addSelect($fieldName2 = 'field_name2');
-        self::assertEquals([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        static::assertEquals([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
 
         // Deduplication test
         $this->queryBuilder->addSelect($fieldName2);
-        self::assertEquals([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        static::assertEquals([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
     }
 
     /**
@@ -777,15 +777,15 @@ final class QueryBuilderTest extends TestCase
         int $maxResults = null,
         int $firstResult = null
     ): void {
-        self::assertEquals(\is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
-        self::assertEquals($from ?: $this->modelName, $this->queryBuilder->getFrom());
-        self::assertEquals($select, $this->queryBuilder->getSelect());
-        self::assertEquals($values, $this->queryBuilder->getValues());
-        self::assertEquals($ids, $this->queryBuilder->getIds());
-        self::assertEquals($where, $this->queryBuilder->getWhere());
-        self::assertEquals($orders, $this->queryBuilder->getOrders());
-        self::assertEquals($maxResults, $this->queryBuilder->getMaxResults());
-        self::assertEquals($firstResult, $this->queryBuilder->getFirstResult());
+        static::assertEquals(\is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
+        static::assertEquals($from ?: $this->modelName, $this->queryBuilder->getFrom());
+        static::assertEquals($select, $this->queryBuilder->getSelect());
+        static::assertEquals($values, $this->queryBuilder->getValues());
+        static::assertEquals($ids, $this->queryBuilder->getIds());
+        static::assertEquals($where, $this->queryBuilder->getWhere());
+        static::assertEquals($orders, $this->queryBuilder->getOrders());
+        static::assertEquals($maxResults, $this->queryBuilder->getMaxResults());
+        static::assertEquals($firstResult, $this->queryBuilder->getFirstResult());
     }
 
     /**
