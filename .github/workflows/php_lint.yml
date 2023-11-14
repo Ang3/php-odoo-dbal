@@ -21,6 +21,6 @@ jobs:
       - name: Run PHP-CS-Fixer - Fix
         run: php-cs-fixer fix src -vvv --diff --config=.php-cs-fixer.php-highest.php
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Fix PHP code via php-cs-fixer (auto) [no ci]
