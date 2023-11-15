@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Types;
 
-class BooleanType extends Type
+class BooleanType extends ScalarType
 {
     public function getName(): string
     {
@@ -20,17 +20,14 @@ class BooleanType extends Type
 
     public function convertToDatabaseValue(mixed $value, array $context = []): bool
     {
+        $value = parent::convertToDatabaseValue($value, $context);
+
         return (bool) $value;
     }
 
-    public function convertToPhpValue(mixed $value, array $context = []): bool
+    public function convertToPhpValue(mixed $value, array $context = []): ?bool
     {
-        if (\is_string($value)) {
-            return match (strtolower($value)) {
-                'true', '1' => true,
-                default => false
-            };
-        }
+        $value = parent::convertToPhpValue($value, $context);
 
         return (bool) $value;
     }

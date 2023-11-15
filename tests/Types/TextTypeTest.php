@@ -11,37 +11,37 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Tests\Types;
 
-use Ang3\Component\Odoo\DBAL\Types\BinaryType;
+use Ang3\Component\Odoo\DBAL\Types\TextType;
 
 /**
- * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Types\BinaryType
+ * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Types\TextType
  *
  * @internal
  */
-final class BinaryTypeTest extends AbstractScalarTypeTest
+final class TextTypeTest extends AbstractScalarTypeTest
 {
-    private BinaryType $type;
+    private TextType $type;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->type = new BinaryType();
+        $this->type = new TextType();
     }
 
     /**
      * @covers ::convertToDatabaseValue
      *
-     * @testWith [ "Hello world!", "SGVsbG8gd29ybGQh" ]
-     *           [ 0, "MA==" ]
-     *           [ 1, "MQ==" ]
-     *           [ "0", "MA==" ]
-     *           [ "1", "MQ==" ]
-     *           [ 1.1, "MS4x" ]
-     *           [ "1.1", "MS4x" ]
+     * @testWith [ true, "1" ]
+     *           [ false, null ]
+     *           [ 0, "0" ]
+     *           [ 1, "1" ]
+     *           [ 1.1, "1.1" ]
+     *           [ "1", "1" ]
+     *           [ "Hello world!", "Hello world!" ]
      *           [ "", null ]
      *           [ " ", null ]
      */
-    public function testConvertToDatabaseValue(mixed $value, ?string $expectedResult): void
+    public function testConvertToDatabaseValue(mixed $value, mixed $expectedResult): void
     {
         static::assertSame($expectedResult, $this->type->convertToDatabaseValue($value));
     }
@@ -49,13 +49,15 @@ final class BinaryTypeTest extends AbstractScalarTypeTest
     /**
      * @covers ::convertToPhpValue
      *
-     * @testWith [ "SGVsbG8gd29ybGQh", "Hello world!"  ]
-     *           [ "MA==", "0" ]
-     *           [ "MQ==", "1" ]
-     *           [ "MS4x", "1.1" ]
+     * @testWith [ true, "1" ]
+     *           [ false, null ]
+     *           [ 0, "0" ]
+     *           [ 1, "1" ]
+     *           [ 1.1, "1.1" ]
+     *           [ "1", "1" ]
+     *           [ "Hello world!", "Hello world!" ]
      *           [ "", null ]
      *           [ " ", null ]
-     *           [ null, null ]
      */
     public function testConvertToPhpValue(mixed $value, mixed $expectedResult): void
     {

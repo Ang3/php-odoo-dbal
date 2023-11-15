@@ -28,6 +28,10 @@ class ScalarType extends Type
             throw ConversionException::unexpectedType($value, $this->getName(), ['bool', 'int', 'float', 'string']);
         }
 
+        if (\is_string($value)) {
+            $value = $this->normalizeString($value);
+        }
+
         return $value;
     }
 
@@ -39,6 +43,21 @@ class ScalarType extends Type
 
         if (!\is_scalar($value)) {
             throw ConversionException::unexpectedDatabaseFormat($value, self::class, 'scalar');
+        }
+
+        if (\is_string($value)) {
+            $value = $this->normalizeString($value);
+        }
+
+        return $value;
+    }
+
+    public function normalizeString(string $value): ?string
+    {
+        $value = trim($value);
+
+        if ('' === $value) {
+            return null;
         }
 
         return $value;

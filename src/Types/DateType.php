@@ -31,18 +31,24 @@ class DateType extends Type
             return null;
         }
 
+        $timezone = $this->getTimezone($context);
+
         if (\is_string($value)) {
-            return $value;
+            try {
+                $date = new \DateTime($value, $timezone);
+            } catch (\Exception $exception) {
+                throw ConversionException::conversionToDatabaseFailed($value, \DateTimeInterface::class, $exception);
+            }
+        } else {
+            if (!$value instanceof \DateTimeInterface) {
+                throw ConversionException::unexpectedType($value, \DateTimeInterface::class, ['string', \DateTimeInterface::class]);
+            }
+
+            $date = \DateTime::createFromInterface($value);
+            $date->setTimezone($timezone);
         }
 
-        if (!$value instanceof \DateTimeInterface) {
-            throw ConversionException::unexpectedType($value, \DateTimeInterface::class, ['string', \DateTimeInterface::class]);
-        }
-
-        $date = \DateTime::createFromInterface($value);
-        $date->setTimezone($this->getTimezone($context));
-
-        return $value->format($this->getFormat());
+        return $date->format($this->getFormat());
     }
 
     public function convertToPhpValue(mixed $value, array $context = []): ?\DateTime

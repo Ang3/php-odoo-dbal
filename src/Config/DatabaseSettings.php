@@ -18,7 +18,9 @@ class DatabaseSettings
      */
     public const DEFAULT_TIMEZONE = 'UTC';
 
-    public function __construct(private readonly string $timezone = self::DEFAULT_TIMEZONE) {}
+    public function __construct(private readonly string $timezone = self::DEFAULT_TIMEZONE)
+    {
+    }
 
     public function getTimezone(): string
     {

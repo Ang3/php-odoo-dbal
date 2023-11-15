@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Types;
 
-class BinaryType extends Type
+class BinaryType extends ScalarType
 {
     public function getName(): string
     {
@@ -20,17 +20,9 @@ class BinaryType extends Type
 
     public function convertToDatabaseValue(mixed $value, array $context = []): ?string
     {
+        $value = parent::convertToDatabaseValue($value, $context);
+
         if (null === $value) {
-            return null;
-        }
-
-        if (!\is_scalar($value)) {
-            throw ConversionException::unexpectedType($value, $this->getName(), ['bool', 'int', 'float', 'string']);
-        }
-
-        $value = \is_string($value) ? trim($value) : $value;
-
-        if ('' === $value) {
             return null;
         }
 
@@ -39,21 +31,13 @@ class BinaryType extends Type
 
     public function convertToPhpValue(mixed $value, array $context = []): ?string
     {
+        $value = parent::convertToPhpValue($value, $context);
+
         if (null === $value) {
             return null;
         }
 
-        if (!\is_scalar($value)) {
-            throw ConversionException::unexpectedDatabaseFormat($value, self::class, 'scalar');
-        }
-
-        $value = trim((string) $value);
-
-        if (!$value) {
-            return null;
-        }
-
-        $result = base64_decode($value, true);
+        $result = base64_decode((string) $value, true);
 
         return false !== $result ? $result : null;
     }

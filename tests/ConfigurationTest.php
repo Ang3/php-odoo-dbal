@@ -42,8 +42,8 @@ final class ConfigurationTest extends TestCase
     public function testEmptyConstructor(): void
     {
         $configuration = new Configuration();
-        self::assertInstanceOf(DatabaseSettings::class, $configuration->getDatabaseSettings());
-        self::assertInstanceOf(CacheItemPoolInterface::class, $configuration->getMetadataCache());
+        static::assertInstanceOf(DatabaseSettings::class, $configuration->getDatabaseSettings());
+        static::assertInstanceOf(CacheItemPoolInterface::class, $configuration->getMetadataCache());
     }
 
     /**
@@ -51,7 +51,7 @@ final class ConfigurationTest extends TestCase
      */
     public function testGetDatabaseSettings(): void
     {
-        self::assertSame($this->databaseSettings, $this->configuration->getDatabaseSettings());
+        static::assertSame($this->databaseSettings, $this->configuration->getDatabaseSettings());
     }
 
     /**
@@ -59,6 +59,6 @@ final class ConfigurationTest extends TestCase
      */
     public function testGetMetadataCache(): void
     {
-        self::assertSame($this->metadataCache, $this->configuration->getMetadataCache());
+        static::assertSame($this->metadataCache, $this->configuration->getMetadataCache());
     }
 }

@@ -18,7 +18,9 @@ use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 
 class ValueNormalizer
 {
-    public function __construct(private readonly TypeConverterInterface $typeConverter) {}
+    public function __construct(private readonly TypeConverterInterface $typeConverter)
+    {
+    }
 
     public function normalize(ModelMetadata $model, array $values = [], array $context = []): array
     {

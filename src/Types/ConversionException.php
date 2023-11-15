@@ -17,13 +17,23 @@ namespace Ang3\Component\Odoo\DBAL\Types;
 class ConversionException extends TypeException
 {
     /**
+     * Thrown when a Database to PHP Type Conversion fails.
+     */
+    public static function conversionToDatabaseFailed(mixed $value, string $toType, \Throwable $previous = null): self
+    {
+        $value = self::getValueAsString($value);
+
+        return new self('Could not convert PHP value "'.$value.'" to Database Type '.$toType, 0, $previous);
+    }
+
+    /**
      * Thrown when a PHP to Database Type Conversion fails.
      */
     public static function conversionToPhpFailed(mixed $value, string $toType, \Throwable $previous = null): self
     {
         $value = self::getValueAsString($value);
 
-        return new self('Could not convert PHP value "'.$value.'" to Database Type '.$toType, 0, $previous);
+        return new self('Could not convert Database value "'.$value.'" to PHP Type '.$toType, 0, $previous);
     }
 
     /**
