@@ -21,15 +21,17 @@ class ResultNormalizer implements ResultNormalizerInterface
     public function normalize(ModelMetadata $model, array $rows = [], array $context = []): array
     {
         foreach ($rows as $index => $data) {
-            foreach ($data as $fieldName => $value) {
-                $field = $model->getField($fieldName);
+            if (is_array($data)) {
+                foreach ($data as $fieldName => $value) {
+                    $field = $model->getField($fieldName);
 
-                // We skip ID and association fields
-                if ('id' === $fieldName || !$field->isAssociation()) {
-                    continue;
+                    // We skip ID and association fields
+                    if ('id' === $fieldName || $field->isAssociation()) {
+                        continue;
+                    }
+
+                    $rows[$index][$fieldName] = $this->typeConverter->convertToPhpValue($value, $field->getType()->value, $context);
                 }
-
-                $rows[$index][$fieldName] = $this->typeConverter->convertToPhpValue($value, $field->getType()->value, $context);
             }
         }
 
