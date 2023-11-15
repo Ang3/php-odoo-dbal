@@ -43,7 +43,7 @@ final class BooleanTypeTest extends AbstractScalarTypeTest
      */
     public function testConvertToDatabaseValue(mixed $value, ?bool $expectedResult): void
     {
-        static::assertSame($expectedResult, $this->type->convertToDatabaseValue($value));
+        self::assertSame($expectedResult, $this->type->convertToDatabaseValue($value));
     }
 
     /**
@@ -61,6 +61,6 @@ final class BooleanTypeTest extends AbstractScalarTypeTest
      */
     public function testConvertToPhpValue(mixed $value, ?bool $expectedResult): void
     {
-        static::assertSame($expectedResult, $this->type->convertToPhpValue($value));
+        self::assertSame($expectedResult, $this->type->convertToPhpValue($value));
     }
 }

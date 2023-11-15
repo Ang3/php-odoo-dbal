@@ -1,5 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests\Types;
 
 use Ang3\Component\Odoo\DBAL\Types\TypeException;
@@ -9,8 +18,10 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Types\TypeRegistry
+ *
+ * @internal
  */
-class TypeRegistryTest extends TestCase
+final class TypeRegistryTest extends TestCase
 {
     private TypeRegistry $typeRegistry;
 
@@ -30,8 +41,9 @@ class TypeRegistryTest extends TestCase
 
     /**
      * @covers ::__construct
-     * @covers ::registerBuiltInTypes
      * @covers ::get
+     * @covers ::registerBuiltInTypes
+     *
      * @testWith [ "binary", "Ang3\\Component\\Odoo\\DBAL\\Types\\BinaryType" ]
      *           [ "boolean", "Ang3\\Component\\Odoo\\DBAL\\Types\\BooleanType" ]
      *           [ "char", "Ang3\\Component\\Odoo\\DBAL\\Types\\TextType" ]
@@ -52,6 +64,7 @@ class TypeRegistryTest extends TestCase
 
     /**
      * @covers ::get
+     *
      * @testWith [ "unknown_type" ]
      */
     public function testGetUnknownType(string $name): void
@@ -62,6 +75,7 @@ class TypeRegistryTest extends TestCase
 
     /**
      * @covers ::register
+     *
      * @testWith [ "new_type", "Ang3\\Component\\Odoo\\DBAL\\Tests\\Types\\TestType" ]
      */
     public function testRegister(string $name, string $classType): void
@@ -72,6 +86,7 @@ class TypeRegistryTest extends TestCase
 
     /**
      * @covers ::has
+     *
      * @testWith [ "binary", true ]
      *           [ "boolean", true ]
      *           [ "char", true ]

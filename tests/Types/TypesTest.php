@@ -1,5 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests\Types;
 
 use Ang3\Component\Odoo\DBAL\Types\Types;
@@ -7,12 +16,14 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Types\Types
+ *
+ * @internal
  */
-class TypesTest extends TestCase
+final class TypesTest extends TestCase
 {
     /**
-     * @covers ::getKeys
      * @covers ::getConstants
+     * @covers ::getKeys
      */
     public function testGetKeys(): void
     {
@@ -27,13 +38,13 @@ class TypesTest extends TestCase
             'INTEGER',
             'MONETARY',
             'SELECTION',
-            'TEXT'
+            'TEXT',
         ], Types::getKeys());
     }
 
     /**
-     * @covers ::getValues
      * @covers ::getConstants
+     * @covers ::getValues
      */
     public function testGetValues(): void
     {
@@ -48,7 +59,7 @@ class TypesTest extends TestCase
             Types::INTEGER,
             Types::MONETARY,
             Types::SELECTION,
-            Types::TEXT
+            Types::TEXT,
         ], Types::getValues());
     }
 }

@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Tests\Types;
 
-use Ang3\Component\Odoo\DBAL\Config\DatabaseSettings;
 use Ang3\Component\Odoo\DBAL\Types\DateType;
 
 /**
@@ -43,7 +42,7 @@ final class DateTypeTest extends AbstractDateTypeTest
             DateType::TIMEZONE_KEY => $timezoneSource,
         ]);
 
-        static::assertInstanceOf(\DateTime::class, $result);
-        static::assertSame($dateTarget, $result->format('Y-m-d H:i:s'));
+        self::assertInstanceOf(\DateTime::class, $result);
+        self::assertSame($dateTarget, $result->format('Y-m-d H:i:s'));
     }
 }

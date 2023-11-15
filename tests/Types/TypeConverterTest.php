@@ -1,5 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of package ang3/php-odoo-dbal
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
+
 namespace Ang3\Component\Odoo\DBAL\Tests\Types;
 
 use Ang3\Component\Odoo\DBAL\Config\DatabaseSettings;
@@ -14,13 +23,15 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @coversDefaultClass \Ang3\Component\Odoo\DBAL\Types\TypeConverter
+ *
+ * @internal
  */
-class TypeConverterTest extends TestCase
+final class TypeConverterTest extends TestCase
 {
     private TypeConverter $typeConverter;
     private MockObject $typeRegistry;
     private array $defaultContext = [
-        DateType::TIMEZONE_KEY => DatabaseSettings::DEFAULT_TIMEZONE
+        DateType::TIMEZONE_KEY => DatabaseSettings::DEFAULT_TIMEZONE,
     ];
 
     protected function setUp(): void
@@ -48,6 +59,7 @@ class TypeConverterTest extends TestCase
 
     /**
      * @covers ::__construct
+     *
      * @depends testGetTypeRegistry
      */
     public function testEmptyConstructor(): void
@@ -58,6 +70,7 @@ class TypeConverterTest extends TestCase
 
     /**
      * @covers ::getContext
+     *
      * @testWith [ {"bar": "baz"} ]
      */
     public function testGetContext(array $context): void
@@ -67,51 +80,57 @@ class TypeConverterTest extends TestCase
 
     /**
      * @covers ::convertToDatabaseValue
+     *
      * @depends testGetContext
+     *
      * @testWith [ "foo", "type_name", [] ]
      */
     public function testConvertToDatabaseValue(mixed $value, string $type, array $context = []): void
     {
         $registeredType = $this->createMock(TypeInterface::class);
-        $this->typeRegistry->expects($this->once())->method('get')->with($type)->willReturn($registeredType);
-        $registeredType->expects($this->once())->method('convertToDatabaseValue')->with($value, $this->typeConverter->getContext($context))->willReturn($result = 'bar');
+        $this->typeRegistry->expects(self::once())->method('get')->with($type)->willReturn($registeredType);
+        $registeredType->expects(self::once())->method('convertToDatabaseValue')->with($value, $this->typeConverter->getContext($context))->willReturn($result = 'bar');
 
         self::assertSame($result, $this->typeConverter->convertToDatabaseValue($value, $type, $context));
     }
 
     /**
      * @covers ::convertToDatabaseValue
+     *
      * @testWith [ "foo", "unknown_type" ]
      */
     public function testConvertToDatabaseValueWithUnknownType(mixed $value, string $unknownType): void
     {
         $this->expectException(TypeException::class);
-        $this->typeRegistry->expects($this->once())->method('get')->with($unknownType)->willThrowException(new TypeException());
+        $this->typeRegistry->expects(self::once())->method('get')->with($unknownType)->willThrowException(new TypeException());
         $this->typeConverter->convertToDatabaseValue($value, $unknownType);
     }
 
     /**
      * @covers ::convertToPhpValue
+     *
      * @depends testGetContext
+     *
      * @testWith [ "foo", "type_name", [] ]
      */
     public function testConvertToPhpValue(mixed $value, string $type, array $context = []): void
     {
         $registeredType = $this->createMock(TypeInterface::class);
-        $this->typeRegistry->expects($this->once())->method('get')->with($type)->willReturn($registeredType);
-        $registeredType->expects($this->once())->method('convertToPhpValue')->with($value, $this->typeConverter->getContext($context))->willReturn($result = 'bar');
+        $this->typeRegistry->expects(self::once())->method('get')->with($type)->willReturn($registeredType);
+        $registeredType->expects(self::once())->method('convertToPhpValue')->with($value, $this->typeConverter->getContext($context))->willReturn($result = 'bar');
 
         self::assertSame($result, $this->typeConverter->convertToPhpValue($value, $type, $context));
     }
 
     /**
      * @covers ::convertToPhpValue
+     *
      * @testWith [ "foo", "unknown_type" ]
      */
     public function testConvertToPhpValueWithUnknownType(mixed $value, string $unknownType): void
     {
         $this->expectException(TypeException::class);
-        $this->typeRegistry->expects($this->once())->method('get')->with($unknownType)->willThrowException(new TypeException());
+        $this->typeRegistry->expects(self::once())->method('get')->with($unknownType)->willThrowException(new TypeException());
         $this->typeConverter->convertToPhpValue($value, $unknownType);
     }
 }

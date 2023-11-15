@@ -46,7 +46,7 @@ final class QueryBuilderTest extends TestCase
     public function testFrom(): void
     {
         $this->queryBuilder->from($modelName = 'res.company');
-        static::assertSame($modelName, $this->queryBuilder->getFrom());
+        self::assertSame($modelName, $this->queryBuilder->getFrom());
     }
 
     /**
@@ -88,14 +88,14 @@ final class QueryBuilderTest extends TestCase
     public function testAddSelect(): void
     {
         $this->queryBuilder->addSelect($fieldName1 = 'field_name1');
-        static::assertSame([$fieldName1], $this->queryBuilder->getSelect());
+        self::assertSame([$fieldName1], $this->queryBuilder->getSelect());
 
         $this->queryBuilder->addSelect($fieldName2 = 'field_name2');
-        static::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        self::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
 
         // Deduplication test
         $this->queryBuilder->addSelect($fieldName2);
-        static::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        self::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
     }
 
     /**
@@ -777,19 +777,19 @@ final class QueryBuilderTest extends TestCase
         int $maxResults = null,
         int $firstResult = null
     ): void {
-        static::assertSame(\is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
-        static::assertSame($from ?: $this->modelName, $this->queryBuilder->getFrom());
-        static::assertSame($select, $this->queryBuilder->getSelect());
-        static::assertSame($values, $this->queryBuilder->getValues());
-        static::assertSame($ids, $this->queryBuilder->getIds());
+        self::assertSame(\is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
+        self::assertSame($from ?: $this->modelName, $this->queryBuilder->getFrom());
+        self::assertSame($select, $this->queryBuilder->getSelect());
+        self::assertSame($values, $this->queryBuilder->getValues());
+        self::assertSame($ids, $this->queryBuilder->getIds());
 
         if ($where) {
-            static::assertSame($where->toArray(), $this->queryBuilder->getWhere()->toArray());
+            self::assertSame($where->toArray(), $this->queryBuilder->getWhere()->toArray());
         }
 
-        static::assertSame($orders, $this->queryBuilder->getOrders());
-        static::assertSame($maxResults, $this->queryBuilder->getMaxResults());
-        static::assertSame($firstResult, $this->queryBuilder->getFirstResult());
+        self::assertSame($orders, $this->queryBuilder->getOrders());
+        self::assertSame($maxResults, $this->queryBuilder->getMaxResults());
+        self::assertSame($firstResult, $this->queryBuilder->getFirstResult());
     }
 
     /**

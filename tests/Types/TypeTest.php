@@ -44,7 +44,7 @@ final class TypeTest extends AbstractTypeTest
      */
     public function testConvertToDatabaseValue(mixed $value, mixed $expectedResult): void
     {
-        static::assertSame($expectedResult, $this->type->convertToDatabaseValue($value));
+        self::assertSame($expectedResult, $this->type->convertToDatabaseValue($value));
     }
 
     /**
@@ -63,6 +63,6 @@ final class TypeTest extends AbstractTypeTest
      */
     public function testConvertToPhpValue(mixed $value, mixed $expectedResult): void
     {
-        static::assertSame($expectedResult, $this->type->convertToPhpValue($value));
+        self::assertSame($expectedResult, $this->type->convertToPhpValue($value));
     }
 }

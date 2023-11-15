@@ -28,9 +28,6 @@ final class Types
     public const SELECTION = 'selection';
     public const TEXT = 'text';
 
-    /**
-     * @var \ReflectionClassConstant[]
-     */
     private static array $constants = [];
 
     /**
@@ -42,7 +39,7 @@ final class Types
     }
 
     /**
-     * @return string[]
+     * @return mixed[]
      */
     public static function getValues(): array
     {
@@ -50,7 +47,7 @@ final class Types
     }
 
     /**
-     * @return \ReflectionClassConstant[]
+     * @internal
      */
     private static function getConstants(): array
     {

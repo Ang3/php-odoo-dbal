@@ -43,7 +43,7 @@ final class BinaryTypeTest extends AbstractScalarTypeTest
      */
     public function testConvertToDatabaseValue(mixed $value, ?string $expectedResult): void
     {
-        static::assertSame($expectedResult, $this->type->convertToDatabaseValue($value));
+        self::assertSame($expectedResult, $this->type->convertToDatabaseValue($value));
     }
 
     /**
@@ -59,6 +59,6 @@ final class BinaryTypeTest extends AbstractScalarTypeTest
      */
     public function testConvertToPhpValue(mixed $value, mixed $expectedResult): void
     {
-        static::assertSame($expectedResult, $this->type->convertToPhpValue($value));
+        self::assertSame($expectedResult, $this->type->convertToPhpValue($value));
     }
 }
