@@ -24,7 +24,7 @@ class MetadataFactory implements MetadataFactoryInterface
         $fields = (array) $this->client->executeKw(
             IrModel::Fields->value,
             OrmQueryMethod::SearchAndRead->value,
-            [['model_id', '=', $payload['id']]]
+            [[['model_id', '=', $payload['id']]]]
         );
 
         foreach ($fields as $key => $fieldData) {
@@ -37,7 +37,7 @@ class MetadataFactory implements MetadataFactoryInterface
                 $choices = (array) $this->client->executeKw(
                     IrModel::FieldsSelection->value,
                     OrmQueryMethod::SearchAndRead->value,
-                    [['field_id', '=', $fieldData['id']]]
+                    [[['field_id', '=', $fieldData['id']]]]
                 );
 
                 foreach ($choices as $index => $choice) {

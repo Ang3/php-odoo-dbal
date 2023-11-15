@@ -60,7 +60,7 @@ class Schema implements SchemaInterface
             ->executeKw(
                 IrModel::Model->value,
                 OrmQueryMethod::SearchAndRead->value,
-                [['model', '=', $modelName]]
+                [[['model', '=', $modelName]]]
             )
         ;
 
