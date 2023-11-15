@@ -11,6 +11,4 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Exception;
 
-interface ExceptionInterface extends \Throwable
-{
-}
+interface ExceptionInterface extends \Throwable {}

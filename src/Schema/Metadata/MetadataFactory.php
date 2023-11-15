@@ -17,9 +17,7 @@ use Ang3\Component\Odoo\DBAL\Schema\Enum\IrModel;
 
 class MetadataFactory implements MetadataFactoryInterface
 {
-    public function __construct(private readonly Client $client)
-    {
-    }
+    public function __construct(private readonly Client $client) {}
 
     public function createModel(array $payload): ModelMetadata
     {

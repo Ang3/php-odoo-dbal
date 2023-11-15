@@ -22,9 +22,7 @@ use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
  */
 class FieldResolver
 {
-    public function __construct(private readonly SchemaInterface $schema)
-    {
-    }
+    public function __construct(private readonly SchemaInterface $schema) {}
 
     /**
      * Gets the metadata of a field recursively with dot notation.
