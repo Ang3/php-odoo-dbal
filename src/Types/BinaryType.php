@@ -20,7 +20,7 @@ class BinaryType extends Type
 
     public function convertToDatabaseValue(mixed $value, array $context = []): ?string
     {
-        if (!$value) {
+        if (null === $value) {
             return null;
         }
 
@@ -28,12 +28,18 @@ class BinaryType extends Type
             throw ConversionException::unexpectedType($value, $this->getName(), ['bool', 'int', 'float', 'string']);
         }
 
+        $value = \is_string($value) ? trim($value) : $value;
+
+        if ('' === $value) {
+            return null;
+        }
+
         return base64_encode((string) $value);
     }
 
     public function convertToPhpValue(mixed $value, array $context = []): ?string
     {
-        if (!$value) {
+        if (null === $value) {
             return null;
         }
 
@@ -41,6 +47,14 @@ class BinaryType extends Type
             throw ConversionException::unexpectedDatabaseFormat($value, self::class, 'scalar');
         }
 
-        return base64_decode((string) $value, true) ?: null;
+        $value = trim((string) $value);
+
+        if (!$value) {
+            return null;
+        }
+
+        $result = base64_decode($value, true);
+
+        return false !== $result ? $result : null;
     }
 }
