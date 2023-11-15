@@ -20,6 +20,7 @@ class TypeRegistry implements TypeRegistryInterface
 
     public function __construct(array $types = [])
     {
+        // Built-In types
         $this->registerBuiltInTypes();
 
         foreach ($types as $name => $type) {
@@ -27,10 +28,7 @@ class TypeRegistry implements TypeRegistryInterface
         }
     }
 
-    /**
-     * Loads default built-in Odoo types.
-     */
-    public function registerBuiltInTypes(): void
+    public function registerBuiltInTypes(): self
     {
         $this->register(Types::BINARY, new BinaryType());
         $this->register(Types::BOOLEAN, new BooleanType());
@@ -39,9 +37,12 @@ class TypeRegistry implements TypeRegistryInterface
         $this->register(Types::DATETIME, new DateTimeType());
         $this->register(Types::FLOAT, new FloatType());
         $this->register(Types::INTEGER, new IntegerType());
+        $this->register(Types::HTML, new TextType());
         $this->register(Types::MONETARY, new FloatType());
         $this->register(Types::SELECTION, new ScalarType());
         $this->register(Types::TEXT, new TextType());
+
+        return $this;
     }
 
     public function register(string $name, TypeInterface $type): self

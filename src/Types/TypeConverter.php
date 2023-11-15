@@ -41,4 +41,14 @@ class TypeConverter implements TypeConverterInterface
     {
         return array_merge($this->defaultContext, $context);
     }
+
+    public function getTypeRegistry(): TypeRegistryInterface
+    {
+        return $this->typeRegistry;
+    }
+
+    public function getDefaultContext(): array
+    {
+        return $this->defaultContext;
+    }
 }

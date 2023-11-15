@@ -27,4 +27,38 @@ final class Types
     public const MONETARY = 'monetary';
     public const SELECTION = 'selection';
     public const TEXT = 'text';
+
+    /**
+     * @var \ReflectionClassConstant[]
+     */
+    private static array $constants = [];
+
+    /**
+     * @return string[]
+     */
+    public static function getKeys(): array
+    {
+        return array_keys(self::getConstants());
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getValues(): array
+    {
+        return array_values(self::getConstants());
+    }
+
+    /**
+     * @return \ReflectionClassConstant[]
+     */
+    private static function getConstants(): array
+    {
+        if (!self::$constants) {
+            $class = new \ReflectionClass(self::class);
+            self::$constants = $class->getConstants();
+        }
+
+        return self::$constants;
+    }
 }

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL\Tests\Types;
 
 use Ang3\Component\Odoo\DBAL\Config\DatabaseSettings;
+use Ang3\Component\Odoo\DBAL\Types\DateTimeType;
 use Ang3\Component\Odoo\DBAL\Types\DateType;
 
 /**
@@ -19,17 +20,17 @@ use Ang3\Component\Odoo\DBAL\Types\DateType;
  *
  * @internal
  */
-final class DateTypeTest extends AbstractDateTypeTest
+final class DateTimeTypeTest extends AbstractDateTypeTest
 {
     protected function setUp(): void
     {
         parent::setUp();
-        $this->type = new DateType();
+        $this->type = new DateTimeType();
     }
 
     public static function getDatabaseFormat(): string
     {
-        return 'Y-m-d';
+        return 'Y-m-d H:i:s';
     }
 
     /**
