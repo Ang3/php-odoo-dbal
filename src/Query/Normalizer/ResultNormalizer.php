@@ -21,7 +21,7 @@ class ResultNormalizer implements ResultNormalizerInterface
     public function normalize(ModelMetadata $model, array $rows = [], array $context = []): array
     {
         foreach ($rows as $index => $data) {
-            if (is_array($data)) {
+            if (\is_array($data)) {
                 foreach ($data as $fieldName => $value) {
                     $field = $model->getField($fieldName);
 
