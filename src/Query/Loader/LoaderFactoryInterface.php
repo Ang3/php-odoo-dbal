@@ -13,7 +13,7 @@ namespace Ang3\Component\Odoo\DBAL\Query\Loader;
 
 interface LoaderFactoryInterface
 {
-    public function single(string $modelName, int $id, ?string $name = null): LoaderInterface;
+    public function single(string $modelName, int $id, string $name = null): LoaderInterface;
 
     public function multiple(string $modelName, array $ids): LoaderInterface;
 }

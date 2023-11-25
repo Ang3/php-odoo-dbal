@@ -15,17 +15,17 @@ use Ang3\Component\Odoo\DBAL\Exception\ExceptionInterface;
 
 class ResultException extends \UnexpectedValueException implements ExceptionInterface
 {
-    public static function columnNotFound(int|string $column, int|string $offset, ?\Throwable $previous = null): self
+    public static function columnNotFound(int|string $column, int|string $offset, \Throwable $previous = null): self
     {
         return new self(sprintf('The column "%s" (%s) was not found in the row at offset "%s".', $column, \gettype($column), $offset), 0, $previous);
     }
 
-    public static function invalidOffsetType(mixed $value, ?\Throwable $previous = null): self
+    public static function invalidOffsetType(mixed $value, \Throwable $previous = null): self
     {
         return self::unexpectedValue($value, ['int', 'string'], 'Invalid offset type', $previous);
     }
 
-    public static function invalidValue(mixed $value, array|string $expectedTypes, ?\Throwable $previous = null): self
+    public static function invalidValue(mixed $value, array|string $expectedTypes, \Throwable $previous = null): self
     {
         return self::unexpectedValue($value, $expectedTypes, 'Invalid value type', $previous);
     }
@@ -33,10 +33,9 @@ class ResultException extends \UnexpectedValueException implements ExceptionInte
     public static function unexpectedValue(
         mixed $value,
         array|string $expectedTypes,
-        ?string $message = null,
-        ?\Throwable $previous = null
-    ): self
-    {
+        string $message = null,
+        \Throwable $previous = null
+    ): self {
         $expectedTypes = \is_array($expectedTypes) ? $expectedTypes : [$expectedTypes];
         $errorMessage = sprintf('Expected value of type "%s", got "%s"', implode('|', $expectedTypes), get_debug_type($value));
         $message = $message ? sprintf('%s - %s', $message, $errorMessage) : $errorMessage;

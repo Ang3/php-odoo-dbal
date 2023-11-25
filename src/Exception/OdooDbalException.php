@@ -11,6 +11,4 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Exception;
 
-class OdooDbalException extends \RuntimeException implements ExceptionInterface
-{
-}
+class OdooDbalException extends \RuntimeException implements ExceptionInterface {}

@@ -28,8 +28,7 @@ class Query implements QueryInterface
         protected string $method,
         protected array $parameters = [],
         protected array $options = []
-    ) {
-    }
+    ) {}
 
     public static function fromInterface(QueryInterface $query): self
     {
@@ -148,7 +147,7 @@ class Query implements QueryInterface
         return $this->recordManager->getResultFactory()->createRowResult($this, (array) $this->execute(), $context);
     }
 
-    public function paginate(?int $nbItemsPerPage = null, array $context = []): Paginator
+    public function paginate(int $nbItemsPerPage = null, array $context = []): Paginator
     {
         if (!$this->isRead()) {
             throw new QueryException(sprintf('You can get results with select/search queries only, but the query method is "%s".', $this->method));

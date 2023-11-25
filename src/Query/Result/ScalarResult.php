@@ -29,7 +29,7 @@ class ScalarResult extends ArrayResult
     /**
      * @internal
      */
-    protected function assertValue(mixed $value): bool|int|float|string|null
+    protected function assertValue(mixed $value): null|bool|float|int|string
     {
         if (null !== $value && !\is_scalar($value)) {
             throw ResultException::invalidValue($value, ['null', 'scalar']);

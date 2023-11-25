@@ -49,7 +49,7 @@ class RowResult extends ArrayResult
      *
      * @throws ResultException
      */
-    public function scalars(int|string|null $column = null): ScalarResult
+    public function scalars(int|string $column = null): ScalarResult
     {
         return new ScalarResult($this->query, $this->values($column), $this->context);
     }
@@ -62,7 +62,7 @@ class RowResult extends ArrayResult
      *
      * @throws ResultException
      */
-    public function arrays(int|string|null $column = null): ArrayResult
+    public function arrays(int|string $column = null): ArrayResult
     {
         return new ArrayResult($this->query, $this->values($column), $this->context);
     }
@@ -75,7 +75,7 @@ class RowResult extends ArrayResult
      *
      * @throws ResultException
      */
-    public function rows(int|string|null $column = null): self
+    public function rows(int|string $column = null): self
     {
         return new self($this->query, $this->values($column), $this->context);
     }
@@ -88,7 +88,7 @@ class RowResult extends ArrayResult
      *
      * @throws ResultException
      */
-    public function values(int|string|null $column = null): array
+    public function values(int|string $column = null): array
     {
         return iterator_to_array($this->fetchColumn($column));
     }
@@ -100,7 +100,7 @@ class RowResult extends ArrayResult
      *
      * @throws ResultException
      */
-    public function fetchColumn(int|string|null $column = null): \Generator
+    public function fetchColumn(int|string $column = null): \Generator
     {
         foreach ($this->fetchAll() as $offset => $value) {
             $value = $this->assertValue($value);

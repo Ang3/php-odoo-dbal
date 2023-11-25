@@ -67,7 +67,7 @@ interface ResultInterface extends \IteratorAggregate, \ArrayAccess, \Countable
      *
      * @return int|string|null The current value offset
      */
-    public function offset(): int|string|null;
+    public function offset(): null|int|string;
 
     /**
      * Returns the number of values in the result.

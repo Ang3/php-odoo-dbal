@@ -24,7 +24,7 @@ class ResultNormalizer implements ResultNormalizerInterface
     public function __construct(
         private readonly RecordManagerInterface $recordManager,
         private readonly TypeConverterInterface $typeConverter,
-        ?LoaderFactoryInterface $loaderFactory = null
+        LoaderFactoryInterface $loaderFactory = null
     ) {
         $this->loaderFactory = $loaderFactory ?: new LoaderFactory($this->recordManager);
     }

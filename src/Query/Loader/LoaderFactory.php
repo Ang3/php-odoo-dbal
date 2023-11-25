@@ -15,11 +15,9 @@ use Ang3\Component\Odoo\DBAL\RecordManagerInterface;
 
 class LoaderFactory implements LoaderFactoryInterface
 {
-    public function __construct(private readonly RecordManagerInterface $recordManager)
-    {
-    }
+    public function __construct(private readonly RecordManagerInterface $recordManager) {}
 
-    public function single(string $modelName, int $id, ?string $name = null): SingleLoader
+    public function single(string $modelName, int $id, string $name = null): SingleLoader
     {
         return new SingleLoader($modelName, fn (array $fields = []) => $this->recordManager->read($modelName, $id, $fields), $id, $name);
     }
@@ -28,7 +26,7 @@ class LoaderFactory implements LoaderFactoryInterface
     {
         $queryBuilder = $this->recordManager->getRepository($modelName)->createQueryBuilder();
 
-        return new MultipleLoader($modelName, function (array $fields = [], array $context = []) use ($queryBuilder, $ids) {
+        return new MultipleLoader($modelName, static function (array $fields = [], array $context = []) use ($queryBuilder, $ids) {
             return $queryBuilder
                 ->select($fields)
                 ->where($queryBuilder->expr()->in('id', $ids))

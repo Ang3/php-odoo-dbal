@@ -106,7 +106,7 @@ class ArrayResult implements ResultInterface
         return end($this->data);
     }
 
-    public function offset(): int|string|null
+    public function offset(): null|int|string
     {
         return key($this->data);
     }
@@ -118,7 +118,7 @@ class ArrayResult implements ResultInterface
 
     public function toArray(): array
     {
-        return array_map(fn ($result) => $result instanceof ResultInterface ? $result->toArray() : $result, iterator_to_array($this->fetchAll()));
+        return array_map(static fn ($result) => $result instanceof ResultInterface ? $result->toArray() : $result, iterator_to_array($this->fetchAll()));
     }
 
     public function isEmpty(): bool

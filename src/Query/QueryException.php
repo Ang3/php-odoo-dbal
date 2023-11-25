@@ -13,6 +13,4 @@ namespace Ang3\Component\Odoo\DBAL\Query;
 
 use Ang3\Component\Odoo\DBAL\Exception\OdooDbalException;
 
-class QueryException extends OdooDbalException
-{
-}
+class QueryException extends OdooDbalException {}

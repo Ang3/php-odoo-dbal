@@ -49,8 +49,8 @@ class Paginator extends ArrayResult
      * @param int<1,max>|null $nbItemsPerPage
      */
     public function __construct(
-        QueryInterface|QueryBuilder $query,
-        ?int $nbItemsPerPage = null,
+        QueryBuilder|QueryInterface $query,
+        int $nbItemsPerPage = null,
         array $context = []
     ) {
         parent::__construct($query instanceof QueryInterface ? Query::fromInterface($query) : $query->getQuery(), [], $context);
@@ -81,7 +81,7 @@ class Paginator extends ArrayResult
         return $this->getPage($this->currentPage);
     }
 
-    public function fetch(): ResultInterface|false
+    public function fetch(): false|ResultInterface
     {
         $result = $this->getPage(++$this->currentPage);
 

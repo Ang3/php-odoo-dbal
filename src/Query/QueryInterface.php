@@ -164,7 +164,7 @@ interface QueryInterface
      *
      * @throws QueryException on invalid query method
      */
-    public function paginate(?int $nbItemsPerPage = null, array $context = []): Paginator;
+    public function paginate(int $nbItemsPerPage = null, array $context = []): Paginator;
 
     /**
      * Gets the related record manager.

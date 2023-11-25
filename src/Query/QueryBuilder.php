@@ -77,7 +77,7 @@ class QueryBuilder
      * Defines the query of type "SELECT" with selected fields.
      * No fields selected = all fields returned.
      */
-    public function select(array|string|null $fields = null): self
+    public function select(array|string $fields = null): self
     {
         $this->reset();
         $this->method = QueryMethod::SearchAndRead;
