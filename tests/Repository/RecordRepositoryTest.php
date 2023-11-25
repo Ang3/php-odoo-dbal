@@ -13,10 +13,12 @@ namespace Ang3\Component\Odoo\DBAL\Tests\Repository;
 
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
+use Ang3\Component\Odoo\DBAL\Query\Query;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
+use Ang3\Component\Odoo\DBAL\Query\RecordNotFoundException;
+use Ang3\Component\Odoo\DBAL\Query\Result\RowResult;
+use Ang3\Component\Odoo\DBAL\Query\Result\ScalarResult;
 use Ang3\Component\Odoo\DBAL\RecordManager;
-use Ang3\Component\Odoo\DBAL\Repository\RecordNotFoundException;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepository;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
@@ -47,12 +49,12 @@ final class RecordRepositoryTest extends TestCase
     public function testGetMetadata(): void
     {
         $schema = $this->createMock(SchemaInterface::class);
-        $this->recordManager->expects(self::once())->method('getSchema')->willReturn($schema);
+        $this->recordManager->expects(static::once())->method('getSchema')->willReturn($schema);
 
         $expectedResult = $this->createMock(ModelMetadata::class);
-        $schema->expects(self::once())->method('getModel')->with($this->modelName)->willReturn($expectedResult);
+        $schema->expects(static::once())->method('getModel')->with($this->modelName)->willReturn($expectedResult);
 
-        self::assertSame($expectedResult, $this->recordRepository->getMetadata());
+        static::assertSame($expectedResult, $this->recordRepository->getMetadata());
     }
 
     /**
@@ -63,26 +65,26 @@ final class RecordRepositoryTest extends TestCase
     public function testInsert(array $data): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('insert')->with()->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setValues')->with($data)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('where');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('setOrders');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $queryBuilder->expects(self::never())->method('setFirstResult');
-        $queryBuilder->expects(self::never())->method('setMaxResults');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('insert')->with()->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setValues')->with($data)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('where');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('setOrders');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $queryBuilder->expects(static::never())->method('setFirstResult');
+        $queryBuilder->expects(static::never())->method('setMaxResults');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('execute')->with()->willReturn((string) ($result = 3));
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+        $query->expects(static::once())->method('execute')->with()->willReturn((string) ($result = 3));
 
-        self::assertSame($result, $this->recordRepository->insert($data));
+        static::assertSame($result, $this->recordRepository->insert($data));
     }
 
     /**
@@ -102,25 +104,25 @@ final class RecordRepositoryTest extends TestCase
     public function testUpdate(array $ids, array $data): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('update')->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setIds')->with($ids)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setValues')->with($data)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('where');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('setOrders');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $queryBuilder->expects(self::never())->method('setFirstResult');
-        $queryBuilder->expects(self::never())->method('setMaxResults');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('update')->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setIds')->with($ids)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setValues')->with($data)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('where');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('setOrders');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $queryBuilder->expects(static::never())->method('setFirstResult');
+        $queryBuilder->expects(static::never())->method('setMaxResults');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('execute')->with();
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+        $query->expects(static::once())->method('execute')->with();
 
         $this->recordRepository->update($ids, $data);
     }
@@ -130,7 +132,7 @@ final class RecordRepositoryTest extends TestCase
      */
     public function testUpdateWithEmptyIds(): void
     {
-        $this->recordManager->expects(self::never())->method('createQueryBuilder');
+        $this->recordManager->expects(static::never())->method('createQueryBuilder');
         $this->recordRepository->update([]);
     }
 
@@ -141,7 +143,7 @@ final class RecordRepositoryTest extends TestCase
      */
     public function testUpdateWithEmptyData(array $ids): void
     {
-        $this->recordManager->expects(self::never())->method('createQueryBuilder');
+        $this->recordManager->expects(static::never())->method('createQueryBuilder');
         $this->recordRepository->update($ids);
     }
 
@@ -153,25 +155,25 @@ final class RecordRepositoryTest extends TestCase
     public function testDelete(array $ids): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('delete')->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setIds')->with($ids)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('where');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('setOrders');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $queryBuilder->expects(self::never())->method('setFirstResult');
-        $queryBuilder->expects(self::never())->method('setMaxResults');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('delete')->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setIds')->with($ids)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('where');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('setOrders');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $queryBuilder->expects(static::never())->method('setFirstResult');
+        $queryBuilder->expects(static::never())->method('setMaxResults');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('execute')->with();
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+        $query->expects(static::once())->method('execute')->with();
 
         $this->recordRepository->delete($ids);
     }
@@ -181,7 +183,7 @@ final class RecordRepositoryTest extends TestCase
      */
     public function testDeleteWithEmptyIds(): void
     {
-        $this->recordManager->expects(self::never())->method('createQueryBuilder');
+        $this->recordManager->expects(static::never())->method('createQueryBuilder');
         $this->recordRepository->delete([]);
     }
 
@@ -193,27 +195,27 @@ final class RecordRepositoryTest extends TestCase
     public function testSearchOne(?array $criteria = [], array $fields = [], array $orders = [], int $limit = null): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('search')->with()->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('where')->with($criteria ? CompositeDomain::criteria($criteria) : null)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setOrders')->with($orders)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setMaxResults')->with(1)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $queryBuilder->expects(self::never())->method('setFirstResult');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('search')->with()->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('where')->with($criteria ? CompositeDomain::criteria($criteria) : null)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setOrders')->with($orders)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setMaxResults')->with(1)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $queryBuilder->expects(static::never())->method('setFirstResult');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('getOneOrNullScalarResult')->willReturn($result = 3);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+        $query->expects(static::once())->method('getOneOrNullScalarResult')->willReturn($result = 3);
 
-        self::assertSame($result, $this->recordRepository->searchOne($criteria, $orders));
+        static::assertSame($result, $this->recordRepository->searchOne($criteria, $orders));
     }
 
     /**
@@ -224,27 +226,30 @@ final class RecordRepositoryTest extends TestCase
     public function testSearchAll(?array $criteria = [], array $fields = [], array $orders = [], int $limit = null, int $offset = null): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('search')->with()->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('where')->with(null)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setOrders')->with($orders)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setFirstResult')->with($offset)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setMaxResults')->with($limit)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('search')->with()->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('where')->with(null)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setOrders')->with($orders)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setFirstResult')->with($offset)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setMaxResults')->with($limit)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('getScalarResult')->willReturn($result = [1, 2, 3]);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
 
-        self::assertSame($result, $this->recordRepository->searchAll($orders, $limit, $offset));
+        $scalarResult = $this->createMock(ScalarResult::class);
+        $query->expects(static::once())->method('getScalarResult')->willReturn($scalarResult);
+        $scalarResult->expects(static::once())->method('toArray')->willReturn($result = [1, 2, 3]);
+
+        static::assertSame($result, $this->recordRepository->searchAll($orders, $limit, $offset));
     }
 
     /**
@@ -255,27 +260,30 @@ final class RecordRepositoryTest extends TestCase
     public function testSearch(?array $criteria = [], array $fields = [], array $orders = [], int $limit = null, int $offset = null): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('search')->with()->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('where')->with($criteria ? CompositeDomain::criteria($criteria) : null)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setOrders')->with($orders)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setFirstResult')->with($offset)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setMaxResults')->with($limit)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('search')->with()->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('where')->with($criteria ? CompositeDomain::criteria($criteria) : null)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setOrders')->with($orders)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setFirstResult')->with($offset)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setMaxResults')->with($limit)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('getScalarResult')->willReturn($result = [1, 2, 3]);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
 
-        self::assertSame($result, $this->recordRepository->search($criteria, $orders, $limit, $offset));
+        $scalarResult = $this->createMock(ScalarResult::class);
+        $query->expects(static::once())->method('getScalarResult')->willReturn($scalarResult);
+        $scalarResult->expects(static::once())->method('toArray')->willReturn($result = [1, 2, 3]);
+
+        static::assertSame($result, $this->recordRepository->search($criteria, $orders, $limit, $offset));
     }
 
     /**
@@ -287,9 +295,12 @@ final class RecordRepositoryTest extends TestCase
     {
         $queryBuilder = $this->prepareSearchQueryBuilder($this->recordRepository->expr()->eq('id', $id), $fields, [], 1);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('getResult')->willReturn($result = [
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+
+        $result = $this->createMock(RowResult::class);
+        $query->expects(static::once())->method('getRowResult')->willReturn($result);
+        $result->expects(static::once())->method('toArray')->willReturn([
             $firstRow = [
                 'foo' => 'bar',
             ],
@@ -298,7 +309,7 @@ final class RecordRepositoryTest extends TestCase
             ],
         ]);
 
-        self::assertSame($firstRow, $this->recordRepository->read($id, $fields));
+        static::assertSame($firstRow, $this->recordRepository->read($id, $fields));
     }
 
     /**
@@ -311,9 +322,12 @@ final class RecordRepositoryTest extends TestCase
         $this->expectException(RecordNotFoundException::class);
         $queryBuilder = $this->prepareSearchQueryBuilder($this->recordRepository->expr()->eq('id', $id), $fields, [], 1);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('getResult')->willReturn([]);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+
+        $result = $this->createMock(RowResult::class);
+        $query->expects(static::once())->method('getRowResult')->willReturn($result);
+        $result->expects(static::once())->method('toArray')->willReturn([]);
 
         $this->recordRepository->read($id, $fields);
     }
@@ -327,9 +341,12 @@ final class RecordRepositoryTest extends TestCase
     {
         $queryBuilder = $this->prepareSearchQueryBuilder($this->recordRepository->expr()->eq('id', $id), $fields, [], 1);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('getResult')->willReturn([
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+
+        $result = $this->createMock(RowResult::class);
+        $query->expects(static::once())->method('getRowResult')->willReturn($result);
+        $result->expects(static::once())->method('toArray')->willReturn([
             $result = [
                 'foo' => 'bar',
             ],
@@ -338,7 +355,7 @@ final class RecordRepositoryTest extends TestCase
             ],
         ]);
 
-        self::assertSame($result, $this->recordRepository->find($id, $fields));
+        static::assertSame($result, $this->recordRepository->find($id, $fields));
     }
 
     /**
@@ -350,11 +367,14 @@ final class RecordRepositoryTest extends TestCase
     {
         $queryBuilder = $this->prepareSearchQueryBuilder($this->recordRepository->expr()->eq('id', $id), $fields, [], 1);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('getResult')->willReturn($result = []);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
 
-        self::assertNull($this->recordRepository->find($id, $fields));
+        $result = $this->createMock(RowResult::class);
+        $query->expects(static::once())->method('getRowResult')->willReturn($result);
+        $result->expects(static::once())->method('toArray')->willReturn([]);
+
+        static::assertNull($this->recordRepository->find($id, $fields));
     }
 
     /**
@@ -366,10 +386,13 @@ final class RecordRepositoryTest extends TestCase
     {
         $queryBuilder = $this->prepareSearchQueryBuilder($criteria, $fields, $orders, 1, $offset);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('getResult')->willReturn([
-            $result = [
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+
+        $result = $this->createMock(RowResult::class);
+        $query->expects(static::once())->method('getRowResult')->willReturn($result);
+        $result->expects(static::once())->method('toArray')->willReturn([
+            $firstRow = [
                 'foo' => 'bar',
             ],
             [
@@ -377,7 +400,7 @@ final class RecordRepositoryTest extends TestCase
             ],
         ]);
 
-        self::assertSame($result, $this->recordRepository->findOneBy($criteria, $fields, $orders, $offset));
+        static::assertSame($firstRow, $this->recordRepository->findOneBy($criteria, $fields, $orders, $offset));
     }
 
     /**
@@ -389,7 +412,7 @@ final class RecordRepositoryTest extends TestCase
     {
         $queryBuilder = $this->prepareSearchQueryBuilder($criteria, $fields, $orders, $limit, $offset);
 
-        self::assertSame($queryBuilder, $this->recordRepository->prepare($criteria, $fields, $orders, $limit, $offset));
+        static::assertSame($queryBuilder, $this->recordRepository->prepare($criteria, $fields, $orders, $limit, $offset));
     }
 
     /**
@@ -398,21 +421,21 @@ final class RecordRepositoryTest extends TestCase
     private function prepareSearchQueryBuilder(array|DomainInterface $criteria = null, array $fields = [], array $orders = [], int $limit = null, int $offset = null): MockObject
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::once())->method('select')->with(array_filter($fields))->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('where')->with($this->recordRepository->normalizeCriteria($criteria))->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setOrders')->with($orders)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setFirstResult')->with($offset)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::once())->method('setMaxResults')->with($limit)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('search');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('select')->with(array_filter($fields))->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('where')->with($this->recordRepository->normalizeCriteria($criteria))->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setOrders')->with($orders)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setFirstResult')->with($offset)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::once())->method('setMaxResults')->with($limit)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('search');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
         return $queryBuilder;
     }
@@ -425,27 +448,27 @@ final class RecordRepositoryTest extends TestCase
     public function testExists(int $id): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('where')->with($this->recordRepository->expr()->eq('id', $id))->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('search');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('setOrders');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $queryBuilder->expects(self::never())->method('setFirstResult');
-        $queryBuilder->expects(self::never())->method('setMaxResults');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('where')->with($this->recordRepository->expr()->eq('id', $id))->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('search');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('setOrders');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $queryBuilder->expects(static::never())->method('setFirstResult');
+        $queryBuilder->expects(static::never())->method('setMaxResults');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('count')->willReturn(1);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+        $query->expects(static::once())->method('count')->willReturn(1);
 
-        self::assertTrue($this->recordRepository->exists($id));
+        static::assertTrue($this->recordRepository->exists($id));
     }
 
     /**
@@ -456,27 +479,27 @@ final class RecordRepositoryTest extends TestCase
     public function testExistsWithNotResult(int $id): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('where')->with($this->recordRepository->expr()->eq('id', $id))->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('search');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('setOrders');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $queryBuilder->expects(self::never())->method('setFirstResult');
-        $queryBuilder->expects(self::never())->method('setMaxResults');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('where')->with($this->recordRepository->expr()->eq('id', $id))->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('search');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('setOrders');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $queryBuilder->expects(static::never())->method('setFirstResult');
+        $queryBuilder->expects(static::never())->method('setMaxResults');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('count')->willReturn(0);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+        $query->expects(static::once())->method('count')->willReturn(0);
 
-        self::assertFalse($this->recordRepository->exists($id));
+        static::assertFalse($this->recordRepository->exists($id));
     }
 
     /**
@@ -485,27 +508,27 @@ final class RecordRepositoryTest extends TestCase
     public function testCountAll(): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('where')->with(null)->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('search');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('setOrders');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $queryBuilder->expects(self::never())->method('setFirstResult');
-        $queryBuilder->expects(self::never())->method('setMaxResults');
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('where')->with(null)->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('search');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('setOrders');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $queryBuilder->expects(static::never())->method('setFirstResult');
+        $queryBuilder->expects(static::never())->method('setMaxResults');
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('count')->willReturn($expectedResult = 3);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+        $query->expects(static::once())->method('count')->willReturn($expectedResult = 3);
 
-        self::assertSame($expectedResult, $this->recordRepository->countAll());
+        static::assertSame($expectedResult, $this->recordRepository->countAll());
     }
 
     /**
@@ -516,28 +539,28 @@ final class RecordRepositoryTest extends TestCase
     public function testCount(?array $criteria = []): void
     {
         $queryBuilder = $this->createMock(QueryBuilder::class);
-        $queryBuilder->expects(self::never())->method('select');
-        $queryBuilder->expects(self::once())->method('where')->with($this->recordRepository->normalizeCriteria($criteria))->willReturn($queryBuilder);
-        $queryBuilder->expects(self::never())->method('insert');
-        $queryBuilder->expects(self::never())->method('search');
-        $queryBuilder->expects(self::never())->method('update');
-        $queryBuilder->expects(self::never())->method('setValues');
-        $queryBuilder->expects(self::never())->method('delete');
-        $queryBuilder->expects(self::never())->method('andWhere');
-        $queryBuilder->expects(self::never())->method('orWhere');
-        $queryBuilder->expects(self::never())->method('setOrders');
-        $queryBuilder->expects(self::never())->method('orderBy');
-        $queryBuilder->expects(self::never())->method('addOrderBy');
-        $queryBuilder->expects(self::never())->method('setFirstResult');
-        $queryBuilder->expects(self::never())->method('setMaxResults');
+        $queryBuilder->expects(static::never())->method('select');
+        $queryBuilder->expects(static::once())->method('where')->with($this->recordRepository->normalizeCriteria($criteria))->willReturn($queryBuilder);
+        $queryBuilder->expects(static::never())->method('insert');
+        $queryBuilder->expects(static::never())->method('search');
+        $queryBuilder->expects(static::never())->method('update');
+        $queryBuilder->expects(static::never())->method('setValues');
+        $queryBuilder->expects(static::never())->method('delete');
+        $queryBuilder->expects(static::never())->method('andWhere');
+        $queryBuilder->expects(static::never())->method('orWhere');
+        $queryBuilder->expects(static::never())->method('setOrders');
+        $queryBuilder->expects(static::never())->method('orderBy');
+        $queryBuilder->expects(static::never())->method('addOrderBy');
+        $queryBuilder->expects(static::never())->method('setFirstResult');
+        $queryBuilder->expects(static::never())->method('setMaxResults');
 
-        $this->recordManager->expects(self::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
+        $this->recordManager->expects(static::once())->method('createQueryBuilder')->with($this->modelName)->willReturn($queryBuilder);
 
-        $query = $this->createMock(OrmQuery::class);
-        $queryBuilder->expects(self::once())->method('getQuery')->with()->willReturn($query);
-        $query->expects(self::once())->method('count')->willReturn($expectedResult = 3);
+        $query = $this->createMock(Query::class);
+        $queryBuilder->expects(static::once())->method('getQuery')->with()->willReturn($query);
+        $query->expects(static::once())->method('count')->willReturn($expectedResult = 3);
 
-        self::assertSame($expectedResult, $this->recordRepository->count($criteria));
+        static::assertSame($expectedResult, $this->recordRepository->count($criteria));
     }
 
     /**

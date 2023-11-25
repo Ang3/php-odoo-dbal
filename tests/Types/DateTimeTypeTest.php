@@ -43,7 +43,7 @@ final class DateTimeTypeTest extends AbstractDateTypeTest
             DateType::TIMEZONE_KEY => $timezoneSource,
         ]);
 
-        self::assertInstanceOf(\DateTime::class, $result);
-        self::assertSame($dateTarget, $result->format('Y-m-d H:i:s'));
+        static::assertInstanceOf(\DateTime::class, $result);
+        static::assertSame($dateTarget, $result->format('Y-m-d H:i:s'));
     }
 }

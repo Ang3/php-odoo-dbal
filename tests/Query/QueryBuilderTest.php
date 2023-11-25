@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Tests\Query;
 
-use Ang3\Component\Odoo\DBAL\Query\Enum\QueryBuilderMethod;
+use Ang3\Component\Odoo\DBAL\Query\Enum\QueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Enum\QueryOrder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\Comparison;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
@@ -46,7 +46,7 @@ final class QueryBuilderTest extends TestCase
     public function testFrom(): void
     {
         $this->queryBuilder->from($modelName = 'res.company');
-        self::assertSame($modelName, $this->queryBuilder->getFrom());
+        static::assertSame($modelName, $this->queryBuilder->getFrom());
     }
 
     /**
@@ -59,11 +59,11 @@ final class QueryBuilderTest extends TestCase
      */
     public function testSelect(array|string $fields = null, array $expectedResult = []): void
     {
-        $this->setQueryBuilderMethod(QueryBuilderMethod::Update);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Update);
+        $this->setQueryBuilderMethod(QueryMethod::Update);
+        $this->assertQueryBuilderValues(method: QueryMethod::Update);
 
         $this->queryBuilder->select($fields);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Select, select: $expectedResult);
+        $this->assertQueryBuilderValues(method: QueryMethod::SearchAndRead, select: $expectedResult);
     }
 
     /**
@@ -88,14 +88,14 @@ final class QueryBuilderTest extends TestCase
     public function testAddSelect(): void
     {
         $this->queryBuilder->addSelect($fieldName1 = 'field_name1');
-        self::assertSame([$fieldName1], $this->queryBuilder->getSelect());
+        static::assertSame([$fieldName1], $this->queryBuilder->getSelect());
 
         $this->queryBuilder->addSelect($fieldName2 = 'field_name2');
-        self::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        static::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
 
         // Deduplication test
         $this->queryBuilder->addSelect($fieldName2);
-        self::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
+        static::assertSame([$fieldName1, $fieldName2], $this->queryBuilder->getSelect());
     }
 
     /**
@@ -115,14 +115,14 @@ final class QueryBuilderTest extends TestCase
      * @covers ::addSelect
      *
      * @testWith ["search"]
-     *           ["insert"]
-     *           ["update"]
-     *           ["delete"]
+     *           ["create"]
+     *           ["write"]
+     *           ["unlink"]
      */
     public function testAddSelectWithInvalidQueryType(string $invalidType): void
     {
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidType);
+        $this->setQueryBuilderMethod(QueryMethod::from($invalidType));
         $this->queryBuilder->addSelect('field_name');
     }
 
@@ -134,11 +134,11 @@ final class QueryBuilderTest extends TestCase
      */
     public function testSearch(string $modelName = null): void
     {
-        $this->setQueryBuilderMethod(QueryBuilderMethod::Select);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Select);
+        $this->setQueryBuilderMethod(QueryMethod::SearchAndRead);
+        $this->assertQueryBuilderValues(method: QueryMethod::SearchAndRead);
 
         $this->queryBuilder->search($modelName);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Search, from: $modelName);
+        $this->assertQueryBuilderValues(method: QueryMethod::Search, from: $modelName);
     }
 
     /**
@@ -162,11 +162,11 @@ final class QueryBuilderTest extends TestCase
      */
     public function testInsert(string $modelName = null): void
     {
-        $this->setQueryBuilderMethod(QueryBuilderMethod::Select);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Select);
+        $this->setQueryBuilderMethod(QueryMethod::SearchAndRead);
+        $this->assertQueryBuilderValues(method: QueryMethod::SearchAndRead);
 
         $this->queryBuilder->insert($modelName);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Insert, from: $modelName);
+        $this->assertQueryBuilderValues(method: QueryMethod::Insert, from: $modelName);
     }
 
     /**
@@ -190,11 +190,11 @@ final class QueryBuilderTest extends TestCase
      */
     public function testUpdate(string $modelName = null): void
     {
-        $this->setQueryBuilderMethod(QueryBuilderMethod::Select);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Select);
+        $this->setQueryBuilderMethod(QueryMethod::SearchAndRead);
+        $this->assertQueryBuilderValues(method: QueryMethod::SearchAndRead);
 
         $this->queryBuilder->update($modelName);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Update, from: $modelName);
+        $this->assertQueryBuilderValues(method: QueryMethod::Update, from: $modelName);
     }
 
     /**
@@ -218,11 +218,11 @@ final class QueryBuilderTest extends TestCase
      */
     public function testDelete(string $modelName = null): void
     {
-        $this->setQueryBuilderMethod(QueryBuilderMethod::Select);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Select);
+        $this->setQueryBuilderMethod(QueryMethod::SearchAndRead);
+        $this->assertQueryBuilderValues(method: QueryMethod::SearchAndRead);
 
         $this->queryBuilder->delete($modelName);
-        $this->assertQueryBuilderValues(type: QueryBuilderMethod::Delete, from: $modelName);
+        $this->assertQueryBuilderValues(method: QueryMethod::Delete, from: $modelName);
     }
 
     /**
@@ -241,49 +241,52 @@ final class QueryBuilderTest extends TestCase
     /**
      * @covers ::setIds
      *
-     * @testWith ["update", null]
-     *           ["update", 1]
-     *           ["update", 3]
-     *           ["update", [1]]
-     *           ["update", [1, 3]]
-     *           ["update", [1, 3, 3]]
-     *           ["delete", null]
+     * @testWith ["write", null]
+     *           ["write", 1]
+     *           ["write", 3]
+     *           ["write", [1]]
+     *           ["write", [1, 3]]
+     *           ["write", [1, 3, 3]]
+     *           ["unlink", null]
      */
     public function testSetIds(string $method, null|array|int $ids): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setIds($ids);
-        $this->assertQueryBuilderValues(type: $method, ids: array_unique(array_filter(\is_array($ids) ? $ids : [$ids])));
+        $this->assertQueryBuilderValues(method: $method, ids: array_unique(array_filter(\is_array($ids) ? $ids : [$ids])));
     }
 
     /**
      * @covers ::setIds
      *
-     * @testWith ["insert", null]
-     *           ["insert", 1]
-     *           ["insert", 3]
-     *           ["insert", [1]]
-     *           ["insert", [1, 3]]
-     *           ["select", null]
+     * @testWith ["create", null]
+     *           ["create", 1]
+     *           ["create", 3]
+     *           ["create", [1]]
+     *           ["create", [1, 3]]
+     *           ["search_read", null]
      *           ["search", null]
      */
     public function testSetIdsWithInvalidMethod(string $invalidMethod, null|array|int $ids): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setIds($ids);
     }
 
     /**
      * @covers ::setIds
      *
-     * @testWith ["update", -1]
-     *           ["update", 0]
-     *           ["update", [-1]]
-     *           ["update", [0]]
+     * @testWith ["write", -1]
+     *           ["write", 0]
+     *           ["write", [-1]]
+     *           ["write", [0]]
      */
     public function testSetIdsWithInvalidIds(string $method, null|array|int $ids): void
     {
+        $method = QueryMethod::from($method);
         $this->expectException(\InvalidArgumentException::class);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setIds($ids);
@@ -292,42 +295,45 @@ final class QueryBuilderTest extends TestCase
     /**
      * @covers ::addId
      *
-     * @testWith ["update", 1]
-     *           ["update", 3]
-     *           ["delete", 1]
+     * @testWith ["write", 1]
+     *           ["write", 3]
+     *           ["unlink", 1]
      */
     public function testAddId(string $method, int $id): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->addId($id);
-        $this->assertQueryBuilderValues(type: $method, ids: [$id]);
+        $this->assertQueryBuilderValues(method: $method, ids: [$id]);
     }
 
     /**
      * @covers ::addId
      *
      * @testWith ["search", 1]
-     *           ["select", 3]
-     *           ["insert", 1]
+     *           ["search_read", 3]
+     *           ["create", 1]
      */
     public function testAddIdWithInvalidMethod(string $invalidMethod, int $id): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->addId($id);
     }
 
     /**
      * @covers ::setValues
      *
-     * @testWith ["insert", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
-     *           ["update", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
+     * @testWith ["create", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
+     *           ["write", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
      */
     public function testSetValues(string $method, array $values): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setValues($values);
-        $this->assertQueryBuilderValues(type: $method, values: $values);
+        $this->assertQueryBuilderValues(method: $method, values: $values);
     }
 
     /**
@@ -335,42 +341,44 @@ final class QueryBuilderTest extends TestCase
      *
      * @testWith ["search", {}]
      *           ["search", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
-     *           ["select", {}]
-     *           ["select", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
-     *           ["delete", {}]
-     *           ["delete", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
+     *           ["search_read", {}]
+     *           ["search_read", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
+     *           ["unlink", {}]
+     *           ["unlink", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
      */
     public function testSetValuesWithInvalidMethod(string $invalidMethod, array $values): void
     {
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod(QueryMethod::from($invalidMethod));
         $this->queryBuilder->setValues($values);
     }
 
     /**
      * @covers ::set
      *
-     * @testWith ["insert", "field_name", 1]
-     *           ["update", "field_name", 3]
+     * @testWith ["create", "field_name", 1]
+     *           ["write", "field_name", 3]
      */
     public function testSet(string $method, string $fieldName, mixed $value): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->set($fieldName, $value);
-        $this->assertQueryBuilderValues(type: $method, values: [$fieldName => $value]);
+        $this->assertQueryBuilderValues(method: $method, values: [$fieldName => $value]);
     }
 
     /**
      * @covers ::set
      *
      * @testWith ["search", "field_name", 1]
-     *           ["select", "field_name", 3]
-     *           ["delete", "field_name", 3]
+     *           ["search_read", "field_name", 3]
+     *           ["unlink", "field_name", 3]
      */
     public function testSetWithInvalidMethod(string $invalidMethod, string $fieldName, mixed $value): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->set($fieldName, $value);
     }
 
@@ -378,40 +386,43 @@ final class QueryBuilderTest extends TestCase
      * @covers ::where
      *
      * @testWith ["search"]
-     *           ["select"]
+     *           ["search_read"]
      */
     public function testWhere(string $method): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $domain = $this->createMock(DomainInterface::class);
         $this->queryBuilder->where($domain);
-        $this->assertQueryBuilderValues(type: $method, where: $domain);
+        $this->assertQueryBuilderValues(method: $method, where: $domain);
     }
 
     /**
      * @covers ::where
      *
      * @testWith ["search"]
-     *           ["select"]
+     *           ["search_read"]
      */
     public function testWhereWithEmptyValue(string $method): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->where();
-        $this->assertQueryBuilderValues(type: $method);
+        $this->assertQueryBuilderValues(method: $method);
     }
 
     /**
      * @covers ::where
      *
-     * @testWith ["insert"]
-     *           ["update"]
-     *           ["delete"]
+     * @testWith ["create"]
+     *           ["write"]
+     *           ["unlink"]
      */
     public function testWhereWithInvalidMethod(string $invalidMethod): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $domain = $this->createMock(DomainInterface::class);
         $this->queryBuilder->where($domain);
     }
@@ -420,44 +431,47 @@ final class QueryBuilderTest extends TestCase
      * @covers ::andWhere
      *
      * @testWith ["search"]
-     *           ["select"]
+     *           ["search_read"]
      */
     public function testAndWhere(string $method): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $domain = $this->createMock(DomainInterface::class);
         $this->queryBuilder->andWhere($domain);
-        $this->assertQueryBuilderValues(type: $method, where: $domain);
+        $this->assertQueryBuilderValues(method: $method, where: $domain);
     }
 
     /**
      * @covers ::andWhere
      *
      * @testWith ["search"]
-     *           ["select"]
+     *           ["search_read"]
      */
     public function testAndWhereWithClauseValue(string $method): void
     {
+        $method = QueryMethod::from($method);
         $domainA = $this->createMock(DomainInterface::class);
         $this->setQueryBuilderMethod($method);
         $this->setQueryBuilderPropertyValue('where', $domainA);
 
         $domainB = $this->createMock(DomainInterface::class);
         $this->queryBuilder->andWhere($domainB);
-        $this->assertQueryBuilderValues(type: $method, where: $this->queryBuilder->expr()->andX($domainA, $domainB));
+        $this->assertQueryBuilderValues(method: $method, where: $this->queryBuilder->expr()->andX($domainA, $domainB));
     }
 
     /**
      * @covers ::andWhere
      *
-     * @testWith ["insert"]
-     *           ["update"]
-     *           ["delete"]
+     * @testWith ["create"]
+     *           ["write"]
+     *           ["unlink"]
      */
     public function testAndWhereWithInvalidMethod(string $invalidMethod): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $domain = $this->createMock(DomainInterface::class);
         $this->queryBuilder->andWhere($domain);
     }
@@ -466,44 +480,47 @@ final class QueryBuilderTest extends TestCase
      * @covers ::orWhere
      *
      * @testWith ["search"]
-     *           ["select"]
+     *           ["search_read"]
      */
     public function testOrWhere(string $method): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $domain = $this->createMock(DomainInterface::class);
         $this->queryBuilder->orWhere($domain);
-        $this->assertQueryBuilderValues(type: $method, where: $domain);
+        $this->assertQueryBuilderValues(method: $method, where: $domain);
     }
 
     /**
      * @covers ::orWhere
      *
      * @testWith ["search"]
-     *           ["select"]
+     *           ["search_read"]
      */
     public function testOrWhereWithClauseValue(string $method): void
     {
+        $method = QueryMethod::from($method);
         $domainA = $this->createMock(DomainInterface::class);
         $this->setQueryBuilderMethod($method);
         $this->setQueryBuilderPropertyValue('where', $domainA);
 
         $domainB = $this->createMock(DomainInterface::class);
         $this->queryBuilder->orWhere($domainB);
-        $this->assertQueryBuilderValues(type: $method, where: $this->queryBuilder->expr()->orX($domainA, $domainB));
+        $this->assertQueryBuilderValues(method: $method, where: $this->queryBuilder->expr()->orX($domainA, $domainB));
     }
 
     /**
      * @covers ::orWhere
      *
-     * @testWith ["insert"]
-     *           ["update"]
-     *           ["delete"]
+     * @testWith ["create"]
+     *           ["write"]
+     *           ["unlink"]
      */
     public function testOrWhereWithInvalidMethod(string $invalidMethod): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $domain = $this->createMock(DomainInterface::class);
         $this->queryBuilder->orWhere($domain);
     }
@@ -513,30 +530,32 @@ final class QueryBuilderTest extends TestCase
      *
      * @testWith ["search", {}]
      *           ["search", {"foo": "asc", "bar": "desc"}]
-     *           ["select", {}]
-     *           ["select", {"foo": "asc", "bar": "desc"}]
+     *           ["search_read", {}]
+     *           ["search_read", {"foo": "asc", "bar": "desc"}]
      */
     public function testSetOrders(string $method, array $orders): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setOrders($orders);
-        $this->assertQueryBuilderValues(type: $method, orders: $this->normalizeOrders($orders));
+        $this->assertQueryBuilderValues(method: $method, orders: $this->normalizeOrders($orders));
     }
 
     /**
      * @covers ::setOrders
      *
-     * @testWith ["insert", {}]
-     *           ["insert", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
-     *           ["update", {}]
-     *           ["update", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
-     *           ["delete", {}]
-     *           ["delete", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
+     * @testWith ["create", {}]
+     *           ["create", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
+     *           ["write", {}]
+     *           ["write", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
+     *           ["unlink", {}]
+     *           ["unlink", {"foo": true, "bar": 1, "baz": 1.3, "qux": "3", "lux": [1,2,3]}]
      */
     public function testSetOrdersWithInvalidMethod(string $invalidMethod, array $orders): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setOrders($orders);
     }
 
@@ -544,11 +563,12 @@ final class QueryBuilderTest extends TestCase
      * @covers ::setOrders
      *
      * @testWith ["search", {"": "asc"}]
-     *           ["select", {" ": "asc"}]
-     *           ["select", {" è ": "asc"}]
+     *           ["search_read", {" ": "asc"}]
+     *           ["search_read", {" è ": "asc"}]
      */
     public function testSetOrdersWithInvalidFieldNames(string $method, array $orders): void
     {
+        $method = QueryMethod::from($method);
         $this->expectException(\InvalidArgumentException::class);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setOrders($orders);
@@ -558,10 +578,11 @@ final class QueryBuilderTest extends TestCase
      * @covers ::setOrders
      *
      * @testWith ["search", {"foo": "dasc"}]
-     *           ["select", {"foo": "esc"}]
+     *           ["search_read", {"foo": "esc"}]
      */
     public function testSetOrdersWithInvalidOrders(string $method, array $orders): void
     {
+        $method = QueryMethod::from($method);
         $this->expectException(\ValueError::class);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setOrders($orders);
@@ -572,14 +593,15 @@ final class QueryBuilderTest extends TestCase
      *
      * @testWith ["search", "field_name", "asc"]
      *           ["search", "field_name", "desc"]
-     *           ["select", "field_name", "asc"]
-     *           ["select", "field_name", "desc"]
+     *           ["search_read", "field_name", "asc"]
+     *           ["search_read", "field_name", "desc"]
      */
     public function testOrderBy(string $method, string $fieldName, string $order): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->orderBy($fieldName, $order);
-        $this->assertQueryBuilderValues(type: $method, orders: $this->normalizeOrders([
+        $this->assertQueryBuilderValues(method: $method, orders: $this->normalizeOrders([
             $fieldName => $order,
         ]));
     }
@@ -587,14 +609,15 @@ final class QueryBuilderTest extends TestCase
     /**
      * @covers ::orderBy
      *
-     * @testWith ["insert", "field_name", "asc"]
-     *           ["update", "field_name", "desc"]
-     *           ["delete", "field_name", "asc"]
+     * @testWith ["create", "field_name", "asc"]
+     *           ["write", "field_name", "desc"]
+     *           ["unlink", "field_name", "asc"]
      */
     public function testOrderByWithInvalidMethod(string $invalidMethod, string $fieldName, string $order): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->orderBy($fieldName, $order);
     }
 
@@ -602,13 +625,14 @@ final class QueryBuilderTest extends TestCase
      * @covers ::orderBy
      *
      * @testWith ["search", "", "asc"]
-     *           ["select", " ", "desc"]
-     *           ["select", " è ", "desc"]
+     *           ["search_read", " ", "desc"]
+     *           ["search_read", " è ", "desc"]
      */
     public function testOrderByWithInvalidFieldName(string $invalidMethod, string $fieldName, string $order): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(\InvalidArgumentException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->orderBy($fieldName, $order);
     }
 
@@ -617,18 +641,19 @@ final class QueryBuilderTest extends TestCase
      *
      * @testWith ["search", "field_name2", "asc"]
      *           ["search", "field_name2", "desc"]
-     *           ["select", "field_name2", "asc"]
-     *           ["select", "field_name2", "desc"]
+     *           ["search_read", "field_name2", "asc"]
+     *           ["search_read", "field_name2", "desc"]
      */
     public function testAddOrderBy(string $method, string $fieldName, string $order): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->setQueryBuilderPropertyValue('orders', $baseOrders = [
             'field_name1' => QueryOrder::ASC,
         ]);
 
         $this->queryBuilder->addOrderBy($fieldName, $order);
-        $this->assertQueryBuilderValues(type: $method, orders: $this->normalizeOrders(array_merge($baseOrders, [
+        $this->assertQueryBuilderValues(method: $method, orders: $this->normalizeOrders(array_merge($baseOrders, [
             $fieldName => $order,
         ])));
     }
@@ -636,14 +661,15 @@ final class QueryBuilderTest extends TestCase
     /**
      * @covers ::addOrderBy
      *
-     * @testWith ["insert", "field_name", "asc"]
-     *           ["update", "field_name", "desc"]
-     *           ["delete", "field_name", "asc"]
+     * @testWith ["create", "field_name", "asc"]
+     *           ["write", "field_name", "desc"]
+     *           ["unlink", "field_name", "asc"]
      */
     public function testAddOrderByWithInvalidMethod(string $invalidMethod, string $fieldName, string $order): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->addOrderBy($fieldName, $order);
     }
 
@@ -651,13 +677,14 @@ final class QueryBuilderTest extends TestCase
      * @covers ::addOrderBy
      *
      * @testWith ["search", "", "asc"]
-     *           ["select", " ", "desc"]
-     *           ["select", " è ", "desc"]
+     *           ["search_read", " ", "desc"]
+     *           ["search_read", " è ", "desc"]
      */
     public function testAddOrderByWithInvalidFieldName(string $invalidMethod, string $fieldName, string $order): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(\InvalidArgumentException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->addOrderBy($fieldName, $order);
     }
 
@@ -665,11 +692,12 @@ final class QueryBuilderTest extends TestCase
      * @covers ::setMaxResults
      *
      * @testWith ["search", null]
-     *           ["select", 1]
-     *           ["select", 150]
+     *           ["search_read", 1]
+     *           ["search_read", 150]
      */
     public function testSetMaxResults(string $method, ?int $maxResults): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setMaxResults($maxResults);
         $this->assertQueryBuilderValues($method, maxResults: $maxResults);
@@ -678,14 +706,15 @@ final class QueryBuilderTest extends TestCase
     /**
      * @covers ::orderBy
      *
-     * @testWith ["insert", null]
-     *           ["update", 1]
-     *           ["delete", 150]
+     * @testWith ["create", null]
+     *           ["write", 1]
+     *           ["unlink", 150]
      */
     public function testSetMaxResultsInvalidMethod(string $invalidMethod, ?int $maxResults): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setMaxResults($maxResults);
     }
 
@@ -693,10 +722,11 @@ final class QueryBuilderTest extends TestCase
      * @covers ::setMaxResults
      *
      * @testWith ["search", -1]
-     *           ["select", 0]
+     *           ["search_read", 0]
      */
     public function testSetMaxResultsWithInvalidValue(string $method, int $maxResults): void
     {
+        $method = QueryMethod::from($method);
         $this->expectException(\InvalidArgumentException::class);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setMaxResults($maxResults);
@@ -706,12 +736,13 @@ final class QueryBuilderTest extends TestCase
      * @covers ::setFirstResult
      *
      * @testWith ["search", null]
-     *           ["select", 0]
-     *           ["select", 1]
-     *           ["select", 150]
+     *           ["search_read", 0]
+     *           ["search_read", 1]
+     *           ["search_read", 150]
      */
     public function testSetFirstResult(string $method, ?int $firstResult): void
     {
+        $method = QueryMethod::from($method);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setFirstResult($firstResult);
         $this->assertQueryBuilderValues($method, firstResult: $firstResult);
@@ -720,15 +751,16 @@ final class QueryBuilderTest extends TestCase
     /**
      * @covers ::orderBy
      *
-     * @testWith ["insert", null]
-     *           ["update", 0]
-     *           ["update", 1]
-     *           ["delete", 150]
+     * @testWith ["create", null]
+     *           ["write", 0]
+     *           ["write", 1]
+     *           ["unlink", 150]
      */
     public function testSetFirstResultInvalidMethod(string $invalidMethod, ?int $firstResult): void
     {
+        $method = QueryMethod::from($invalidMethod);
         $this->expectException(QueryException::class);
-        $this->setQueryBuilderMethod($invalidMethod);
+        $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setFirstResult($firstResult);
     }
 
@@ -736,10 +768,11 @@ final class QueryBuilderTest extends TestCase
      * @covers ::setFirstResult
      *
      * @testWith ["search", -1]
-     *           ["select", -3]
+     *           ["search_read", -3]
      */
     public function testSetFirstResultWithInvalidValue(string $method, int $firstResult): void
     {
+        $method = QueryMethod::from($method);
         $this->expectException(\InvalidArgumentException::class);
         $this->setQueryBuilderMethod($method);
         $this->queryBuilder->setFirstResult($firstResult);
@@ -750,7 +783,7 @@ final class QueryBuilderTest extends TestCase
      */
     public function testReset(): void
     {
-        $this->setQueryBuilderMethod(QueryBuilderMethod::Delete);
+        $this->setQueryBuilderMethod(QueryMethod::Delete);
         $this->setQueryBuilderPropertyValue('select', ['field_name1', 'field_name2']);
         $this->setQueryBuilderPropertyValue('ids', [1, 2, 3]);
         $this->setQueryBuilderPropertyValue('values', ['foo' => 'bar']);
@@ -760,14 +793,14 @@ final class QueryBuilderTest extends TestCase
         $this->setQueryBuilderPropertyValue('firstResult', 10);
 
         $this->queryBuilder->reset();
-        $this->assertQueryBuilderValues(QueryBuilderMethod::Delete);
+        $this->assertQueryBuilderValues(QueryMethod::Delete);
     }
 
     /**
      * @internal
      */
     private function assertQueryBuilderValues(
-        QueryBuilderMethod|string $type,
+        QueryMethod $method,
         string $from = null,
         array $select = [],
         array $ids = [],
@@ -777,19 +810,19 @@ final class QueryBuilderTest extends TestCase
         int $maxResults = null,
         int $firstResult = null
     ): void {
-        self::assertSame(\is_string($type) ? QueryBuilderMethod::from($type) : $type, $this->queryBuilder->getMethod());
-        self::assertSame($from ?: $this->modelName, $this->queryBuilder->getFrom());
-        self::assertSame($select, $this->queryBuilder->getSelect());
-        self::assertSame($values, $this->queryBuilder->getValues());
-        self::assertSame($ids, $this->queryBuilder->getIds());
+        static::assertSame($method, $this->queryBuilder->getMethod());
+        static::assertSame($from ?: $this->modelName, $this->queryBuilder->getFrom());
+        static::assertSame($select, $this->queryBuilder->getSelect());
+        static::assertSame($values, $this->queryBuilder->getValues());
+        static::assertSame($ids, $this->queryBuilder->getIds());
 
         if ($where) {
-            self::assertSame($where->toArray(), $this->queryBuilder->getWhere()->toArray());
+            static::assertSame($where->toArray(), $this->queryBuilder->getWhere()->toArray());
         }
 
-        self::assertSame($orders, $this->queryBuilder->getOrders());
-        self::assertSame($maxResults, $this->queryBuilder->getMaxResults());
-        self::assertSame($firstResult, $this->queryBuilder->getFirstResult());
+        static::assertSame($orders, $this->queryBuilder->getOrders());
+        static::assertSame($maxResults, $this->queryBuilder->getMaxResults());
+        static::assertSame($firstResult, $this->queryBuilder->getFirstResult());
     }
 
     /**
@@ -805,9 +838,9 @@ final class QueryBuilderTest extends TestCase
      *
      * @throws \ReflectionException
      */
-    private function setQueryBuilderMethod(QueryBuilderMethod|string $method): void
+    private function setQueryBuilderMethod(QueryMethod $method): void
     {
-        $this->setQueryBuilderPropertyValue('method', $method instanceof QueryBuilderMethod ? $method : QueryBuilderMethod::from($method));
+        $this->setQueryBuilderPropertyValue('method', $method);
     }
 
     /**

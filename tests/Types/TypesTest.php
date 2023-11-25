@@ -27,7 +27,7 @@ final class TypesTest extends TestCase
      */
     public function testGetKeys(): void
     {
-        self::assertSame([
+        static::assertSame([
             'BINARY',
             'BOOLEAN',
             'CHAR',
@@ -48,7 +48,7 @@ final class TypesTest extends TestCase
      */
     public function testGetValues(): void
     {
-        self::assertSame([
+        static::assertSame([
             Types::BINARY,
             Types::BOOLEAN,
             Types::CHAR,

@@ -36,7 +36,7 @@ final class TypeRegistryTest extends TestCase
      */
     public function testInterface(): void
     {
-        self::assertInstanceOf(TypeRegistryInterface::class, $this->typeRegistry);
+        static::assertInstanceOf(TypeRegistryInterface::class, $this->typeRegistry);
     }
 
     /**
@@ -58,8 +58,8 @@ final class TypeRegistryTest extends TestCase
      */
     public function testGetBuiltInTypes(string $name, string $expectedClassType): void
     {
-        self::assertTrue(class_exists($expectedClassType), sprintf('The class type "%s" was not found.', $expectedClassType));
-        self::assertInstanceOf($expectedClassType, $this->typeRegistry->get($name));
+        static::assertTrue(class_exists($expectedClassType), sprintf('The class type "%s" was not found.', $expectedClassType));
+        static::assertInstanceOf($expectedClassType, $this->typeRegistry->get($name));
     }
 
     /**
@@ -81,7 +81,7 @@ final class TypeRegistryTest extends TestCase
     public function testRegister(string $name, string $classType): void
     {
         $this->typeRegistry->register($name, new $classType());
-        self::assertInstanceOf($classType, $this->typeRegistry->get($name));
+        static::assertInstanceOf($classType, $this->typeRegistry->get($name));
     }
 
     /**
@@ -103,6 +103,6 @@ final class TypeRegistryTest extends TestCase
      */
     public function testHas(string $name, bool $expectedResult): void
     {
-        self::assertSame($expectedResult, $this->typeRegistry->has($name));
+        static::assertSame($expectedResult, $this->typeRegistry->has($name));
     }
 }

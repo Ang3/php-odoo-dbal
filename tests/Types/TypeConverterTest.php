@@ -46,7 +46,7 @@ final class TypeConverterTest extends TestCase
      */
     public function testInterface(): void
     {
-        self::assertInstanceOf(TypeConverterInterface::class, $this->typeConverter);
+        static::assertInstanceOf(TypeConverterInterface::class, $this->typeConverter);
     }
 
     /**
@@ -54,7 +54,7 @@ final class TypeConverterTest extends TestCase
      */
     public function testGetTypeRegistry(): void
     {
-        self::assertSame($this->typeRegistry, $this->typeConverter->getTypeRegistry());
+        static::assertSame($this->typeRegistry, $this->typeConverter->getTypeRegistry());
     }
 
     /**
@@ -65,7 +65,7 @@ final class TypeConverterTest extends TestCase
     public function testEmptyConstructor(): void
     {
         $typeConverter = new TypeConverter();
-        self::assertInstanceOf(TypeRegistryInterface::class, $typeConverter->getTypeRegistry());
+        static::assertInstanceOf(TypeRegistryInterface::class, $typeConverter->getTypeRegistry());
     }
 
     /**
@@ -75,7 +75,7 @@ final class TypeConverterTest extends TestCase
      */
     public function testGetContext(array $context): void
     {
-        self::assertSame(array_merge($this->defaultContext, $context), $this->typeConverter->getContext($context));
+        static::assertSame(array_merge($this->defaultContext, $context), $this->typeConverter->getContext($context));
     }
 
     /**
@@ -88,10 +88,10 @@ final class TypeConverterTest extends TestCase
     public function testConvertToDatabaseValue(mixed $value, string $type, array $context = []): void
     {
         $registeredType = $this->createMock(TypeInterface::class);
-        $this->typeRegistry->expects(self::once())->method('get')->with($type)->willReturn($registeredType);
-        $registeredType->expects(self::once())->method('convertToDatabaseValue')->with($value, $this->typeConverter->getContext($context))->willReturn($result = 'bar');
+        $this->typeRegistry->expects(static::once())->method('get')->with($type)->willReturn($registeredType);
+        $registeredType->expects(static::once())->method('convertToDatabaseValue')->with($value, $this->typeConverter->getContext($context))->willReturn($result = 'bar');
 
-        self::assertSame($result, $this->typeConverter->convertToDatabaseValue($value, $type, $context));
+        static::assertSame($result, $this->typeConverter->convertToDatabaseValue($value, $type, $context));
     }
 
     /**
@@ -102,7 +102,7 @@ final class TypeConverterTest extends TestCase
     public function testConvertToDatabaseValueWithUnknownType(mixed $value, string $unknownType): void
     {
         $this->expectException(TypeException::class);
-        $this->typeRegistry->expects(self::once())->method('get')->with($unknownType)->willThrowException(new TypeException());
+        $this->typeRegistry->expects(static::once())->method('get')->with($unknownType)->willThrowException(new TypeException());
         $this->typeConverter->convertToDatabaseValue($value, $unknownType);
     }
 
@@ -116,10 +116,10 @@ final class TypeConverterTest extends TestCase
     public function testConvertToPhpValue(mixed $value, string $type, array $context = []): void
     {
         $registeredType = $this->createMock(TypeInterface::class);
-        $this->typeRegistry->expects(self::once())->method('get')->with($type)->willReturn($registeredType);
-        $registeredType->expects(self::once())->method('convertToPhpValue')->with($value, $this->typeConverter->getContext($context))->willReturn($result = 'bar');
+        $this->typeRegistry->expects(static::once())->method('get')->with($type)->willReturn($registeredType);
+        $registeredType->expects(static::once())->method('convertToPhpValue')->with($value, $this->typeConverter->getContext($context))->willReturn($result = 'bar');
 
-        self::assertSame($result, $this->typeConverter->convertToPhpValue($value, $type, $context));
+        static::assertSame($result, $this->typeConverter->convertToPhpValue($value, $type, $context));
     }
 
     /**
@@ -130,7 +130,7 @@ final class TypeConverterTest extends TestCase
     public function testConvertToPhpValueWithUnknownType(mixed $value, string $unknownType): void
     {
         $this->expectException(TypeException::class);
-        $this->typeRegistry->expects(self::once())->method('get')->with($unknownType)->willThrowException(new TypeException());
+        $this->typeRegistry->expects(static::once())->method('get')->with($unknownType)->willThrowException(new TypeException());
         $this->typeConverter->convertToPhpValue($value, $unknownType);
     }
 }

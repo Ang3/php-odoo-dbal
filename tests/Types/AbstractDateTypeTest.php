@@ -44,9 +44,9 @@ abstract class AbstractDateTypeTest extends AbstractTypeTest
         ]);
 
         if (isset($expected)) {
-            self::assertSame($expected->format($this->getDatabaseFormat()), $result);
+            static::assertSame($expected->format($this->getDatabaseFormat()), $result);
         } else {
-            self::assertNull($result);
+            static::assertNull($result);
         }
     }
 

@@ -13,10 +13,10 @@ namespace Ang3\Component\Odoo\DBAL\Tests;
 
 use Ang3\Component\Odoo\Client;
 use Ang3\Component\Odoo\DBAL\Configuration;
-use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
+use Ang3\Component\Odoo\DBAL\Query\Enum\QueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
-use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
-use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
+use Ang3\Component\Odoo\DBAL\Query\Factory\QueryFactoryInterface;
+use Ang3\Component\Odoo\DBAL\Query\Factory\ResultFactoryInterface;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\RecordManager;
@@ -40,6 +40,8 @@ final class RecordManagerTest extends TestCase
     private MockObject $schema;
     private MockObject $repositoryRegistry;
     private MockObject $typeConverter;
+    private MockObject $queryFactory;
+    private MockObject $resultFactory;
     private MockObject $expressionBuilder;
 
     protected function setUp(): void
@@ -50,8 +52,10 @@ final class RecordManagerTest extends TestCase
         $this->schema = $this->createMock(SchemaInterface::class);
         $this->repositoryRegistry = $this->createMock(RepositoryRegistry::class);
         $this->typeConverter = $this->createMock(TypeConverterInterface::class);
+        $this->queryFactory = $this->createMock(QueryFactoryInterface::class);
+        $this->resultFactory = $this->createMock(ResultFactoryInterface::class);
         $this->expressionBuilder = $this->createMock(ExpressionBuilderInterface::class);
-        $this->recordManager = new RecordManager($this->client, $this->configuration, $this->typeConverter);
+        $this->recordManager = new RecordManager($this->client, $this->configuration, $this->typeConverter, $this->queryFactory, $this->resultFactory, $this->expressionBuilder);
 
         // Override internal dependencies
         (new \ReflectionProperty(RecordManager::class, 'schema'))->setValue($this->recordManager, $this->schema);
@@ -66,12 +70,12 @@ final class RecordManagerTest extends TestCase
     public function testFind(int $id, string $modelName, array $fields): void
     {
         $repository = $this->createMock(RecordRepositoryInterface::class);
-        $this->repositoryRegistry->expects(self::once())->method('get')->with($modelName)->willReturn($repository);
-        $repository->expects(self::once())->method('find')->with($id, $fields)->willReturn($result = [
+        $this->repositoryRegistry->expects(static::once())->method('get')->with($modelName)->willReturn($repository);
+        $repository->expects(static::once())->method('find')->with($id, $fields)->willReturn($result = [
             'foo' => 'bar',
         ]);
 
-        self::assertSame($result, $this->recordManager->find($modelName, $id, $fields));
+        static::assertSame($result, $this->recordManager->find($modelName, $id, $fields));
     }
 
     /**
@@ -81,34 +85,9 @@ final class RecordManagerTest extends TestCase
      */
     public function testCreateQueryBuilder(string $modelName): void
     {
-        $queryBuilder = $this->recordManager->createQueryBuilder($modelName);
-        self::assertInstanceOf(QueryBuilder::class, $queryBuilder);
-        self::assertSame($modelName, $queryBuilder->getFrom());
-    }
-
-    /**
-     * @covers ::createOrmQuery
-     *
-     * @dataProvider provideCreateOrmQueryCases
-     */
-    public function testCreateOrmQuery(string $name, string $method): void
-    {
-        $ormQuery = $this->recordManager->createOrmQuery($name, OrmQueryMethod::from($method));
-        self::assertInstanceOf(OrmQuery::class, $ormQuery);
-        self::assertSame($method, $ormQuery->getMethod());
-    }
-
-    /**
-     * @covers ::createNativeQuery
-     *
-     * @testWith ["model_name", "method_name"]
-     */
-    public function testCreateNativeQuery(string $name, string $method): void
-    {
-        $nativeQuery = $this->recordManager->createNativeQuery($name, $method);
-        self::assertInstanceOf(NativeQuery::class, $nativeQuery);
-        self::assertSame($name, $nativeQuery->getName());
-        self::assertSame($method, $nativeQuery->getMethod());
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $this->queryFactory->expects(static::once())->method('createQueryBuilder')->with($modelName)->willReturn($queryBuilder);
+        static::assertSame($queryBuilder, $this->recordManager->createQueryBuilder($modelName));
     }
 
     /**
@@ -120,18 +99,18 @@ final class RecordManagerTest extends TestCase
     public function testExecuteQuery(string $name, string $method, array $parameters = [], array $options = []): void
     {
         $query = $this->createMock(QueryInterface::class);
-        $query->expects(self::once())->method('getName')->willReturn($name);
-        $query->expects(self::once())->method('getMethod')->willReturn($method);
-        $query->expects(self::once())->method('getParameters')->willReturn($parameters);
-        $query->expects(self::once())->method('getOptions')->willReturn($options);
+        $query->expects(static::once())->method('getName')->willReturn($name);
+        $query->expects(static::once())->method('getMethod')->willReturn($method);
+        $query->expects(static::once())->method('getParameters')->willReturn($parameters);
+        $query->expects(static::once())->method('getOptions')->willReturn($options);
 
         if ($options) {
-            $this->client->expects(self::once())->method('executeKw')->with($name, $method, $parameters, $options)->willReturn($result = 'foo');
+            $this->client->expects(static::once())->method('executeKw')->with($name, $method, $parameters, $options)->willReturn($result = 'foo');
         } else {
-            $this->client->expects(self::once())->method('executeKw')->with($name, $method, $parameters)->willReturn($result = 'foo');
+            $this->client->expects(static::once())->method('executeKw')->with($name, $method, $parameters)->willReturn($result = 'foo');
         }
 
-        self::assertSame($result, $this->recordManager->executeQuery($query));
+        static::assertSame($result, $this->recordManager->executeQuery($query));
     }
 
     /**
@@ -142,9 +121,9 @@ final class RecordManagerTest extends TestCase
     public function testGetRepository(string $modelName): void
     {
         $repository = $this->createMock(RecordRepositoryInterface::class);
-        $this->repositoryRegistry->expects(self::once())->method('get')->with($modelName)->willReturn($repository);
+        $this->repositoryRegistry->expects(static::once())->method('get')->with($modelName)->willReturn($repository);
 
-        self::assertSame($repository, $this->recordManager->getRepository($modelName));
+        static::assertSame($repository, $this->recordManager->getRepository($modelName));
     }
 
     /**
@@ -153,13 +132,13 @@ final class RecordManagerTest extends TestCase
     protected static function provideCreateOrmQueryCases(): iterable
     {
         return [
-            ['model_name', OrmQueryMethod::Create->value],
-            ['model_name', OrmQueryMethod::Write->value],
-            ['model_name', OrmQueryMethod::Read->value],
-            ['model_name', OrmQueryMethod::Search->value],
-            ['model_name', OrmQueryMethod::SearchAndCount->value],
-            ['model_name', OrmQueryMethod::SearchAndRead->value],
-            ['model_name', OrmQueryMethod::Unlink->value],
+            ['model_name', QueryMethod::Insert->value],
+            ['model_name', QueryMethod::Update->value],
+            ['model_name', QueryMethod::Read->value],
+            ['model_name', QueryMethod::Search->value],
+            ['model_name', QueryMethod::SearchAndCount->value],
+            ['model_name', QueryMethod::SearchAndRead->value],
+            ['model_name', QueryMethod::Delete->value],
         ];
     }
 }

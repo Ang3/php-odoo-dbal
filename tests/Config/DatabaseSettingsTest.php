@@ -37,7 +37,7 @@ final class DatabaseSettingsTest extends TestCase
     public function testEmptyConstructor(): void
     {
         $databaseSettings = new DatabaseSettings();
-        self::assertSame(DatabaseSettings::DEFAULT_TIMEZONE, $databaseSettings->getTimezone());
+        static::assertSame(DatabaseSettings::DEFAULT_TIMEZONE, $databaseSettings->getTimezone());
     }
 
     /**
@@ -45,6 +45,6 @@ final class DatabaseSettingsTest extends TestCase
      */
     public function testTimezone(): void
     {
-        self::assertSame($this->timezone, $this->databaseSettings->getTimezone());
+        static::assertSame($this->timezone, $this->databaseSettings->getTimezone());
     }
 }
