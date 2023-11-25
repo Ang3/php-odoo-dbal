@@ -11,13 +11,12 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Repository;
 
-use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\CompositeDomain;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
-use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
-use Ang3\Component\Odoo\DBAL\RecordManager;
+use Ang3\Component\Odoo\DBAL\Query\RecordNotFoundException;
+use Ang3\Component\Odoo\DBAL\RecordManagerInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 
 /**
@@ -25,12 +24,12 @@ use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
  */
 class RecordRepository implements RecordRepositoryInterface
 {
-    public function __construct(private RecordManager $recordManager, private readonly string $modelName)
+    public function __construct(private RecordManagerInterface $recordManager, private readonly string $modelName)
     {
-        $recordManager->addRepository($this);
+        $recordManager->getRepositories()->add($this);
     }
 
-    public function setRecordManager(RecordManager $recordManager): void
+    public function setRecordManager(RecordManagerInterface $recordManager): void
     {
         $this->recordManager = $recordManager;
     }
@@ -41,6 +40,17 @@ class RecordRepository implements RecordRepositoryInterface
             ->getSchema()
             ->getModel($this->modelName)
         ;
+    }
+
+    public function read(int $id, ?array $fields = []): array
+    {
+        $record = $this->find($id, $fields);
+
+        if (!$record) {
+            throw new RecordNotFoundException($this->modelName, $id);
+        }
+
+        return $record;
     }
 
     public function insert(array $data): int
@@ -120,18 +130,8 @@ class RecordRepository implements RecordRepositoryInterface
             ->setMaxResults($limit)
             ->getQuery()
             ->getScalarResult()
+            ->toArray()
         ;
-    }
-
-    public function read(int $id, ?array $fields = []): array
-    {
-        $record = $this->find($id, $fields);
-
-        if (!$record) {
-            throw new RecordNotFoundException($this->modelName, $id);
-        }
-
-        return $record;
     }
 
     public function find(int $id, ?array $fields = []): ?array
@@ -156,7 +156,8 @@ class RecordRepository implements RecordRepositoryInterface
         return $this
             ->prepare($criteria, $fields, $orders, $limit, $offset)
             ->getQuery()
-            ->getResult()
+            ->getRowResult()
+            ->toArray()
         ;
     }
 
@@ -197,12 +198,7 @@ class RecordRepository implements RecordRepositoryInterface
         return $this->recordManager->createQueryBuilder($this->modelName);
     }
 
-    public function createOrmQuery(OrmQueryMethod $method): OrmQuery
-    {
-        return $this->recordManager->createOrmQuery($this->modelName, $method);
-    }
-
-    public function getRecordManager(): RecordManager
+    public function getRecordManager(): RecordManagerInterface
     {
         return $this->recordManager;
     }

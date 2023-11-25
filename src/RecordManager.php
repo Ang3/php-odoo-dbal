@@ -12,18 +12,18 @@ declare(strict_types=1);
 namespace Ang3\Component\Odoo\DBAL;
 
 use Ang3\Component\Odoo\Client;
-use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilder;
 use Ang3\Component\Odoo\DBAL\Query\Expression\ExpressionBuilderInterface;
-use Ang3\Component\Odoo\DBAL\Query\NativeQuery;
+use Ang3\Component\Odoo\DBAL\Query\Factory\QueryFactory;
+use Ang3\Component\Odoo\DBAL\Query\Factory\QueryFactoryInterface;
+use Ang3\Component\Odoo\DBAL\Query\Factory\ResultFactory;
+use Ang3\Component\Odoo\DBAL\Query\Factory\ResultFactoryInterface;
+use Ang3\Component\Odoo\DBAL\Query\Normalizer\QueryNormalizer;
 use Ang3\Component\Odoo\DBAL\Query\Normalizer\ResultNormalizer;
-use Ang3\Component\Odoo\DBAL\Query\Normalizer\ResultNormalizerInterface;
-use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RepositoryRegistry;
-use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\Schema;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
 use Ang3\Component\Odoo\DBAL\Types\TypeConverter;
@@ -32,27 +32,41 @@ use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 /**
  * @author Joanis ROUANET <https://github.com/Ang3>
  */
-class RecordManager
+class RecordManager implements RecordManagerInterface
 {
     private readonly Configuration $configuration;
     private SchemaInterface $schema;
     private RepositoryRegistry $repositoryRegistry;
     private TypeConverterInterface $typeConverter;
-    private ResultNormalizerInterface $resultNormalizer;
+    private QueryFactoryInterface $queryFactory;
+    private ResultFactoryInterface $resultFactory;
     private ExpressionBuilderInterface $expressionBuilder;
 
     public function __construct(
         private readonly Client $client,
         Configuration $configuration = null,
         TypeConverterInterface $typeConverter = null,
+        QueryFactoryInterface $queryFactory = null,
+        ResultFactoryInterface $resultFactory = null,
         ExpressionBuilderInterface $expressionBuilder = null
     ) {
         $this->configuration = $configuration ?: new Configuration();
         $this->schema = new Schema($this);
         $this->repositoryRegistry = new RepositoryRegistry($this);
         $this->typeConverter = $typeConverter ?: new TypeConverter();
-        $this->resultNormalizer = new ResultNormalizer($this->typeConverter);
+        $this->queryFactory = $queryFactory ?: new QueryFactory($this, new QueryNormalizer($this->schema, $this->typeConverter));
+        $this->resultFactory = $resultFactory ?: new ResultFactory($this->schema, new ResultNormalizer($this, $this->typeConverter));
         $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
+    }
+
+    public function create(string $modelName, array $data): int
+    {
+        return $this->getRepository($modelName)->insert($data);
+    }
+
+    public function read(string $modelName, int $id, ?array $fields = []): array
+    {
+        return $this->getRepository($modelName)->read($id, $fields);
     }
 
     public function find(string $modelName, int $id, ?array $fields = []): ?array
@@ -60,19 +74,19 @@ class RecordManager
         return $this->getRepository($modelName)->find($id, $fields);
     }
 
-    public function createQueryBuilder(string $modelName): QueryBuilder
+    public function update(string $modelName, array|int $ids, array $data): void
     {
-        return new QueryBuilder($this, $modelName);
+        $this->getRepository($modelName)->update($ids, $data);
     }
 
-    public function createOrmQuery(string $modelName, OrmQueryMethod $method): OrmQuery
+    public function delete(string $modelName, array|int $ids): void
     {
-        return new OrmQuery($this, $modelName, $method->value);
+        $this->getRepository($modelName)->delete($ids);
     }
 
-    public function createNativeQuery(string $name, string $method): NativeQuery
+    public function getRepository(string $modelName): RecordRepositoryInterface
     {
-        return new NativeQuery($this, $name, $method);
+        return $this->repositoryRegistry->get($modelName);
     }
 
     public function executeQuery(QueryInterface $query): mixed
@@ -86,24 +100,9 @@ class RecordManager
         return $this->client->executeKw($query->getName(), $query->getMethod(), $query->getParameters(), $options);
     }
 
-    public function normalizeResult(ModelMetadata|string $model, array $payload, array $context = []): array
+    public function createQueryBuilder(string $modelName): QueryBuilder
     {
-        $model = $model instanceof ModelMetadata ? $model : $this->schema->getModel($model);
-
-        return $this->resultNormalizer->normalize($model, $payload, $context);
-    }
-
-    public function getRepository(string $modelName): RecordRepositoryInterface
-    {
-        return $this->repositoryRegistry->get($modelName);
-    }
-
-    public function addRepository(RecordRepositoryInterface $repository): self
-    {
-        $this->repositoryRegistry->add($repository);
-        $repository->setRecordManager($this);
-
-        return $this;
+        return $this->queryFactory->createQueryBuilder($modelName);
     }
 
     public function getClient(): Client
@@ -121,7 +120,7 @@ class RecordManager
         return $this->schema;
     }
 
-    public function getRepositoryRegistry(): RepositoryRegistry
+    public function getRepositories(): RepositoryRegistry
     {
         return $this->repositoryRegistry;
     }
@@ -131,9 +130,14 @@ class RecordManager
         return $this->typeConverter;
     }
 
-    public function getResultNormalizer(): ResultNormalizerInterface
+    public function getQueryFactory(): QueryFactoryInterface
     {
-        return $this->resultNormalizer;
+        return $this->queryFactory;
+    }
+
+    public function getResultFactory(): ResultFactoryInterface
+    {
+        return $this->resultFactory;
     }
 
     public function getExpressionBuilder(): ExpressionBuilderInterface

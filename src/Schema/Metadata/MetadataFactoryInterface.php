@@ -11,7 +11,11 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Schema\Metadata;
 
+use Ang3\Component\Odoo\Client;
+
 interface MetadataFactoryInterface
 {
     public function createModel(array $payload): ModelMetadata;
+
+    public function getClient(): Client;
 }

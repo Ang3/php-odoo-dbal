@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Schema;
 
-use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
+use Ang3\Component\Odoo\DBAL\Query\Enum\QueryMethod;
 use Ang3\Component\Odoo\DBAL\RecordManager;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\CacheKey;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\IrModel;
@@ -59,7 +59,7 @@ class Schema implements SchemaInterface
             ->getClient()
             ->executeKw(
                 IrModel::Model->value,
-                OrmQueryMethod::SearchAndRead->value,
+                QueryMethod::SearchAndRead->value,
                 [[['model', '=', $modelName]]]
             )
         ;
@@ -113,7 +113,7 @@ class Schema implements SchemaInterface
 
             $modelNames = array_column((array) $this->recordManager
                 ->getClient()
-                ->executeKw(IrModel::Model->value, OrmQueryMethod::SearchAndRead->value, [[]], [
+                ->executeKw(IrModel::Model->value, QueryMethod::SearchAndRead->value, [[]], [
                     'fields' => ['model'],
                 ]), 'model');
 
@@ -128,6 +128,11 @@ class Schema implements SchemaInterface
         }
 
         return $this->modelNames;
+    }
+
+    public function getRecordManager(): RecordManager
+    {
+        return $this->recordManager;
     }
 
     public function getMetadataFactory(): MetadataFactoryInterface

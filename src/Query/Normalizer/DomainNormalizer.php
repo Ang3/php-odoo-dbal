@@ -17,30 +17,20 @@ use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Schema\SchemaInterface;
 
-class CriteriaNormalizer
+class DomainNormalizer
 {
     public function __construct(
         private readonly SchemaInterface $schema,
         private readonly ValueNormalizer $valueNormalizer
-    ) {}
-
-    public function normalize(ModelMetadata $model, array|DomainInterface $criteria = null): array
-    {
-        if (!$criteria) {
-            return [[]];
-        }
-
-        if (\is_array($criteria)) {
-            $criteria = CompositeDomain::criteria($criteria);
-        }
-
-        $domain = $this->normalizeDomain($model, $criteria);
-        $domainArray = $domain->toArray();
-
-        return $criteria instanceof CompositeDomain ? [$domainArray] : [[$domainArray]];
+    ) {
     }
 
-    public function normalizeDomain(ModelMetadata $model, DomainInterface $domain): DomainInterface
+    public function normalize(ModelMetadata $model, DomainInterface $domain): array
+    {
+        return $this->normalizeValues($model, $domain)->toArray();
+    }
+
+    public function normalizeValues(ModelMetadata $model, DomainInterface $domain): DomainInterface
     {
         $domain = clone $domain;
 
@@ -48,7 +38,7 @@ class CriteriaNormalizer
             $newDomain = (clone $domain)->resetDomains();
 
             foreach ($domain as $subDomain) {
-                $newDomain->add($this->normalizeDomain($model, $subDomain));
+                $newDomain->add($this->normalizeValues($model, $subDomain));
             }
 
             return $newDomain;

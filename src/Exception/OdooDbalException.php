@@ -9,6 +9,8 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Query;
+namespace Ang3\Component\Odoo\DBAL\Exception;
 
-class NativeQuery extends AbstractQuery implements QueryInterface {}
+class OdooDbalException extends \RuntimeException implements ExceptionInterface
+{
+}

@@ -11,11 +11,10 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Repository;
 
-use Ang3\Component\Odoo\DBAL\Query\Enum\OrmQueryMethod;
 use Ang3\Component\Odoo\DBAL\Query\Expression\Domain\DomainInterface;
-use Ang3\Component\Odoo\DBAL\Query\OrmQuery;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\RecordManager;
+use Ang3\Component\Odoo\DBAL\RecordManagerInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 
 /**
@@ -32,6 +31,17 @@ interface RecordRepositoryInterface
      * Gets the model metadata from the schema.
      */
     public function getMetadata(): ModelMetadata;
+
+    /**
+     * Gets a record by ID.
+     * An exception is thrown if the record was not found.
+     *
+     * @param int        $id     the ID of the record
+     * @param array|null $fields Fields to select - Leave empty to select all fields
+     *
+     * @return array The record row
+     */
+    public function read(int $id, ?array $fields = []): array;
 
     /**
      * Insert a new record.
@@ -73,13 +83,6 @@ interface RecordRepositoryInterface
      * @return int[]
      */
     public function search(array|DomainInterface $criteria = null, array $orders = [], int $limit = null, int $offset = null): array;
-
-    /**
-     * Find ONE record by ID.
-     *
-     * @throws RecordNotFoundException when the record was not found
-     */
-    public function read(int $id, ?array $fields = []): array;
 
     /**
      * Find ONE record by ID.
@@ -127,9 +130,7 @@ interface RecordRepositoryInterface
 
     public function createQueryBuilder(): QueryBuilder;
 
-    public function createOrmQuery(OrmQueryMethod $method): OrmQuery;
-
-    public function getRecordManager(): RecordManager;
+    public function getRecordManager(): RecordManagerInterface;
 
     public function getModelName(): string;
 }

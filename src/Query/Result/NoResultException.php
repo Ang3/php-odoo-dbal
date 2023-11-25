@@ -9,11 +9,11 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Query;
+namespace Ang3\Component\Odoo\DBAL\Query\Result;
 
-use Ang3\Component\Odoo\DBAL\Exception\BaseException;
+use Ang3\Component\Odoo\DBAL\Exception\OdooDbalException;
 
-class NoResultException extends BaseException
+class NoResultException extends OdooDbalException
 {
     public function __construct(string $message = null)
     {

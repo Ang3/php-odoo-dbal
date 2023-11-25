@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Schema;
 
-use Ang3\Component\Odoo\DBAL\Exception\BaseException;
+use Ang3\Component\Odoo\DBAL\Exception\OdooDbalException;
 use Ang3\Component\Odoo\DBAL\Schema\Enum\ColumnType;
 
-class SchemaException extends BaseException
+class SchemaException extends OdooDbalException
 {
     public static function targetModelNotFound(string $modelName, string $fieldName): self
     {

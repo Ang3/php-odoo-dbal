@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Types;
 
-use Ang3\Component\Odoo\DBAL\Exception\BaseException;
+use Ang3\Component\Odoo\DBAL\Exception\OdooDbalException;
 
-class TypeException extends BaseException
+class TypeException extends OdooDbalException
 {
     public static function notRegistered(string $type): self
     {

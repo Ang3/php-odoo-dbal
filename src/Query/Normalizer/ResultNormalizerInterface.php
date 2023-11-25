@@ -15,5 +15,5 @@ use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 
 interface ResultNormalizerInterface
 {
-    public function normalize(ModelMetadata $model, array $rows = [], array $context = []): array;
+    public function normalize(ModelMetadata $model, array $payload = [], array $context = []): array;
 }

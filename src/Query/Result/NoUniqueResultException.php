@@ -9,7 +9,7 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Query;
+namespace Ang3\Component\Odoo\DBAL\Query\Result;
 
 class NoUniqueResultException extends \RuntimeException
 {

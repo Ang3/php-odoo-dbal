@@ -9,9 +9,9 @@ declare(strict_types=1);
  * with this source code in the file LICENSE.
  */
 
-namespace Ang3\Component\Odoo\DBAL\Repository;
+namespace Ang3\Component\Odoo\DBAL\Query;
 
-use Ang3\Component\Odoo\DBAL\Query\NoResultException;
+use Ang3\Component\Odoo\DBAL\Query\Result\NoResultException;
 
 class RecordNotFoundException extends NoResultException
 {

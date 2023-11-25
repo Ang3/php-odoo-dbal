@@ -11,30 +11,62 @@ declare(strict_types=1);
 
 namespace Ang3\Component\Odoo\DBAL\Query\Normalizer;
 
+use Ang3\Component\Odoo\DBAL\Query\Loader\LoaderFactory;
+use Ang3\Component\Odoo\DBAL\Query\Loader\LoaderFactoryInterface;
+use Ang3\Component\Odoo\DBAL\RecordManagerInterface;
 use Ang3\Component\Odoo\DBAL\Schema\Metadata\ModelMetadata;
 use Ang3\Component\Odoo\DBAL\Types\TypeConverterInterface;
 
 class ResultNormalizer implements ResultNormalizerInterface
 {
-    public function __construct(private readonly TypeConverterInterface $typeConverter) {}
+    private readonly LoaderFactoryInterface $loaderFactory;
 
-    public function normalize(ModelMetadata $model, array $rows = [], array $context = []): array
+    public function __construct(
+        private readonly RecordManagerInterface $recordManager,
+        private readonly TypeConverterInterface $typeConverter,
+        ?LoaderFactoryInterface $loaderFactory = null
+    ) {
+        $this->loaderFactory = $loaderFactory ?: new LoaderFactory($this->recordManager);
+    }
+
+    public function normalize(ModelMetadata $model, array $payload = [], array $context = []): array
     {
-        foreach ($rows as $index => $data) {
-            if (\is_array($data)) {
-                foreach ($data as $fieldName => $value) {
-                    $field = $model->getField($fieldName);
+        foreach ($payload as $fieldName => $value) {
+            $field = $model->getField($fieldName);
 
-                    // We skip ID and association fields
-                    if ('id' === $fieldName || $field->isAssociation()) {
+            // We skip the ID
+            if ('id' === $fieldName) {
+                continue;
+            }
+
+            if ($field->isAssociation() && $field->getTargetModelName()) {
+                if ($value && \is_array($value)) {
+                    if ($field->isSingleAssociation()) {
+                        [$id, $name] = [
+                            $value[0] ?? null,
+                            !empty($value[1]) ? (string) $value[1] : null,
+                        ];
+
+                        if (null === $id) {
+                            continue;
+                        }
+
+                        $payload[$fieldName] = $this->loaderFactory->single($field->getTargetModelName(), $id, $name);
+
                         continue;
                     }
 
-                    $rows[$index][$fieldName] = $this->typeConverter->convertToPhpValue($value, $field->getType()->value, $context);
+                    if ($field->isMultipleAssociation()) {
+                        $payload[$fieldName] = $this->loaderFactory->multiple($field->getTargetModelName(), $value);
+                    }
                 }
+
+                continue;
             }
+
+            $payload[$fieldName] = $this->typeConverter->convertToPhpValue($value, $field->getType()->value, $context);
         }
 
-        return $rows;
+        return $payload;
     }
 }
