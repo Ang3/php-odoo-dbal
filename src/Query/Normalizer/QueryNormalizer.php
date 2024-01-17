@@ -32,7 +32,7 @@ class QueryNormalizer implements QueryNormalizerInterface
         TypeConverterInterface $typeConverter = null
     ) {
         $this->typeConverter = $typeConverter ?: new TypeConverter();
-        $this->valueNormalizer = new ValueNormalizer($schema, $this->typeConverter);
+        $this->valueNormalizer = new ValueNormalizer($this->typeConverter);
         $this->domainNormalizer = new DomainNormalizer($schema, $this->valueNormalizer);
         $this->orderNormalizer = new OrderNormalizer();
     }

@@ -19,7 +19,6 @@ use Ang3\Component\Odoo\DBAL\Query\Factory\QueryFactoryInterface;
 use Ang3\Component\Odoo\DBAL\Query\Factory\ResultFactory;
 use Ang3\Component\Odoo\DBAL\Query\Factory\ResultFactoryInterface;
 use Ang3\Component\Odoo\DBAL\Query\Normalizer\QueryNormalizer;
-use Ang3\Component\Odoo\DBAL\Query\Normalizer\ResultNormalizer;
 use Ang3\Component\Odoo\DBAL\Query\QueryBuilder;
 use Ang3\Component\Odoo\DBAL\Query\QueryInterface;
 use Ang3\Component\Odoo\DBAL\Repository\RecordRepositoryInterface;
@@ -55,7 +54,7 @@ class RecordManager implements RecordManagerInterface
         $this->repositoryRegistry = new RepositoryRegistry($this);
         $this->typeConverter = $typeConverter ?: new TypeConverter();
         $this->queryFactory = $queryFactory ?: new QueryFactory($this, new QueryNormalizer($this->schema, $this->typeConverter));
-        $this->resultFactory = $resultFactory ?: new ResultFactory($this->schema, new ResultNormalizer($this, $this->typeConverter));
+        $this->resultFactory = $resultFactory ?: new ResultFactory($this->schema);
         $this->expressionBuilder = $expressionBuilder ?: new ExpressionBuilder();
     }
 

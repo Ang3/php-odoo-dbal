@@ -34,7 +34,7 @@ class ResultFactory implements ResultFactoryInterface
 
     public function __construct(
         private readonly SchemaInterface $schema,
-        private readonly ResultNormalizerInterface $resultNormalizer,
+        private readonly ?ResultNormalizerInterface $resultNormalizer = null,
         array $defaultContext = []
     ) {
         $this->defaultContext = array_merge($this->defaultContext, $defaultContext);
@@ -72,8 +72,10 @@ class ResultFactory implements ResultFactoryInterface
         $context = $this->getContext($context);
         $model = $this->schema->getModel($query->getName());
 
-        foreach ($data as $key => $row) {
-            $data[$key] = $this->resultNormalizer->normalize($model, $row, $context);
+        if ($this->resultNormalizer) {
+            foreach ($data as $key => $row) {
+                $data[$key] = $this->resultNormalizer->normalize($model, $row, $context);
+            }
         }
 
         return new RowResult($query, $data, $context);
