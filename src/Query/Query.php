@@ -28,7 +28,8 @@ class Query implements QueryInterface
         protected string $method,
         protected array $parameters = [],
         protected array $options = []
-    ) {}
+    ) {
+    }
 
     public static function fromInterface(QueryInterface $query): self
     {

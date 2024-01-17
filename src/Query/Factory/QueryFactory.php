@@ -23,7 +23,8 @@ class QueryFactory implements QueryFactoryInterface
     public function __construct(
         private readonly RecordManagerInterface $recordManager,
         private readonly QueryNormalizerInterface $queryNormalizer
-    ) {}
+    ) {
+    }
 
     public function createQueryBuilder(string $modelName): QueryBuilder
     {

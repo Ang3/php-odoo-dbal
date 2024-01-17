@@ -15,7 +15,9 @@ use Ang3\Component\Odoo\DBAL\RecordManagerInterface;
 
 class LoaderFactory implements LoaderFactoryInterface
 {
-    public function __construct(private readonly RecordManagerInterface $recordManager) {}
+    public function __construct(private readonly RecordManagerInterface $recordManager)
+    {
+    }
 
     public function single(string $modelName, int $id, string $name = null): SingleLoader
     {

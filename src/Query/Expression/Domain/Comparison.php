@@ -56,7 +56,9 @@ class Comparison implements DomainInterface
         self::NOT_IN,
     ];
 
-    public function __construct(private string $fieldName, private string $operator, private mixed $value) {}
+    public function __construct(private string $fieldName, private string $operator, private mixed $value)
+    {
+    }
 
     public function __clone()
     {

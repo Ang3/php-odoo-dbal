@@ -25,7 +25,8 @@ class ValueNormalizer
     public function __construct(
         private readonly SchemaInterface $schema,
         private readonly TypeConverterInterface $typeConverter
-    ) {}
+    ) {
+    }
 
     public function normalize(ModelMetadata $model, array $values = [], array $context = []): array
     {

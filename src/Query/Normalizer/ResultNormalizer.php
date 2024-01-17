@@ -40,8 +40,8 @@ class ResultNormalizer implements ResultNormalizerInterface
             }
 
             if ($field->isAssociation() && $field->getTargetModelName()) {
-                if ($value && \is_array($value)) {
-                    if ($field->isSingleAssociation()) {
+                if ($field->isSingleAssociation()) {
+                    if ($value && \is_array($value)) {
                         [$id, $name] = [
                             $value[0] ?? null,
                             !empty($value[1]) ? (string) $value[1] : null,
@@ -52,13 +52,15 @@ class ResultNormalizer implements ResultNormalizerInterface
                         }
 
                         $payload[$fieldName] = $this->loaderFactory->single($field->getTargetModelName(), $id, $name);
-
-                        continue;
+                    } else {
+                        $payload[$fieldName] = null;
                     }
 
-                    if ($field->isMultipleAssociation()) {
-                        $payload[$fieldName] = $this->loaderFactory->multiple($field->getTargetModelName(), $value);
-                    }
+                    continue;
+                }
+
+                if ($field->isMultipleAssociation()) {
+                    $payload[$fieldName] = $this->loaderFactory->multiple($field->getTargetModelName(), $value);
                 }
 
                 continue;

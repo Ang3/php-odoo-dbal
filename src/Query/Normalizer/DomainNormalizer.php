@@ -22,7 +22,8 @@ class DomainNormalizer
     public function __construct(
         private readonly SchemaInterface $schema,
         private readonly ValueNormalizer $valueNormalizer
-    ) {}
+    ) {
+    }
 
     public function normalize(ModelMetadata $model, DomainInterface $domain): array
     {
